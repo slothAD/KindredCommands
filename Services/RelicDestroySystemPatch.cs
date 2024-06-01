@@ -22,7 +22,7 @@ internal class RelicDestroySystemPatch
 
 	static bool queryInitialized = false;
 
-	public static void Prefix(RelicDestroySystem __instance)
+	public static void Prefix()
 	{
 		if (!queryInitialized)
 		{
@@ -36,5 +36,10 @@ internal class RelicDestroySystemPatch
 			Core.SoulshardService.HandleSoulshardDestroy(entity);
 		}
 		entities.Dispose();
+	}
+
+	public static void Postfix()
+	{
+		Core.SoulshardService.RefreshWillDrop();
 	}
 }

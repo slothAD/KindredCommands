@@ -62,7 +62,7 @@ internal class SoulshardService
 		_ => 1
 	};
 
-	void RefreshWillDrop()
+	public void RefreshWillDrop()
 	{
 		if (Core.ServerGameSettingsSystem._Settings.RelicSpawnType == RelicSpawnType.Plentiful) return;
 		var relicDropped = GetRelicDropped();
@@ -151,15 +151,5 @@ internal class SoulshardService
 	{
 		if (!droppedSoulshards.Remove(soulshardItemEntity))
 			spawnedSoulshards.Remove(soulshardItemEntity);
-
-		if (Core.ServerGameSettingsSystem._Settings.RelicSpawnType == RelicSpawnType.Plentiful) return;
-
-		var relicType = soulshardItemEntity.Read<Relic>().RelicType;
-		var relicCount = droppedSoulshards.Where(e => e.Read<Relic>().RelicType == relicType).Count();
-
-		// Let the destruction system handle this normally if we are below the limit
-		if (relicCount < ShardDropLimit(relicType)) return;
-
-		soulshardItemEntity.Remove<Relic>();
 	}
 }
