@@ -4,6 +4,7 @@ using BepInEx.Unity.IL2CPP;
 using KindredCommands.Models;
 using HarmonyLib;
 using ProjectM;
+using UnityEngine;
 using VampireCommandFramework;
 
 namespace KindredCommands;
@@ -18,6 +19,9 @@ public class Plugin : BasePlugin
 
 	public override void Load()
 	{
+		if (Application.productName != "VRisingServer")
+			return;
+
 		PluginLog = Log;
 		// Plugin startup logic
 		Log.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} version {MyPluginInfo.PLUGIN_VERSION} is loaded!");
