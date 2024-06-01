@@ -2,6 +2,7 @@ using System.Text;
 using KindredCommands.Commands.Converters;
 using ProjectM;
 using ProjectM.Shared;
+using Unity.Entities;
 using VampireCommandFramework;
 
 namespace KindredCommands.Commands;
@@ -107,6 +108,36 @@ internal static class DurabilityCommands
 			ctx.Reply(sb.ToString());
 		}
 
+		/*[Command("sharddurability", "sd", description: "Sets the durability on all shards in your inventory to a specified amount", adminOnly: true)]
+		public static void ShardDurabilityCommand(ChatCommandContext ctx, float durability)
+		{
+			if (durability < 0)
+			{
+				throw ctx.Error("Durability must be zero or greater.");
+			}
+
+			foreach(var shard in Helper.GetEntitiesByComponentType<Relic>())
+			{
+				var relic = shard.Read<Relic>();
+				if (relic.RelicType == RelicType.None) continue;
+
+			    var itemContainer = shard.Read<InventoryItem>().ContainerEntity;
+				if (itemContainer.Equals(Entity.Null)) continue;
+
+				if (!itemContainer.Has<InventoryConnection>()) continue;
+				
+				var inventoryOwner = itemContainer.Read<InventoryConnection>().InventoryOwner;
+				if (inventoryOwner != ctx.Event.SenderCharacterEntity) continue;
+
+				var durabilityData = shard.Read<Durability>();
+				durabilityData.Value = durability;
+				shard.Write(durabilityData);
+			}
+
+			ctx.Reply($"Shard durability set to {durability}.");
+		}
+
+		*/
 /*
 		[Command("showhair", "sh", description: "Toggles hair visibility.")]
 		public static void ShowHairCommand(ChatCommandContext ctx)
