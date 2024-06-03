@@ -80,7 +80,7 @@ internal class DropItemService
 			SetDroppedShardLifetimeNoSave(Core.ConfigSettings.ShardDropLifetime);
 		}
 
-		CleanContainerlessItems();
+		//CleanContainerlessItems();
 	}
 
 	IEnumerable<Entity> GetDropItems()
