@@ -16,7 +16,10 @@ internal class SoulshardService
 	readonly List<Entity> spawnedSoulshards = []; // Tracked with the ScriptSpawn tag
 
 	EntityQuery relicDroppedQuery;
+	EntityQuery soulshardAndPrefabsQuery;
 	EntityQuery soulshardPrefabsQuery;
+
+	public bool IsPlentiful => Core.ServerGameSettingsSystem._Settings.RelicSpawnType == RelicSpawnType.Plentiful;
 
 	public SoulshardService()
 	{
@@ -30,6 +33,17 @@ internal class SoulshardService
 		};
 
 		relicDroppedQuery = Core.EntityManager.CreateEntityQuery(relicDroppedQueryDesc);
+
+		EntityQueryDesc soulshardAndPrefabsQueryDesc = new()
+		{
+			All = new ComponentType[]
+			{
+				new(Il2CppType.Of<ItemData>(), ComponentType.AccessMode.ReadOnly),
+				new(Il2CppType.Of<Relic>(), ComponentType.AccessMode.ReadOnly),
+			},
+			Options = EntityQueryOptions.IncludePrefab
+		};
+		soulshardAndPrefabsQuery = Core.EntityManager.CreateEntityQuery(soulshardAndPrefabsQueryDesc);
 
 		EntityQueryDesc soulshardPrefabsQueryDesc = new()
 		{
@@ -51,6 +65,9 @@ internal class SoulshardService
 				droppedSoulshards.Add(entity);
 		}
 		RefreshWillDrop();
+
+		if (Core.ConfigSettings.ShardDurabilityTime.HasValue)
+			SetShardDurabilityNoSave(Core.ConfigSettings.ShardDurabilityTime);
 	}
 
 	int ShardDropLimit(RelicType relicType) => relicType switch
@@ -64,7 +81,7 @@ internal class SoulshardService
 
 	public void RefreshWillDrop()
 	{
-		if (Core.ServerGameSettingsSystem._Settings.RelicSpawnType == RelicSpawnType.Plentiful) return;
+		if (IsPlentiful || !Core.ConfigSettings.ShardDropManagementEnabled) return;
 		var relicDropped = GetRelicDropped();
 		for (var relicType = RelicType.TheMonster; relicType <= RelicType.Dracula; relicType++)
 		{
@@ -151,5 +168,33 @@ internal class SoulshardService
 	{
 		if (!droppedSoulshards.Remove(soulshardItemEntity))
 			spawnedSoulshards.Remove(soulshardItemEntity);
+	}
+
+	public void SetShardDurabilityTime(int? durabilityTime)
+	{
+		Core.ConfigSettings.ShardDurabilityTime = durabilityTime;
+
+		SetShardDurabilityNoSave(durabilityTime);
+	}
+
+	void SetShardDurabilityNoSave(int? durabilityTime)
+	{
+		var entities = soulshardAndPrefabsQuery.ToEntityArray(Allocator.Temp);
+		foreach (var entity in entities)
+		{
+			if (!entity.Has<LoseDurabilityOverTime>())
+				continue;
+
+			var ldot = entity.Read<LoseDurabilityOverTime>();
+			ldot.TimeUntilBroken = durabilityTime ?? 129600;
+			entity.Write(ldot);
+		}
+		entities.Dispose();
+	}
+
+	public bool ToggleShardDropManagement()
+	{
+		Core.ConfigSettings.ShardDropManagementEnabled = !Core.ConfigSettings.ShardDropManagementEnabled;
+		return Core.ConfigSettings.ShardDropManagementEnabled;
 	}
 }

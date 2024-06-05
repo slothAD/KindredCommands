@@ -54,6 +54,19 @@ internal static class DurabilityCommands
 			}
 		}
 
+		[Command("togglesoulsharddropmanagement", "tssdm", description: "Toggles whether KindredCommands will do soulshard drop management.", adminOnly: true)]
+		public static void ToggleSoulshardDropManagementCommand(ChatCommandContext ctx)
+		{
+			if (Core.SoulshardService.ToggleShardDropManagement())
+			{
+				ctx.Reply("Soulshard drop management by KindredCommands enabled.");
+			}
+			else
+			{
+				ctx.Reply("Soulshard drop management by KindredCommands disabled.");
+			}
+		}
+
 		[Command("soulshardlimit", "ssl", description: "How many soulshards can be dropped before a boss won't drop a new one if the relic Unique setting is active.", adminOnly: true)]
 		public static void SoulshardLimitCommand(ChatCommandContext ctx, int limit, RelicType shardType=RelicType.None)
 		{
@@ -79,47 +92,52 @@ internal static class DurabilityCommands
 			var soulshardStatus = Core.SoulshardService.GetSoulshardStatus();
 			sb.AppendLine("\nSoulshard Status");
 			sb.AppendLine($"Can Fly: {(Core.ConfigSettings.SoulshardsFlightRestricted ? "<color=red>No</color>" : "<color=green>Yes</color>")}");
-			
 
 			var notPlentiful = Core.ServerGameSettingsSystem._Settings.RelicSpawnType == RelicSpawnType.Unique;
 
+			var managesDrops = notPlentiful && Core.ConfigSettings.ShardDropManagementEnabled;
 			var theMonster = soulshardStatus[(int)RelicType.TheMonster];
 			var solarus = soulshardStatus[(int)RelicType.Solarus];
 			var wingedHorror = soulshardStatus[(int)RelicType.WingedHorror];
 			var dracula = soulshardStatus[(int)RelicType.Dracula];
 			sb.Append($"The Monster: <color=white>{theMonster.droppedCount}</color>x");
-			if (notPlentiful) sb.Append($" out of <color=white>{Core.ConfigSettings.ShardMonsterDropLimit}</color>x");
+			if (managesDrops) sb.Append($" out of <color=white>{Core.ConfigSettings.ShardMonsterDropLimit}</color>x");
 			sb.AppendLine($" dropped <color=white>{theMonster.spawnedCount}</color>x spawned{(notPlentiful ? (theMonster.willDrop ? " <color=green>Will</color> drop" : " <color=red>Won't</color> drop") : "")}");
 
 			sb.Append($"Solarus: <color=white>{solarus.droppedCount}</color>x ");
-			if (notPlentiful) sb.Append($"out of <color=white>{Core.ConfigSettings.ShardSolarusDropLimit}</color>x");
+			if (managesDrops) sb.Append($"out of <color=white>{Core.ConfigSettings.ShardSolarusDropLimit}</color>x");
 			sb.AppendLine($" dropped <color=white>{solarus.spawnedCount}</color>x spawned{(notPlentiful ? (solarus.willDrop ? " <color=green>Will</color> drop" : " <color=red>Won't</color> drop") : "")}");
 
 			ctx.Reply(sb.ToString());
 			sb.Clear();
 
 			sb.Append($"Winged Horror: <color=white>{wingedHorror.droppedCount}</color>x");
-			if (notPlentiful) sb.Append($" out of <color=white>{Core.ConfigSettings.ShardWingedHorrorDropLimit}</color>x");
+			if (managesDrops) sb.Append($" out of <color=white>{Core.ConfigSettings.ShardWingedHorrorDropLimit}</color>x");
 			sb.AppendLine($" dropped <color=white>{wingedHorror.spawnedCount}</color>x spawned{(notPlentiful ? (wingedHorror.willDrop ? " <color=green>Will</color> drop" : " <color=red>Won't</color> drop") : "")}");
 
 			sb.Append($"Dracula: <color=white>{dracula.droppedCount}</color>x");
-			if (notPlentiful) sb.Append($" out of <color=white>{Core.ConfigSettings.ShardDraculaDropLimit}</color>x");
+			if (managesDrops) sb.Append($" out of <color=white>{Core.ConfigSettings.ShardDraculaDropLimit}</color>x");
 			sb.AppendLine($" dropped <color=white>{dracula.spawnedCount}</color>x spawned{(notPlentiful ? (dracula.willDrop ? " <color=green>Will</color> drop" : " <color=red>Won't</color> drop") : "")}");
 			ctx.Reply(sb.ToString());
 		}
 
-		/*[Command("sharddurability", "sd", description: "Sets the durability on all shards in your inventory to a specified amount", adminOnly: true)]
-		public static void ShardDurabilityCommand(ChatCommandContext ctx, float durability)
+		[Command("soulsharddurability", "ssd", description: "Sets the durability on all soulshards in the player's inventory to a specified amount", adminOnly: true)]
+		public static void ShardDurabilityCommand(ChatCommandContext ctx, float durability, FoundPlayer player = null)
 		{
+			var charEntity = player?.Value.CharEntity ?? ctx.Event.SenderCharacterEntity;
+
 			if (durability < 0)
 			{
 				throw ctx.Error("Durability must be zero or greater.");
 			}
 
+			var shardsChanged = 0;
 			foreach(var shard in Helper.GetEntitiesByComponentType<Relic>())
 			{
 				var relic = shard.Read<Relic>();
 				if (relic.RelicType == RelicType.None) continue;
+
+				if (!shard.Has<InventoryItem>()) continue;
 
 			    var itemContainer = shard.Read<InventoryItem>().ContainerEntity;
 				if (itemContainer.Equals(Entity.Null)) continue;
@@ -127,18 +145,40 @@ internal static class DurabilityCommands
 				if (!itemContainer.Has<InventoryConnection>()) continue;
 				
 				var inventoryOwner = itemContainer.Read<InventoryConnection>().InventoryOwner;
-				if (inventoryOwner != ctx.Event.SenderCharacterEntity) continue;
+				if (inventoryOwner != charEntity) continue;
 
 				var durabilityData = shard.Read<Durability>();
 				durabilityData.Value = durability;
 				shard.Write(durabilityData);
+
+				shardsChanged += 1;
 			}
 
-			ctx.Reply($"Shard durability set to {durability}.");
+			var playerName = charEntity.Read<PlayerCharacter>().Name;
+			if (shardsChanged > 0)
+				ctx.Reply($"<color=white>{shardsChanged}</color>x soulshards had their durability set to {durability} for <color=yellow>{playerName}</color>.");
+			else
+				ctx.Reply($"No soulshards found in <color=yellow>{playerName}</color>'s inventory.");
 		}
 
-		*/
-/*
+		[Command("soulsharddurabilitytime", "ssdt", description: "How many seconds will soulshards last before they break", adminOnly: true)]
+		public static void ShardDurabilityTimeCommand(ChatCommandContext ctx, int? seconds=null)
+		{
+			if (seconds.HasValue && seconds < 0)
+			{
+				throw ctx.Error("Time must be zero or greater.");
+			}
+			Core.SoulshardService.SetShardDurabilityTime(seconds);
+			if (seconds == null)
+			{
+				ctx.Reply("Soulshard durability time restored to default.");
+			}
+			else
+			{
+				ctx.Reply($"Soulshard durability time set to {seconds} seconds.");
+			}
+		}
+     /*
 		[Command("showhair", "sh", description: "Toggles hair visibility.")]
 		public static void ShowHairCommand(ChatCommandContext ctx)
 		{
