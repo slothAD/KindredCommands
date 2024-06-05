@@ -83,6 +83,32 @@ internal class ConfigSettingsService
 		}
 	}
 
+	public int? ShardDurabilityTime
+	{
+		get
+		{
+			return config.ShardDurabilityTime;
+		}
+		set
+		{
+			config.ShardDurabilityTime = value;
+			SaveConfig();
+		}
+	}
+
+	public bool ShardDropManagementEnabled
+	{
+		get
+		{
+			return config.ShardDropManagementEnabled;
+		}
+		set
+		{
+			config.ShardDropManagementEnabled = value;
+			SaveConfig();
+		}
+	}
+
 	public int ShardDraculaDropLimit
 	{
 		get
@@ -142,6 +168,7 @@ internal class ConfigSettingsService
 			SoulshardsRestricted = true;
 			ItemDropLifetimeWhenDisabled = 300;
 			ShardDropLimit = 1;
+			ShardDropManagementEnabled = true;
 		}
 
 		public bool RevealMapToAll { get; set; }
@@ -150,7 +177,9 @@ internal class ConfigSettingsService
 		public int ItemDropLifetime { get; set; }
 		public int ItemDropLifetimeWhenDisabled { get; set; }
 		public int ShardDropLifetime { get; set; }
+		public bool ShardDropManagementEnabled { get; set; }
 		public int? ShardDropLimit { get; set; }
+		public int? ShardDurabilityTime { get; set; }
 		public int? ShardDraculaDropLimit { get; set; }
 		public int? ShardWingedHorrorDropLimit { get; set; }
 		public int? ShardMonsterDropLimit { get; set; }
@@ -194,7 +223,7 @@ internal class ConfigSettingsService
 	{
 		if(!Directory.Exists(CONFIG_PATH))
 			Directory.CreateDirectory(CONFIG_PATH);
-		var json = JsonSerializer.Serialize(config, new JsonSerializerOptions { WriteIndented = true, IncludeFields = true });
+		var json = JsonSerializer.Serialize(config, new JsonSerializerOptions { WriteIndented = true, IncludeFields = true, DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull });
 		File.WriteAllText(SETTINGS_PATH, json);
 	}
 }
