@@ -1,7 +1,9 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using KindredCommands.Commands.Converters;
 using KindredCommands.Data;
+using KindredCommands.Models;
 using ProjectM;
 using ProjectM.Network;
 using Unity.Transforms;
@@ -108,6 +110,7 @@ internal class GodCommands
 				var immaterial = Core.BoostedPlayerService.IsPlayerImmaterial(charEntity);
 				var invincible = Core.BoostedPlayerService.IsPlayerInvincible(charEntity);
 				var shrouded = Core.BoostedPlayerService.IsPlayerShrouded(charEntity);
+				var sunInvulnerable = Core.BoostedPlayerService.IsSunInvulnerable(charEntity);
 
 				if(attackSpeedSet)
 					sb.AppendLine($"Attack Speed: <color=white>{attackSpeed}</color>");
@@ -135,8 +138,11 @@ internal class GodCommands
 					flags.Add("<color=white>Invincible</color>");
 				if(shrouded)
 					flags.Add("<color=white>Shrouded</color>");
-				if(flags.Count > 0)
+				if (sunInvulnerable)
+					flags.Add("<color=white>Sun Invulnerable</color>");
+				if (flags.Count > 0)
 					sb.AppendLine($"Has: {string.Join(", ", flags)}");
+
 
 				ctx.Reply(sb.ToString());
 			}
@@ -412,5 +418,63 @@ internal class GodCommands
 			}
 			Core.BoostedPlayerService.UpdateBoostedPlayer(charEntity);
 		}
-	}
+
+		[Command("suninvulnerable", "suninv", adminOnly: true)]
+		public static void SunInvulnerable(ChatCommandContext ctx, OnlinePlayer player = null)
+		{
+			var name = player?.Value.UserEntity.Read<User>().CharacterName ?? ctx.Event.User.CharacterName;
+			var charEntity = player?.Value.CharEntity ?? ctx.Event.SenderCharacterEntity;
+			if (Core.BoostedPlayerService.ToggleSunInvulnerable(charEntity))
+			{
+				ctx.Reply($"Sun invulnerability added to <color=white>{name}</color>");
+			}
+			else if (Core.BoostedPlayerService.IsPlayerInvincible(charEntity))
+			{
+				ctx.Reply($"Sun invulnerability removed from <color=white>{name}</color> but they are still receiving it from invincibility");
+				return;
+			}
+			else
+			{
+				ctx.Reply($"Sun invulnerability removed from <color=white>{name}</color>");
+			}
+			Core.BoostedPlayerService.UpdateBoostedPlayer(charEntity);
+		}
+
+		[Command("players", description: "provides a list of all boosted players", adminOnly: true)]
+		public static void ListBoostedPlayers(ChatCommandContext ctx)
+		{
+			var boostedPlayers = Core.BoostedPlayerService.GetBoostedPlayers();
+			if (boostedPlayers == null)
+			{
+				ctx.Reply("No players are currently boosted");
+				return;
+			}
+
+			var sb = new StringBuilder();
+			sb.Append("Boosted players: ");
+			var first = true;
+			foreach (var player in boostedPlayers)
+			{
+				var playerCharacter = player.Read<PlayerCharacter>();
+				var name = $"<color=white>{playerCharacter.Name}</color>";
+				if (sb.Length + name.Length + 2 > Core.MAX_REPLY_LENGTH)
+				{
+					ctx.Reply(sb.ToString());
+					sb.Clear();
+					first = true;
+				}
+				if (first)
+					sb.Append(name);
+				else
+					sb.Append($", {name}");
+				first = false;
+			}
+			ctx.Reply(sb.ToString());
+
+		}
+
+
+
+
+		}
 }

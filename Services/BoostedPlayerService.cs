@@ -6,7 +6,6 @@ using ProjectM.Gameplay.Scripting;
 using ProjectM.Scripting;
 using Stunlock.Core;
 using Unity.Entities;
-using UnityEngine;
 
 namespace KindredCommands.Services
 {
@@ -25,6 +24,7 @@ namespace KindredCommands.Services
 		readonly HashSet<Entity> immaterialPlayers = [];
 		readonly HashSet<Entity> invinciblePlayers = [];
 		readonly HashSet<Entity> shroudedPlayers = [];
+		readonly HashSet<Entity> sunInvulnPlayers = [];
 
 		public BoostedPlayerService()
 		{
@@ -37,9 +37,17 @@ namespace KindredCommands.Services
 				playerSpeeds.ContainsKey(charEntity) || playerYield.ContainsKey(charEntity) || flyingPlayers.Contains(charEntity) || 
 				noAggroPlayers.Contains(charEntity) || noBlooddrainPlayers.Contains(charEntity) || noDurabilityPlayers.Contains(charEntity) ||
 				noCooldownPlayers.Contains(charEntity) || immaterialPlayers.Contains(charEntity) || invinciblePlayers.Contains(charEntity) ||
-				shroudedPlayers.Contains(charEntity);
+				shroudedPlayers.Contains(charEntity) || sunInvulnPlayers.Contains(charEntity);
 		}
 
+		public IEnumerable<Entity> GetBoostedPlayers()
+		{
+			foreach (var charEntity in Helper.GetEntitiesByComponentType<PlayerCharacter>(includeDisabled: true))
+			{
+				if (IsBoostedPlayer(charEntity))
+					yield return charEntity;
+			}
+		}
 		public void UpdateBoostedPlayer(Entity charEntity)
 		{
 			if(!IsBoostedPlayer(charEntity))
@@ -131,6 +139,7 @@ namespace KindredCommands.Services
 			immaterialPlayers.Remove(charEntity);
 			invinciblePlayers.Remove(charEntity);
 			shroudedPlayers.Remove(charEntity);
+			sunInvulnPlayers.Remove(charEntity);
 
 			ClearExtraBuffs(charEntity);
 		}
@@ -325,6 +334,22 @@ namespace KindredCommands.Services
 			return invinciblePlayers.Contains(charEntity);
 		}
 
+		public bool ToggleSunInvulnerable(Entity charEntity)
+		{
+			if (sunInvulnPlayers.Contains(charEntity))
+			{
+				sunInvulnPlayers.Remove(charEntity);
+				return false;
+			}
+			sunInvulnPlayers.Add(charEntity);
+			return true;
+		}
+
+		public bool IsSunInvulnerable(Entity charEntity)
+		{
+			return sunInvulnPlayers.Contains(charEntity);
+		}
+
 		public bool TogglePlayerShrouded(Entity charEntity)
 		{
 			if (shroudedPlayers.Contains(charEntity))
@@ -473,6 +498,11 @@ namespace KindredCommands.Services
 				}
 			}
 
+			if (sunInvulnPlayers.Contains(charEntity))
+			{
+				buffModificationFlags |= (long)(BuffModificationTypes.ImmuneToSun);
+			}
+
 			if (buffModificationFlags != 0)
 			{
 				buffEntity.Add<BuffModificationFlagData>();
@@ -500,7 +530,7 @@ namespace KindredCommands.Services
 
 		void LoadCurrentPlayerBoosts()
 		{
-			foreach(var charEntity in Helper.GetEntitiesByComponentType<PlayerCharacter>())
+			foreach(var charEntity in Helper.GetEntitiesByComponentType<PlayerCharacter>(includeDisabled: true))
 			{
 				LoadPlayerBoosts(charEntity);
 			}
@@ -566,6 +596,10 @@ namespace KindredCommands.Services
 					if ((buffModificationFlagData.ModificationTypes & (long)BuffModificationTypes.Invulnerable) != 0)
 					{
 						invinciblePlayers.Add(charEntity);
+					}
+					else if ((buffModificationFlagData.ModificationTypes & (long)BuffModificationTypes.ImmuneToSun) != 0)
+					{
+						sunInvulnPlayers.Add(charEntity);
 					}
 				}
 			}
