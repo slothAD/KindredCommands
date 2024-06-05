@@ -65,6 +65,9 @@ Feel free to reach out to me on discord (odjit) if you have any questions or nee
   - will toggle Headgear being bloodbound or not on the server. (Whether or not it drops on death). Saves out to config file to persist through restarts.
   - Example: *.gear headgear*
   - Shortcut: *.gear hg*
+- `.gear togglesoulsharddropmanagement`
+  - Toggles whether KindredCommands will do soulshard drop management.
+  - Shortcut: *.gear tssdm*
 - `.gear soulshardflight`
   - will toggle Soul Shards being batbound or not on the server. (Whether or not you can fly with them). Saves out to config file to persist through restarts.
   - Shortcut: *.gear ssf*
@@ -72,6 +75,14 @@ Feel free to reach out to me on discord (odjit) if you have any questions or nee
   - will set the limit of each type soul shards a server can have. [Monster, Dracula, Winged, Solarus]
   - Example: *.gear soulshardlimit 5 Dracula*
   - Shortcut: *.gear ssl*
+- `.gear soulsharddurability (amount) (player)`
+  - will set the durability of all soulshards in the player's inventory to the amount specified. 
+  - Example: *.gear soulsharddurability 2500 Bob*
+  - Shortcut: *.gear ssd*
+- `.gear soulshardurabilitytime (seconds)`
+  - How many seconds will soulshards last before they break. Do not enter anything for seconds if you want default behavior.  
+  - Example: *.gear soulshardurabilitytime 60*
+  - Shortcut: *.gear ssdt*
 - `.dropitems lifetime (seconds)`
   - will set the lifetime of dropped items while players are present to the seconds specified. Default is 300 seconds. This is a server wide setting, and will persist through restarts.Does not apply to shards or Player Containers.
   - Example: *.dropitems lifetime 600*
@@ -166,9 +177,9 @@ Feel free to reach out to me on discord (odjit) if you have any questions or nee
   - will toggle godmode off a player named, or the user if no one is named.	Also removes boosts.																							
   - Example: *.mortal Bob*
 - `.boost (Type) (Player)`
-  - will boost a player with certain types: noaggro, noblooddrain, nocooldown, nodurability, immaterial, invincible, shrouded, fly. Remove via use of same command again as a toggle or use .mortal to strip all.
+  - will boost a player with certain types: noaggro, noblooddrain, nocooldown, nodurability, immaterial, invincible, shrouded, fly, suninvulnerable. Remove via use of same command again as a toggle or use .mortal to strip all.
   - Example: *.boost immaterial Bob*
-  - Shortcuts: *.boost (na, nb, nc, nd, i, inv, sh, f)*
+  - Shortcuts: *.boost (na, nb, nc, nd, i, inv, sh, f, suninv)*
 - `.boost (Type) (Ammount) (Player)`
   - will boost a player's stats to the amount specified. Types with amounts are the following: attackspeed, damage, health, speed, and yield. 																							
   - Example: *.boost damage 100 Bob*
@@ -180,6 +191,8 @@ Feel free to reach out to me on discord (odjit) if you have any questions or nee
 - `.boost state (Player)`
   - will list all boosts on a player.																							
   - Example: *.boost state Bob*
+- `.boost players`
+  - provides a list of all boosted players
 - `.spectate (Player)`
   - will set the player into spectate mode, where they are invisible and cannot interact with anything. Use again to remove it and teleport them to their prior position.
   - Example: *.spectate Bob*
