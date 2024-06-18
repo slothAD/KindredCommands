@@ -1,9 +1,12 @@
+using System;
 using System.Collections.Generic;
 using ProjectM;
 using ProjectM.Network;
 using ProjectM.Shared;
 using Stunlock.Core;
+using Unity.Collections;
 using Unity.Entities;
+using Unity.Entities.UniversalDelegates;
 using Unity.Transforms;
 using VampireCommandFramework;
 
@@ -34,13 +37,14 @@ namespace KindredCommands.Commands
 			});
 		}
 
-		[Command("cleancontainerlessshards", "ccs", description: "Destroys all items that are not in a container", adminOnly: true)]
+		[Command("cleancontainerlessshards", description: "Destroys all items that are not in a container", adminOnly: true)]
 		public static void CleanContainerlessShards(ChatCommandContext ctx)
 		{
 			var destroyedPrefabs = new Dictionary<PrefabGUID, int>();
 			foreach (var item in Helper.GetEntitiesByComponentTypes<InventoryItem, Relic>())
 			{
 				if (!item.Read<InventoryItem>().ContainerEntity.Equals(Entity.Null)) continue;
+				if (item.Has<Equippable>() && !item.Read<Equippable>().EquipTarget.GetEntityOnServer().Equals(Entity.Null)) continue;
 
 				DestroyEntityAndAttached(item, destroyedPrefabs);
 			}
@@ -72,5 +76,32 @@ namespace KindredCommands.Commands
 			}
 			DestroyUtility.Destroy(Core.EntityManager, entity);
 		}
+
+		/*[Command("destroyallshards", "das", description: "Destroys all soulshards in the world, containers, and inventories", adminOnly: true)]
+		public static void DestroyAllShards(ChatCommandContext ctx)
+		{
+			foreach (var charEntity in Helper.GetEntitiesByComponentType<PlayerCharacter>())
+			{
+				var equipment = charEntity.Read<Equipment>();
+				var grimoire = equipment.GrimoireSlot;
+				if (grimoire.Equals(Entity.Null)) continue;
+				if (grimoire.Equals(Entity.ReferenceEquals(Relic)
+				{
+					equipment.UnequipItem(charEntity, EquipmentType.MagicSource);
+				}
+			}
+			var destroyedPrefabs = new Dictionary<PrefabGUID, int>();
+			foreach (var shard in Helper.GetEntitiesByComponentType<Relic>())
+			{
+				DestroyEntityAndAttached(shard, destroyedPrefabs);
+			}
+
+			foreach (var (guid, count) in destroyedPrefabs)
+			{
+				ctx.Reply($"Destroyed <color=white>{count}</color>x <color=yellow>{guid.LookupName()}</color>");
+				Core.Log.LogInfo($"Destroyed {count}x {guid.LookupName()}");
+			}
+		}*/
+
 	}
 }
