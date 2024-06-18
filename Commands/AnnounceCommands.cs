@@ -28,7 +28,7 @@ public class AnnounceCommands
 				return;
 			}
 
-			if (!oneTime && announcementTime < serverTime)
+			if (announcementTime < serverTime)
 				announcementTime = announcementTime.AddDays(1);
 
 			if(!Core.AnnouncementsService.AddAnnouncement(name, message, time, oneTime))
