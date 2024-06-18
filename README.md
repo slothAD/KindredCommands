@@ -34,6 +34,7 @@ Feel free to reach out to me on discord (odjit) if you have any questions or nee
 - `.announce add (Name) (Message) (Time) (OneTime: True/False)`
   - Adds an announcement to the list of announcements. Time is server time. OneTime true will only do it once, false will repeat the announcement every day at the same time. (Default False)
   - Example: *.announce add Spooky “It is the spooky hour!” 12:00AM false*
+	- Additional Note: Copy pasting quotes "" makes the game not recognize them as quotes. You will need to retype them manually in game.
   - Shortcut: *.announce a*
 - `.announce remove (Name)`
   - Removes an announcement from the list of announcements.
@@ -292,7 +293,8 @@ Feel free to reach out to me on discord (odjit) if you have any questions or nee
   - Shortcut: *.boss tt*
 - `.forcerespawn (range)`
   - Sets the chain transition time for nearby spawn chains to now to force them to respawn if they can. Handy for growing plants without adding time.
-
+- `.cleancontainerlessshards`
+  - Will clean up the map of any shards that are not in a proper container, including map icon. Clean up command for owners running old mods on post-hotfix game.
 
 ## Player Accessible Commands:
 - `.afk`
