@@ -166,6 +166,13 @@ internal class RegionService
 		SaveRegions();
 	}
 
+	public int GetPlayerMaxLevel(string playerName)
+	{
+		if (maxPlayerLevels.TryGetValue(playerName, out var level))
+			return Mathf.FloorToInt(level);
+		return 0;
+	}
+
 	IEnumerator CheckPlayerRegions()
 	{
 		while(true)
