@@ -2,10 +2,10 @@ using System.Linq;
 using KindredCommands.Data;
 using KindredCommands.Models;
 using ProjectM;
+using ProjectM.Behaviours;
 using ProjectM.Gameplay.Scripting;
 using ProjectM.Scripting;
 using Stunlock.Core;
-using UnitKiller;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -95,12 +95,17 @@ internal static class SpawnCommands
 	[Command("despawnnpc", "dspwn", description: "Despawns CHAR_ npcs", adminOnly: true)]
 	public static void DespawnNpc(ChatCommandContext ctx, CharacterUnit character, float radius = 25f)
 	{
-		var mobs = MobUtility.ClosestMobs(ctx, radius, character.Prefab);
-		mobs.ForEach(e => StatChangeUtility.KillEntity(Core.EntityManager, e,
-						ctx.Event.SenderCharacterEntity, Time.time, StatChangeReason.Default, true));
-		ctx.Reply($"You've killed {mobs.Count} {character.Name.Bold()} at your position. You murderer!");
+		var charEntity = ctx.Event.SenderCharacterEntity;
+		var pos = charEntity.Read<Translation>().Value.xz;
+		var entities = Helper.GetAllEntitiesInRadius<PrefabGUID>(pos, radius).Where(e => e.Read<PrefabGUID>().Equals(character.Prefab));
+		var count = 0;
+		foreach (var e in entities)
+		{
+			StatChangeUtility.KillOrDestroyEntity(Core.EntityManager, e, charEntity, charEntity, Time.time, StatChangeReason.Default, true);
+			count++;
+		}
+		ctx.Reply($"You've killed {count} {character.Name.Bold()} at your position. You murderer!");
 	}
-
 
 	[Command("spawnhorse", "sh", description: "Spawns a horse", adminOnly: true)] 
 	public static void SpawnHorse(ChatCommandContext ctx, float speed, float acceleration, float rotation, bool spectral=false, int num=1)
@@ -159,9 +164,17 @@ internal static class SpawnCommands
 	[Command("teleporthorse", description: "teleports horses to you", adminOnly: true)]
 	public static void TeleportHorse(ChatCommandContext ctx, float radius = 5f)
 	{
-		var horses = MobUtility.ClosestMobs(ctx, radius, Prefabs.CHAR_Mount_Horse_Vampire);
-		horses.ForEach(e => Core.EntityManager.SetComponentData(e, new Translation { Value = Core.EntityManager.GetComponentData<LocalToWorld>(ctx.Event.SenderCharacterEntity).Position }));
-		ctx.Reply($"You've teleported {horses.Count} horses to your position.");
+		var charEntity = ctx.Event.SenderCharacterEntity;
+		var pos = charEntity.Read<Translation>().Value.xz;
+		var entities = Helper.GetAllEntitiesInRadius<Mountable>(pos, radius).Where(e => e.Read<PrefabGUID>().Equals(Prefabs.CHAR_Mount_Horse_Vampire));
+		var count = 0;
+		foreach (var e in entities)
+		{
+			Core.EntityManager.SetComponentData(e, new Translation { Value = Core.EntityManager.GetComponentData<LocalToWorld>(ctx.Event.SenderCharacterEntity).Position });
+			count++;
+		}
+
+		ctx.Reply($"You've teleported {count} horses to your position.");
 	}
 
 	/*

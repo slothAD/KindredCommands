@@ -48,9 +48,10 @@ public readonly struct Database
 		}
 		else
 		{
-			NOSPAWN["CHAR_VampireMale"] = "it causes corruption to the save file.";
+			NOSPAWN["CHAR_VampireMale"] = "Enters a player with no string for name, causes some mods issues.";
 			NOSPAWN["CHAR_Mount_Horse_Gloomrot"] = "it causes an instant server crash.";
 			NOSPAWN["CHAR_Mount_Horse_Vampire"] = "it causes an instant server crash.";
+			NOSPAWN["CHAR_Vampire_Ghost"] = "It is weird. Lets not.";
 			SaveNoSpawn();
 		}
 
