@@ -2,8 +2,10 @@ using System.Text;
 using KindredCommands.Commands.Converters;
 using ProjectM;
 using ProjectM.Shared;
+using Stunlock.Core;
 using Unity.Entities;
 using VampireCommandFramework;
+using System.Collections.Generic;
 
 namespace KindredCommands.Commands;
 internal static class DurabilityCommands
@@ -178,28 +180,56 @@ internal static class DurabilityCommands
 				ctx.Reply($"Soulshard durability time set to {seconds} seconds.");
 			}
 		}
-     /*
-		[Command("showhair", "sh", description: "Toggles hair visibility.")]
-		public static void ShowHairCommand(ChatCommandContext ctx)
-		{
-			var charEntity = ctx.Event.SenderCharacterEntity;
-			var equipment = charEntity.Read<Equipment>();
 
-			if (equipment.ArmorHeadgearSlotEntity.Equals(Entity.Null))
+
+		[Command("destroyallshards", description: "Destroys all soulshards in the world, containers, and inventories", adminOnly: true)]
+		public static void DestroyAllShards(ChatCommandContext ctx)
+		{
+			var destroyedPrefabs = new Dictionary<PrefabGUID, int>();
+			foreach (var shard in Helper.GetEntitiesByComponentType<Relic>())
 			{
-				ctx.Reply("No headgear equipped.");
-				return;
+				var durability = shard.Read<Durability>();
+				durability.Value = 0;
+				durability.DestroyItemWhenBroken = true;
+				shard.Write(durability);
+
+				if (shard.Has<PrefabGUID>())
+				{
+					var guid = shard.Read<PrefabGUID>();
+					if (!destroyedPrefabs.TryGetValue(guid, out var count))
+						count = 0;
+					destroyedPrefabs[guid] = count + 1;
+				}
 			}
 
-			var headgear = equipment.ArmorHeadgearSlotEntity.GetEntityOnServer();
-			var headgearToggleData = headgear.Read<HeadgearToggleData>();
-			headgearToggleData.HideCharacterHairOnEquip = !headgearToggleData.HideCharacterHairOnEquip;
-			headgear.Write(headgearToggleData);
-
-			ctx.Reply("Hair is " + (headgearToggleData.HideCharacterHairOnEquip ? " hidden" : "visible") + " with current headgear");
+			foreach (var (guid, count) in destroyedPrefabs)
+			{
+				ctx.Reply($"Destroyed <color=white>{count}</color>x <color=yellow>{guid.LookupName()}</color>");
+				Core.Log.LogInfo($"Destroyed {count}x {guid.LookupName()}");
+			}
 		}
+		/*
+		   [Command("showhair", "sh", description: "Toggles hair visibility.")]
+		   public static void ShowHairCommand(ChatCommandContext ctx)
+		   {
+			   var charEntity = ctx.Event.SenderCharacterEntity;
+			   var equipment = charEntity.Read<Equipment>();
 
-	*/
+			   if (equipment.ArmorHeadgearSlot.Equals(Entity.Null))
+			   {
+				   ctx.Reply("No headgear equipped.");
+				   return;
+			   }
+
+			   var headgear = equipment.ArmorHeadgearSlot.GetType();
+			   var equipmentToggleData = headgear.Read<EquipmentToggleData>();
+			   equipmentToggleData.HideCharacterHairOnEquip = !equipmentToggleData.HideCharacterHairOnEquip;
+			   headgear.Write(equipmentToggleData);
+
+			   ctx.Reply("Hair is " + (equipmentToggleData.HideCharacterHairOnEquip ? " hidden" : "visible") + " with current headgear");
+		   }
+
+	   */
 
 	}
 }

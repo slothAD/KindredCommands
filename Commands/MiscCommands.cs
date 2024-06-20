@@ -77,31 +77,5 @@ namespace KindredCommands.Commands
 			DestroyUtility.Destroy(Core.EntityManager, entity);
 		}
 
-		/*[Command("destroyallshards", "das", description: "Destroys all soulshards in the world, containers, and inventories", adminOnly: true)]
-		public static void DestroyAllShards(ChatCommandContext ctx)
-		{
-			foreach (var charEntity in Helper.GetEntitiesByComponentType<PlayerCharacter>())
-			{
-				var equipment = charEntity.Read<Equipment>();
-				var grimoire = equipment.GrimoireSlot;
-				if (grimoire.Equals(Entity.Null)) continue;
-				if (grimoire.Equals(Entity.ReferenceEquals(Relic)
-				{
-					equipment.UnequipItem(charEntity, EquipmentType.MagicSource);
-				}
-			}
-			var destroyedPrefabs = new Dictionary<PrefabGUID, int>();
-			foreach (var shard in Helper.GetEntitiesByComponentType<Relic>())
-			{
-				DestroyEntityAndAttached(shard, destroyedPrefabs);
-			}
-
-			foreach (var (guid, count) in destroyedPrefabs)
-			{
-				ctx.Reply($"Destroyed <color=white>{count}</color>x <color=yellow>{guid.LookupName()}</color>");
-				Core.Log.LogInfo($"Destroyed {count}x {guid.LookupName()}");
-			}
-		}*/
-
 	}
 }
