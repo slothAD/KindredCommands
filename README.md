@@ -54,11 +54,14 @@ Feel free to reach out to me on discord (odjit) if you have any questions or nee
   - Swaps steamIDs between two characters. Useful for "changing" a character. You can swap two active players, or swap back into a previously unbound body. Kicks affected players.
   - Example: *.swapplayers Bob Joe*
 - `.playerinfo (Player)`
-  - will list the player's steamID, online status, clan name, Position, and list all of their castles (with index ID, region, and time remaining on heart).
+  - will list the player's steamID, online status, last online time/date, max level reached, clan name, Position, and list all of their castles (with index ID, region, and time remaining on heart).
   - Example: *.playerinfo Bob*
 - `.idcheck (steamID)`
   - will see if a steamID is registered to a character, and if so, what character it is.
   - Example: *.idcheck 1234567890*
+- `.longestofflinecastles`
+  - will list all of the players who have been offline the longest and still have castles.
+  - Shortcut: *.loc*
 - `.settime (day) (hour)`
   - will set the in game time to a day and hour. Basically controls what the sun is doing. Careful of effects on hearts and horses.
   - Example: *.settime 1 8*
@@ -84,6 +87,8 @@ Feel free to reach out to me on discord (odjit) if you have any questions or nee
   - How many seconds will soulshards last before they break. Do not enter anything for seconds if you want default behavior.  
   - Example: *.gear soulshardurabilitytime 60*
   - Shortcut: *.gear ssdt*
+- `.gear destroyallshards`
+  - Will destroy all soul shards. Equipped, in inventories, on the ground, and in pedestals. All of them. Useful for completely resetting shards.
 - `.dropitems lifetime (seconds)`
   - will set the lifetime of dropped items while players are present to the seconds specified. Default is 300 seconds. This is a server wide setting, and will persist through restarts.Does not apply to shards or Player Containers.
   - Example: *.dropitems lifetime 600*
