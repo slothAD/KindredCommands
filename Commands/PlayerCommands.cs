@@ -47,6 +47,18 @@ public static class PlayerCommands
 				throw ctx.Error("Name too long.");
 			}
 
+			var userEntities = Helper.GetEntitiesByComponentType<User>();
+			var lowerName = input.ToLowerInvariant();
+			foreach (var userEntity in userEntities)
+			{
+				var user = userEntity.Read<User>();
+				if (user.CharacterName.ToString().ToLowerInvariant().Equals(lowerName))
+				{
+					throw ctx.Error("Name already in use.");
+				}
+			}
+			userEntities.Dispose();
+
 			return newName;
 		}
 		public static bool IsAlphaNumeric(string input)
