@@ -20,8 +20,9 @@ internal class BuffCommands
 				return new(buffPrefab.LookupName(), buffPrefab);
 			}
 			// "CHAR_Bandit_Bomber": -1128238456,
-			if (int.TryParse(input, out var id) && Core.Prefabs.CollectionSystem.PrefabGuidToNameDictionary.TryGetValue(new PrefabGUID(id), out var name) &&
-				name.ToLowerInvariant().Contains("buff"))
+			if (int.TryParse(input, out var id) && Core.Prefabs.CollectionSystem.PrefabGuidToNameDictionary.TryGetValue(new PrefabGUID(id), out var name)
+				&& Core.PrefabCollectionSystem._PrefabGuidToEntityMap.TryGetValue(new PrefabGUID(id), out var prefabEntity)
+				&& prefabEntity.Has<Buff>())
 			{
 				return new(name, new(id));
 			}

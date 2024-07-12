@@ -46,7 +46,8 @@ internal class PrefabService
 					 AllNameToGuid.TryGetValue($"buff_{lower}", out guidRec) ||
 					 AllNameToGuid.TryGetValue($"equipbuff_{lower}", out guidRec);
 		prefab = guidRec.Prefab;
-		return output && guidRec.Name.ToLowerInvariant().Contains("buff");
+		return output && Core.PrefabCollectionSystem._PrefabGuidToEntityMap.TryGetValue(prefab, out var prefabEntity)
+				&& prefabEntity.Has<Buff>();
 	}
 
 	internal bool TryGetItem(string input, out PrefabGUID prefab)
