@@ -161,6 +161,19 @@ internal class ConfigSettingsService
 		}
 	}
 
+	public bool EveryoneDaywalker
+	{
+		get
+		{
+			return config.EveryoneDaywalker ?? false;
+		}
+		set
+		{
+			config.EveryoneDaywalker = value;
+			SaveConfig();
+		}
+	}
+
 	struct Config
 	{
 		public Config()
@@ -184,6 +197,7 @@ internal class ConfigSettingsService
 		public int? ShardWingedHorrorDropLimit { get; set; }
 		public int? ShardMonsterDropLimit { get; set; }
 		public int? ShardSolarusDropLimit { get; set; }
+		public bool? EveryoneDaywalker { get; set; }
 	}
 
 	Config config;

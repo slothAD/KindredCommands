@@ -77,5 +77,22 @@ namespace KindredCommands.Commands
 			DestroyUtility.Destroy(Core.EntityManager, entity);
 		}
 
-	}
+		[Command("everyonedaywalker", "ed", description: "Toggles daywalker for everyone", adminOnly: true)]
+		public static void EveryoneDaywalker(ChatCommandContext ctx)
+		{
+			Core.ConfigSettings.EveryoneDaywalker = !Core.ConfigSettings.EveryoneDaywalker;
+			var players = Helper.GetEntitiesByComponentType<PlayerCharacter>(includeDisabled: true);
+			foreach (var player in players)
+			{
+				if (Core.ConfigSettings.EveryoneDaywalker ^ Core.BoostedPlayerService.IsSunInvulnerable(player))
+				{
+					Core.BoostedPlayerService.ToggleSunInvulnerable(player);
+					Core.BoostedPlayerService.UpdateBoostedPlayer(player);
+				}
+			}
+			players.Dispose();
+
+			ctx.Reply($"Everyone is now {(Core.ConfigSettings.EveryoneDaywalker ? "a daywalker" : "a vampire")}");
+		}
+}
 }

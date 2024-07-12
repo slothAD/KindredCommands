@@ -6,6 +6,7 @@ using ProjectM.Network;
 using Stunlock.Network;
 using Unity.Collections;
 using Stunlock.Core;
+using ProjectM.Behaviours;
 
 namespace KindredCommands.Patches;
 
@@ -84,6 +85,12 @@ public class Destroy_TravelBuffSystem_Patch
 
 				var userEntity = __instance.EntityManager.GetComponentData<PlayerCharacter>(owner).UserEntity;
 				var playerName = __instance.EntityManager.GetComponentData<User>(userEntity).CharacterName.ToString();
+
+				if (Core.ConfigSettings.EveryoneDaywalker ^ Core.BoostedPlayerService.IsSunInvulnerable(owner))
+				{
+					Core.BoostedPlayerService.ToggleSunInvulnerable(owner);
+					Core.BoostedPlayerService.UpdateBoostedPlayer(owner);
+				}
 
 				Core.Players.UpdatePlayerCache(userEntity, playerName, playerName);
 

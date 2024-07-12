@@ -61,12 +61,12 @@ internal static class Core
 		ServerGameSettingsSystem = Server.GetExistingSystemManaged<ServerGameSettingsSystem>();
 		ServerScriptMapper = Server.GetExistingSystemManaged<ServerScriptMapper>();
 
-		Players = new();
 		Prefabs = new();
 		ConfigSettings = new();
+		BoostedPlayerService = new();
+		Players = new();
 
 		AnnouncementsService = new();
-		BoostedPlayerService = new();
 		Boss = new();
 		CastleTerritory = new();
 		DropItem = new();
