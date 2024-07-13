@@ -39,7 +39,8 @@ internal class PlayerService
 			steamPlayerCache.TryAdd(userData.PlatformId, playerData);
 
 			var charEntity = userData.LocalCharacter.GetEntityOnServer();
-			if (Core.ConfigSettings.EveryoneDaywalker ^ Core.BoostedPlayerService.IsSunInvulnerable(charEntity))
+			if (!charEntity.Equals(Entity.Null) &&
+				Core.ConfigSettings.EveryoneDaywalker ^ Core.BoostedPlayerService.IsSunInvulnerable(charEntity))
 			{
 				Core.BoostedPlayerService.ToggleSunInvulnerable(charEntity);
 				Core.BoostedPlayerService.UpdateBoostedPlayer(charEntity);
