@@ -6,6 +6,7 @@ using KindredCommands.Services;
 using ProjectM;
 using ProjectM.Network;
 using ProjectM.UI;
+using Stunlock.Network;
 using Unity.Entities;
 using VampireCommandFramework;
 
@@ -119,26 +120,7 @@ internal class StaffCommands
 			ctx.Reply($"Admin authed for {player.Value.CharacterName}");
 			adminAuthSystem._LocalAdminList.Add(platformId);
 
-			userEntity.Add<AdminUser>();
-			userEntity.Write(new AdminUser()
-			{
-				AuthMethod = AdminAuthMethod.Authenticated,
-				Level = AdminLevel.SuperAdmin
-			});
-
-			user.IsAdmin = true;
-			userEntity.Write(user);
-
-
-			var entity = Core.EntityManager.CreateEntity(
-				ComponentType.ReadWrite<FromCharacter>(),
-				ComponentType.ReadWrite<AdminAuthEvent>()
-			);
-			entity.Write(new FromCharacter()
-			{
-				Character = player.Value.CharEntity,
-				User = userEntity
-			});
+			AdminService.AdminUser(userEntity);
 
 			ServerChatUtils.SendSystemMessageToClient(Core.EntityManager, user, "You were added as admin and authed");
 		}
@@ -157,6 +139,22 @@ internal class StaffCommands
 		else
 		{
 			ctx.Reply("Stealth admin disabled!");
+		}
+	}
+
+	[Command("autoadminauth", description: "Adds/Removes a player to the auto AdminAuth list", adminOnly: true)]
+	public static void AddAutoAuthAdmin(ChatCommandContext ctx)
+	{
+		if (Database.GetAutoAdmin().Contains(ctx.Event.SenderUserEntity.Read<User>().PlatformId.ToString()))
+		{
+			Database.RemoveAutoAdmin(ctx.Event.SenderUserEntity);
+			ctx.Reply("You will no longer be automatically AdminAuth'd on login.");
+			return;
+		}
+		else
+		{
+			Database.SetAutoAdmin(ctx.Event.SenderUserEntity);
+			ctx.Reply("You will be automatically AdminAuth'd on login.");
 		}
 	}
 }

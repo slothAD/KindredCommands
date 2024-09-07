@@ -12,6 +12,7 @@ public readonly struct Database
 	private static readonly string STAFF_PATH = Path.Combine(CONFIG_PATH, "staff.json");
 	private static readonly string NOSPAWN_PATH = Path.Combine(CONFIG_PATH, "nospawn.json");
 	private static readonly string CANWIPE_PATH = Path.Combine(CONFIG_PATH, "canwipe.txt");
+	private static readonly string AUTOADMIN_PATH = Path.Combine(CONFIG_PATH, "autoadmin.txt");
 
 	public static void InitConfig()
 	{
@@ -21,6 +22,7 @@ public readonly struct Database
 		STAFF.Clear();
 		NOSPAWN.Clear();
 		CANWIPE.Clear();
+		AUTOADMIN.Clear();
 
 		if (File.Exists(STAFF_PATH))
 		{
@@ -63,6 +65,15 @@ public readonly struct Database
 		{
 			SaveCanWipe();
 		}
+
+		if (File.Exists(AUTOADMIN_PATH))
+		{
+			AUTOADMIN.AddRange(File.ReadAllText(AUTOADMIN_PATH).Split("\n").Select(x => x.Trim()));
+		}
+		else
+		{
+			SaveAutoAdmin();
+		}
 	}
 
 	static void WriteConfig(string path, Dictionary<string, string> dict)
@@ -88,6 +99,12 @@ public readonly struct Database
 		File.WriteAllText(CANWIPE_PATH, string.Join("\n\r", CANWIPE));
 	}
 
+	static public void SaveAutoAdmin()
+	{
+		if (!Directory.Exists(CONFIG_PATH)) Directory.CreateDirectory(CONFIG_PATH);
+		File.WriteAllText(AUTOADMIN_PATH, string.Join("\n\r", AUTOADMIN));
+	}
+
 	static public void SetStaff(Entity userEntity, string rank)
 	{
 		var user = userEntity.Read<User>();
@@ -101,6 +118,13 @@ public readonly struct Database
 		NOSPAWN[prefabName] = reason;
 		SaveNoSpawn();
 		Core.Log.LogWarning($"NPC {prefabName} is banned from spawning because {reason}.");
+	}
+
+	static public void SetAutoAdmin(Entity userEntity)
+	{
+		AUTOADMIN.Add(userEntity.Read<User>().PlatformId.ToString());
+		SaveAutoAdmin();
+		Core.Log.LogWarning($"User {userEntity.Read<User>().CharacterName} added to autoadmin list.");
 	}
 
 	static public bool IsSpawnBanned(string prefabName, out string reason)
@@ -119,9 +143,16 @@ public readonly struct Database
 		{ "PrefabGUID", "Reason" }
 	};
 
+	private static readonly List<string> AUTOADMIN = new();
+
 	public static Dictionary<string, string> GetStaff()
 	{
 		return STAFF;
+	}
+
+	public static List<string> GetAutoAdmin()
+	{
+		return AUTOADMIN;
 	}
 
 	public static bool RemoveStaff(Entity userEntity)
@@ -139,7 +170,22 @@ public readonly struct Database
 		return removed;
 	}
 
+	public static bool RemoveAutoAdmin(Entity userEntity)
+	{
+		var removed = AUTOADMIN.Remove(userEntity.Read<User>().PlatformId.ToString());
+		if (removed)
+		{
+			SaveAutoAdmin();
+			Core.Log.LogWarning($"User {userEntity.Read<User>().CharacterName} removed from autoadmin list.");
+		}
+		else
+		{
+			Core.Log.LogInfo($"User {userEntity.Read<User>().CharacterName} attempted to be removed from autoadmin list but wasn't there.");
+		}
+		return removed;
+	}
 	private static List<string> CANWIPE = new();
+
 
 	public static bool CanWipe(Entity userEntity)
 	{

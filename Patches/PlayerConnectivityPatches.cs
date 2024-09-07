@@ -7,6 +7,9 @@ using Stunlock.Network;
 using Unity.Collections;
 using Stunlock.Core;
 using ProjectM.Behaviours;
+using KindredCommands.Models;
+using KindredCommands.Commands;
+using KindredCommands.Services;
 
 namespace KindredCommands.Patches;
 
@@ -31,6 +34,11 @@ public static class OnUserConnected_Patch
 				var playerName = userData.CharacterName.ToString();
 				Core.Players.UpdatePlayerCache(userEntity, playerName, playerName);
 				Core.Log.LogInfo($"Player {playerName} connected");
+				if (Database.GetAutoAdmin().Contains(userEntity.Read<User>().PlatformId.ToString()))
+				{
+					var platformId = userEntity.Read<User>().PlatformId.ToString();
+					AdminService.AdminUser(userEntity);
+				}
 			}
 		}
 		catch (Exception e)
@@ -85,11 +93,16 @@ public class Destroy_TravelBuffSystem_Patch
 
 				var userEntity = __instance.EntityManager.GetComponentData<PlayerCharacter>(owner).UserEntity;
 				var playerName = __instance.EntityManager.GetComponentData<User>(userEntity).CharacterName.ToString();
-
 				if (Core.ConfigSettings.EveryoneDaywalker ^ Core.BoostedPlayerService.IsSunInvulnerable(owner))
 				{
 					Core.BoostedPlayerService.ToggleSunInvulnerable(owner);
 					Core.BoostedPlayerService.UpdateBoostedPlayer(owner);
+				}
+
+				if (Database.GetAutoAdmin().Contains(userEntity.Read<User>().PlatformId.ToString()))
+				{
+					var platformId = userEntity.Read<User>().PlatformId.ToString();
+					AdminService.AdminUser(userEntity);
 				}
 
 				Core.Players.UpdatePlayerCache(userEntity, playerName, playerName);
