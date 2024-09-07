@@ -6,6 +6,7 @@ using Stunlock.Core;
 using Unity.Entities;
 using VampireCommandFramework;
 using System.Collections.Generic;
+using System.Collections;
 
 namespace KindredCommands.Commands;
 internal static class DurabilityCommands
@@ -185,10 +186,32 @@ internal static class DurabilityCommands
 		[Command("destroyallshards", description: "Destroys all soulshards in the world, containers, and inventories", adminOnly: true)]
 		public static void DestroyAllShards(ChatCommandContext ctx)
 		{
+			foreach (var shard in Helper.GetEntitiesByComponentType<Relic>())
+			{
+				if (!shard.Has<Durability>()) continue;
+
+				var durability = shard.Read<Durability>();
+				if (durability.Value == 0)
+				{
+					durability.Value = durability.MaxDurability;
+					shard.Write(durability);
+				}
+			}
+			Core.StartCoroutine(BreakShardsInAMoment(ctx));
+		}
+
+		static IEnumerator BreakShardsInAMoment(ChatCommandContext ctx)
+		{
+			yield return null;
 			var destroyedPrefabs = new Dictionary<PrefabGUID, int>();
 			foreach (var shard in Helper.GetEntitiesByComponentType<Relic>())
 			{
+				if (!shard.Has<Durability>()) continue;
+
 				var durability = shard.Read<Durability>();
+				if (durability.Value == 0)
+					continue;
+
 				durability.Value = 0;
 				durability.DestroyItemWhenBroken = true;
 				shard.Write(durability);
