@@ -244,6 +244,16 @@ public static class PlayerCommands
 		}
 	}
 
+	[Command("teleport", description: "Teleport a player to a specified coordinate.", adminOnly: true)]
+	public static void Teleport(ChatCommandContext ctx, float x, float y, float z, FoundPlayer player=null)
+	{
+		var charEntity = player!=null ? player.Value.CharEntity : ctx.Event.SenderCharacterEntity;
+		var pos = new float3(x, y, z);
+		charEntity.Write(new Translation { Value = pos });
+		charEntity.Write(new LastTranslation { Value = pos });
+		ctx.Reply($"Teleported {charEntity.Read<PlayerCharacter>().Name} to {pos}");
+	}
+
 	[Command ("fly" , description: "Toggle fly mode for a player.", adminOnly: true)]
 	public static void Fly(ChatCommandContext ctx, FoundPlayer player = null)
 	{
