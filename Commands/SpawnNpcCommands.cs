@@ -168,31 +168,6 @@ internal static class SpawnCommands
 		ctx.Reply($"Banned '{character.Name}' from spawning with reason '{reason}'");
 	}
 
-	readonly static float3 banishLocation = new(-1551.8973f, 5, -2728.9856f);
-
-    [Command("banishhorse", "bh", description: "Banishes dominated ghost horses on the server out of bounds", adminOnly: true)]
-	public static void BanishGhost(ChatCommandContext ctx)
-	{
-		var horses = Helper.GetEntitiesByComponentTypes<Immortal, Mountable>(true).ToArray()
-                        .Where(x => x.Read<PrefabGUID>().GuidHash == Prefabs.CHAR_Mount_Horse_Vampire.GuidHash)
-                        .Where(x => BuffUtility.HasBuff(Core.EntityManager, x, Prefabs.Buff_General_VampireMount_Dead));
-
-		var horsesToBanish = horses.Where(x => Vector3.Distance(banishLocation, x.Read<LocalToWorld>().Position) > 30f);
-
-        if (horsesToBanish.Any())
-		{
-			foreach (var horse in horsesToBanish)
-			{
-				Core.EntityManager.SetComponentData(horse, new LastTranslation { Value = banishLocation });
-				Core.EntityManager.SetComponentData(horse, new Translation { Value = banishLocation });
-			}
-			ctx.Reply($"Banished {horsesToBanish.Count()} ghost horse{(horsesToBanish.Count() > 1 ? "s" : "")}");
-		}
-		else
-		{
-			ctx.Reply($"No valid ghost horses found to banish but {horses.Count()} already banished");
-		}
-    }
 	[Command("teleporthorse", description: "teleports horses to you", adminOnly: true)]
 	public static void TeleportHorse(ChatCommandContext ctx, float radius = 5f)
 	{
@@ -208,17 +183,4 @@ internal static class SpawnCommands
 
 		ctx.Reply($"You've teleported {count} horses to your position.");
 	}
-
-	/*
-	[Command("deletehorses", description: "Deletes all horses including player horses", adminOnly: true)]
-	public static void DeleteHorses(ChatCommandContext ctx)
-	{
-		var horses = Helper.GetEntitiesByComponentType<Mountable>(true).ToArray()
-			.Where(x => x.Read<PrefabGUID>().GuidHash == Prefabs.CHAR_Mount_Horse.GuidHash || x.Read<PrefabGUID>().GuidHash == Prefabs.CHAR_Mount_Horse_Vampire.GuidHash);
-		foreach (var horse in horses)
-		{
-			StatChangeUtility.KillEntity(Core.EntityManager, horse, ctx.Event.SenderCharacterEntity, Time.time, true);
-		}
-		ctx.Reply($"You've killed {horses.Count()} horses.");
-	}*/
 }
