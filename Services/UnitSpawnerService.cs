@@ -29,10 +29,14 @@ internal class UnitSpawnerService
 		usus.SpawnUnit(empty_entity, unit, pos, count, minRange, maxRange, duration);
 	}
 
-	public void SpawnWithCallback(Entity user, PrefabGUID unit, float2 position, float duration, Action<Entity> postActions)
+	public void SpawnWithCallback(Entity user, PrefabGUID unit, float2 position, float duration, Action<Entity> postActions, float yPosition = -1)
 	{
-		var translation = Core.EntityManager.GetComponentData<Translation>(user);
-		var pos = new float3(position.x, translation.Value.y, position.y);
+		if (yPosition == -1)
+		{
+			var translation = Core.EntityManager.GetComponentData<Translation>(user);
+			yPosition = translation.Value.y;
+		}
+		var pos = new float3(position.x, yPosition, position.y);
 		var usus = Core.Server.GetExistingSystemManaged<UnitSpawnerUpdateSystem>();
 
 		UnitSpawnerReactSystem_Patch.Enabled = true;
