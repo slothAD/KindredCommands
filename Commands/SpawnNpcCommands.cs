@@ -53,19 +53,24 @@ internal static class SpawnCommands
 	[Command("customspawn", "cspwn", "customspawn <Prefab Name> [<BloodType> <BloodQuality> <Consumable(\"true/false\")> <Duration> <level>]", "Spawns a modified NPC at your current position.", adminOnly: true)]
 	public static void CustomSpawnNpc(ChatCommandContext ctx, CharacterUnit unit, BloodType type = BloodType.Frailed, int quality = 0, bool consumable = true, int duration = -1, int level = 0)
 	{
+		var pos = Core.EntityManager.GetComponentData<LocalToWorld>(ctx.Event.SenderCharacterEntity).Position;
+		CustomSpawnNpcAt(ctx, unit, pos.x, pos.y, pos.z, type, quality, consumable, duration, level);
+	}
+
+	[Command("customspawnat", "cspwnat", "customspawnat <Prefab Name> <X> <Z> <Y> [<BloodType> <BloodQuality> <Consumable(\"true/false\")> <Duration> <level>]", "Spawns a modified NPC at a specific location.", adminOnly: true)]
+	public static void CustomSpawnNpcAt(ChatCommandContext ctx, CharacterUnit unit, float x, float y, float z, BloodType type = BloodType.Frailed, int quality = 0, bool consumable = true, int duration = -1, int level = 0)
+	{
 		if (Database.IsSpawnBanned(unit.Name, out var reason))
 		{
 			throw ctx.Error($"Cannot spawn {unit.Name.Bold()} because it is banned. Reason: {reason}");
 		}
-
-		var pos = Core.EntityManager.GetComponentData<LocalToWorld>(ctx.Event.SenderCharacterEntity).Position;
 
 		if (quality > 100 || quality < 0)
 		{
 			throw ctx.Error($"Blood Quality must be between 0 and 100");
 		}
 
-		Core.UnitSpawner.SpawnWithCallback(ctx.Event.SenderUserEntity, unit.Prefab, pos.xz, duration, (Entity e) =>
+		Core.UnitSpawner.SpawnWithCallback(ctx.Event.SenderUserEntity, unit.Prefab, new float2(x, z), duration, (Entity e) =>
 		{
 			var blood = Core.EntityManager.GetComponentData<BloodConsumeSource>(e);
 			blood.UnitBloodType._Value = new PrefabGUID((int)type);
@@ -87,10 +92,37 @@ internal static class SpawnCommands
 					});
 				}
 			}
-		});
-		ctx.Reply($"Spawning {unit.Name.Bold()} with {quality}% {type} blood at your position. It is Lvl{level} and will live {(duration<0?"until killed":$"{duration} seconds")}.");
-	}
 
+			switch (type)
+			{
+				case BloodType.Brute:
+					Buffs.AddBuff(ctx.Event.SenderUserEntity, e, Prefabs.AB_BloodQualityUnitBuff_Brute, -1, true);
+					break;
+				case BloodType.Creature:
+					Buffs.AddBuff(ctx.Event.SenderUserEntity, e, Prefabs.AB_BloodQualityUnitBuff_Creature, -1, true);
+					break;
+				case BloodType.Draculin:
+					Buffs.AddBuff(ctx.Event.SenderUserEntity, e, Prefabs.AB_BloodQualityUnitBuff_Draculin, -1, true);
+					break;
+				case BloodType.Mutant:
+					Buffs.AddBuff(ctx.Event.SenderUserEntity, e, Prefabs.AB_BloodQualityUnitBuff_Mutant, -1, true);
+					break;
+				case BloodType.Rogue:
+					Buffs.AddBuff(ctx.Event.SenderUserEntity, e, Prefabs.AB_BloodQualityUnitBuff_Rogue, -1, true);
+					break;
+				case BloodType.Scholar:
+					Buffs.AddBuff(ctx.Event.SenderUserEntity, e, Prefabs.AB_BloodQualityUnitBuff_Scholar, -1, true);
+					break;
+				case BloodType.Warrior:
+					Buffs.AddBuff(ctx.Event.SenderUserEntity, e, Prefabs.AB_BloodQualityUnitBuff_Warrior, -1, true);
+					break;
+				case BloodType.Worker:
+					Buffs.AddBuff(ctx.Event.SenderUserEntity, e, Prefabs.AB_BloodQualityUnitBuff_Worker, -1, true);
+					break;
+			}
+		}, y);
+		ctx.Reply($"Spawning {unit.Name.Bold()} with {quality}% {type} blood at {x}, {z}. It is Lvl{level} and will live {(duration < 0 ? "until killed" : $"{duration} seconds")}.");
+	}
 
 	[Command("despawnnpc", "dspwn", description: "Despawns CHAR_ npcs", adminOnly: true)]
 	public static void DespawnNpc(ChatCommandContext ctx, CharacterUnit character, float radius = 25f)
