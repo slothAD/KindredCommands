@@ -239,4 +239,129 @@ internal class CastleCommands
             ctx.Reply(sb.ToString());
         }
     }
+	[Command("freezeheart", "Freezes the time left on a castle heart, keeping it from ever decaying")]
+	public static void NeverDecay(ChatCommandContext ctx)
+	{
+		var castleHearts = Helper.GetEntitiesByComponentType<CastleHeart>();
+		var playerPos = ctx.Event.SenderCharacterEntity.Read<LocalToWorld>().Position;
+		foreach (var castleHeart in castleHearts)
+		{
+			var castleHeartPos = castleHeart.Read<LocalToWorld>().Position;
+
+			if (Vector3.Distance(playerPos, castleHeartPos) > 5f)
+			{
+				continue;
+			}
+
+			var castleHeartComponent = castleHeart.Read<CastleHeart>();
+			castleHeartComponent.FuelEndTime = double.PositiveInfinity;
+			castleHeart.Write(castleHeartComponent);
+			ctx.Reply("Castle Heart will never decay");
+			return;
+		}
+		ctx.Reply("Not close enough to a castle heart");
+	}
+	[Command("frozenhearts", description: "Lists all the castle hearts that will never decay", adminOnly: true)]
+	public static void NeverDecayList(ChatCommandContext ctx, int page = 1)
+	{
+
+		var castleHeartEntities = Helper.GetEntitiesByComponentType<CastleHeart>();
+		var nonDecayingHearts = castleHeartEntities.ToArray()
+			.Select(x => (Entity: x, CastleHeart: x.Read<CastleHeart>()))
+			.Where(x => double.IsPositiveInfinity(x.CastleHeart.FuelEndTime));
+
+		if (!nonDecayingHearts.Any())
+		{
+			ctx.Reply("No Castle Hearts are frozen in time");
+			return;
+		}
+
+		var numOfPages = (nonDecayingHearts.Count() + 7)/ 8;
+		if (numOfPages < page)
+		{
+			ctx.Reply($"No more Castle Hearts to display ({numOfPages} pages)");
+			return;
+		}
+
+		var sb = new StringBuilder();
+		sb.AppendLine($"<color=lightblue>Frozen Hearts ({page}/{numOfPages})</color>:");
+		foreach (var (castleHeartEntity, castleHeart) in nonDecayingHearts.Skip((page - 1) * 8).Take(8))
+		{
+			var userOwner = castleHeartEntity.Read<UserOwner>();
+			var user = userOwner.Owner.GetEntityOnServer().Read<User>();
+			var castleTerritory = castleHeart.CastleTerritoryEntity.Read<CastleTerritory>();
+			sb.AppendLine($"<color=white>{user.CharacterName}</color>'s castle heart at territory <color=white>{castleTerritory.CastleTerritoryIndex}</color>");
+		}
+
+		ctx.Reply(sb.ToString());
+	}
+	[Command("thawheart", description: "Removes the frozen time from a castle heart and resumes ticking down")]
+	public static void NeverDecayRemove(ChatCommandContext ctx)
+	{
+		var castleHearts = Helper.GetEntitiesByComponentType<CastleHeart>();
+		var playerPos = ctx.Event.SenderCharacterEntity.Read<LocalToWorld>().Position;
+		foreach (var castleHeart in castleHearts)
+		{
+			var castleHeartPos = castleHeart.Read<LocalToWorld>().Position;
+
+			if (Vector3.Distance(playerPos, castleHeartPos) > 5f)
+			{
+				continue;
+			}
+
+			var castleHeartComponent = castleHeart.Read<CastleHeart>();
+			castleHeartComponent.FuelEndTime = 0;
+			castleHeart.Write(castleHeartComponent);
+			ctx.Reply("Castle Heart will decay normally");
+			return;
+		}
+		ctx.Reply("Not close enough to a castle heart");
+	}
+
+	[Command("clanplotsowned", "cpo", description: "Reports the number of plots owned by each clan", adminOnly: true)]
+	public static void ClanPlotsOwned(ChatCommandContext ctx, int? page = null)
+	{
+		var castleTerritories = Helper.GetEntitiesByComponentType<CastleTerritory>();
+		var clanPlots = new Dictionary<Entity, int>();
+		foreach (var castleTerritoryEntity in castleTerritories)
+		{
+			var castleTerritory = castleTerritoryEntity.Read<CastleTerritory>();
+			if (castleTerritory.CastleHeart.Equals(Entity.Null)) continue;
+
+			var userOwner = castleTerritory.CastleHeart.Read<UserOwner>();
+			var user = userOwner.Owner.GetEntityOnServer().Read<User>();
+
+			if (user.ClanEntity.Equals(NetworkedEntity.Empty)) continue;
+
+			if (clanPlots.ContainsKey(user.ClanEntity.GetEntityOnServer()))
+			{
+				clanPlots[user.ClanEntity.GetEntityOnServer()]++;
+			}
+			else
+			{
+				clanPlots[user.ClanEntity.GetEntityOnServer()] = 1;
+			}
+		}
+
+		var sb = new StringBuilder();
+		sb.AppendLine("Clans by Plots Owned");
+		int count = 0;
+		int startIndex = (page ?? 1) == 1 ? 0 : ((page ?? 1) - 1) * 8;
+		foreach (var clanPlot in clanPlots.OrderByDescending(x => x.Value).Skip(startIndex).Take(8))
+		{
+			var clan = clanPlot.Key.Read<ClanTeam>();
+			sb.AppendLine($"{clan.Name} owns {clanPlot.Value} plots.");
+			count++;
+			if (count % 8 == 0)
+			{
+				ctx.Reply(sb.ToString());
+				sb.Clear();
+			}
+		}
+
+		if (sb.Length > 0)
+		{
+			ctx.Reply(sb.ToString());
+		}
+	}
 }
