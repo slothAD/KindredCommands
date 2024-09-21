@@ -22,6 +22,14 @@ internal class InfoCommands
 		ctx.Reply($"You are at {pos.x}, {pos.y}, {pos.z} on Territory Index {Core.CastleTerritory.GetTerritoryIndex(pos)}");
 	}
 
+	[Command("checklevel", "cl", description: "Check the level of a player", adminOnly: false)]
+	public static void CheckLevel(ChatCommandContext ctx, FoundPlayer player)
+	{
+		var user = player.Value.UserEntity.Read<User>();
+		var level = Core.Regions.GetPlayerMaxLevel(user.CharacterName.ToString());
+		ctx.Reply($"Player {user.CharacterName} has reached level {level}");
+	}
+
 	[Command("playerinfo", "pinfo", description: "Displays information about a player.", adminOnly: true)]
 	public static void PlayerInfo(ChatCommandContext ctx, FoundPlayer player)
 	{
@@ -55,8 +63,16 @@ internal class InfoCommands
 			if (!userOwner.Owner.GetEntityOnServer().Equals(player.Value.UserEntity)) continue;
 
 			var region = castleTerritoryEntity.Read<TerritoryWorldRegion>().Region;
-			var time = TimeSpan.FromSeconds(CastleCommands.GetFuelTimeRemaining(castleTerritory.CastleHeart));
-			castleInfo.AppendLine($"Castle {castleTerritory.CastleTerritoryIndex} in {CastleCommands.RegionName(region)} with {time:%d}d {time:%h}h {time:%m}m remaining.");
+			var timeRemaining = CastleCommands.GetFuelTimeRemaining(castleTerritory.CastleHeart);
+			if (!double.IsPositiveInfinity(timeRemaining))
+			{
+				var time = TimeSpan.FromSeconds(timeRemaining);
+				castleInfo.AppendLine($"Castle {castleTerritory.CastleTerritoryIndex} in {CastleCommands.RegionName(region)} with {time:%d}d {time:%h}h {time:%m}m remaining.");
+			}
+			else
+			{
+				castleInfo.AppendLine($"Castle {castleTerritory.CastleTerritoryIndex} in {CastleCommands.RegionName(region)} that will never decay.");
+			}
 		}
 		if(!castleFound)
 			castleInfo.AppendLine("No castle found");
