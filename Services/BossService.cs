@@ -142,7 +142,17 @@ internal class FoundVBloodJsonConverter : JsonConverter<FoundVBlood>
 			throw new JsonException();
 		}
 
-		if(FoundVBloodConverter.Parse(reader.GetString(), out var foundVBlood))
+		var name = reader.GetString();
+
+		if (name.StartsWith("Primal "))
+		{
+			if (FoundPrimalConverter.Parse(name.Substring(7), out var foundPrimal))
+			{
+				return new FoundVBlood(foundPrimal.Value, name);
+			}
+		}
+
+		if(FoundVBloodConverter.Parse(name, out var foundVBlood))
 		{
 			return foundVBlood;
 		}

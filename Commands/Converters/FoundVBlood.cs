@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using KindredCommands.Data;
-using ProjectM;
 using Stunlock.Core;
 using VampireCommandFramework;
 
@@ -41,11 +40,11 @@ public class FoundVBloodConverter : CommandArgumentConverter<FoundVBlood>
 		{"Raziel", Prefabs.CHAR_Militia_BishopOfDunley_VBlood  },
 		{"Morian", Prefabs.CHAR_Harpy_Matriarch_VBlood },
 		{"Solarus", Prefabs.CHAR_ChurchOfLight_Paladin_VBlood },
-		{"Tristan", Prefabs.CHAR_VHunter_Leader_VBlood  },
+		{"Tristan", Prefabs.CHAR_VHunter_Leader_VBlood },
 		{"Errol", Prefabs.CHAR_Bandit_StoneBreaker_VBlood },
 		{"Azariel", Prefabs.CHAR_ChurchOfLight_Cardinal_VBlood   },
 		//{"Wilfred", Prefabs.CHAR_WerewolfChieftain_VBlood   },
-		{"Willfred", Prefabs.CHAR_WerewolfChieftain_Human },
+		{"Willfred (Wilfred)", Prefabs.CHAR_WerewolfChieftain_Human },
 		{"Alpha Wolf", Prefabs.CHAR_Forest_Wolf_VBlood },
 		{"Meredith", Prefabs.CHAR_Militia_Longbowman_LightArrow_Vblood   },
 		{"Nibbles the Putrid Rat", Prefabs.CHAR_Vermin_DireRat_VBlood  },
@@ -71,7 +70,6 @@ public class FoundVBloodConverter : CommandArgumentConverter<FoundVBlood>
 		{"Cassius", Prefabs.CHAR_Vampire_HighLord_VBlood },
 		{"Dracula", Prefabs.CHAR_Vampire_Dracula_VBlood },
 		{"Simon Belmont", Prefabs.CHAR_VHunter_CastleMan }
-
 	};
 
 	public readonly static Dictionary<PrefabGUID, string> VBloodPrefabToName = NameToVBloodPrefab.ToDictionary(kvp => kvp.Value, kvp => kvp.Key);
