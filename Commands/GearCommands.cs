@@ -49,7 +49,10 @@ internal static class DurabilityCommands
 		{
 			if (Core.GearService.ToggleShardsFlightRestricted())
 			{
-				ctx.Reply("Soulshards will not allowing flying.");
+				if (Core.ServerGameSettingsSystem._Settings.BatBoundShards)
+					ctx.Reply("Soulshards will not allowing flying.");
+				else
+					ctx.Reply("Current game settings have BatBoundShards set false which KindredCommands can't override");
 			}
 			else
 			{
@@ -94,7 +97,8 @@ internal static class DurabilityCommands
 			var sb = new StringBuilder();
 			var soulshardStatus = Core.SoulshardService.GetSoulshardStatus();
 			sb.AppendLine("\nSoulshard Status");
-			sb.AppendLine($"Can Fly: {(Core.ConfigSettings.SoulshardsFlightRestricted ? "<color=red>No</color>" : "<color=green>Yes</color>")}");
+			var soulshardFlightAllowed = !Core.ConfigSettings.SoulshardsFlightRestricted || !Core.ServerGameSettingsSystem._Settings.BatBoundShards;
+			sb.AppendLine($"Can Fly: {(soulshardFlightAllowed ? "<color=green>Yes</color>" : "<color=red>No</color>")}");
 
 			var notPlentiful = Core.ServerGameSettingsSystem._Settings.RelicSpawnType == RelicSpawnType.Unique;
 
