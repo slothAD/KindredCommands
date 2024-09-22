@@ -51,17 +51,25 @@ internal class GearService
 		var allHeadgear = Helper.GetEntitiesByComponentTypes<EquipmentToggleData, Prefab>(includePrefab:true);
 		foreach (var headgear in allHeadgear)
 		{
+			var equipData = headgear.Read<EquippableData>();
 			var itemData = headgear.Read<ItemData>();
+			var prefabGUID = headgear.Read<PrefabGUID>();
+
+			if (prefabGUID.GuidHash == -511360389)
+			{ 
+				itemData.ItemCategory |= ItemCategory.BloodBound;
+				headgear.Write(itemData);
+			}
+			if (equipData.EquipmentType != EquipmentType.Headgear) continue;
 			if(bloodBound)
 				itemData.ItemCategory |= ItemCategory.BloodBound;
 			else
 				itemData.ItemCategory &= ~ItemCategory.BloodBound;
 			headgear.Write(itemData);
 
-			itemMap[headgear.Read<PrefabGUID>()] = itemData;
+			itemMap[prefabGUID] = itemData;
 		}
 	}
-
 	public bool ToggleShardsFlightRestricted()
 	{
 		Core.ConfigSettings.SoulshardsFlightRestricted = !Core.ConfigSettings.SoulshardsFlightRestricted;
