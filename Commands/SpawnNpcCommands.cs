@@ -11,6 +11,8 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 using VampireCommandFramework;
+using static ProjectM.Metrics;
+using static RootMotion.FinalIK.Grounding;
 
 namespace KindredCommands.Commands;
 
@@ -37,7 +39,7 @@ internal static class SpawnCommands
 	}
 
 	[Command("spawnnpc", "spwn", description: "Spawns CHAR_ npcs", adminOnly: true)]
-	public static void SpawnNpc(ChatCommandContext ctx, CharacterUnit character, int count = 1)
+	public static void SpawnNpc(ChatCommandContext ctx, CharacterUnit character, int count = 1, int level = -1)
 	{
 		if (Database.IsSpawnBanned(character.Name, out var reason))
 		{
@@ -46,7 +48,33 @@ internal static class SpawnCommands
 
 		var pos = Core.EntityManager.GetComponentData<LocalToWorld>(ctx.Event.SenderCharacterEntity).Position;
 
-		Services.UnitSpawnerService.Spawn(ctx.Event.SenderUserEntity, character.Prefab, count, new(pos.x, pos.z), 1, 2, -1);
+		for (var i = 0; i < count; i++)
+		{
+			Core.UnitSpawner.SpawnWithCallback(ctx.Event.SenderUserEntity, character.Prefab, new float2(pos.x, pos.z), -1, (Entity e) =>
+			{
+				if (level > 0)
+				{
+					Buffs.AddBuff(ctx.Event.SenderUserEntity, e, Prefabs.BoostedBuff1, -1, true);
+					if (BuffUtility.TryGetBuff(Core.EntityManager, e, Prefabs.BoostedBuff1, out var buffEntity))
+					{
+						buffEntity.Remove<SpawnStructure_WeakenState_DataShared>();
+						buffEntity.Remove<ScriptSpawn>();
+						buffEntity.Add<ModifyUnitLevelBuff>();
+						buffEntity.Write(new ModifyUnitLevelBuff()
+						{
+							UnitLevel = level
+						});
+					}
+
+					if (!e.Has<UnitLevel>())
+						e.Add<UnitLevel>();
+					var unitLevel = e.Read<UnitLevel>();
+					unitLevel.Level._Value = level;
+					e.Write(unitLevel);
+				}
+
+			});
+		}
 		ctx.Reply($"Spawning {count} {character.Name.Bold()} at your position");
 	}
 
@@ -72,11 +100,42 @@ internal static class SpawnCommands
 
 		Core.UnitSpawner.SpawnWithCallback(ctx.Event.SenderUserEntity, unit.Prefab, new float2(x, z), duration, (Entity e) =>
 		{
-			var blood = Core.EntityManager.GetComponentData<BloodConsumeSource>(e);
-			blood.UnitBloodType._Value = new PrefabGUID((int)type);
-			blood.BloodQuality = quality;
-			blood.CanBeConsumed = consumable;
-			Core.EntityManager.SetComponentData(e, blood);
+			if (e.Has<BloodConsumeSource>())
+			{
+				var blood = Core.EntityManager.GetComponentData<BloodConsumeSource>(e);
+				blood.UnitBloodType._Value = new PrefabGUID((int)type);
+				blood.BloodQuality = quality;
+				blood.CanBeConsumed = consumable;
+				Core.EntityManager.SetComponentData(e, blood);
+
+				switch (type)
+				{
+					case BloodType.Brute:
+						Buffs.AddBuff(ctx.Event.SenderUserEntity, e, Prefabs.AB_BloodQualityUnitBuff_Brute, -1, true);
+						break;
+					case BloodType.Creature:
+						Buffs.AddBuff(ctx.Event.SenderUserEntity, e, Prefabs.AB_BloodQualityUnitBuff_Creature, -1, true);
+						break;
+					case BloodType.Draculin:
+						Buffs.AddBuff(ctx.Event.SenderUserEntity, e, Prefabs.AB_BloodQualityUnitBuff_Draculin, -1, true);
+						break;
+					case BloodType.Mutant:
+						Buffs.AddBuff(ctx.Event.SenderUserEntity, e, Prefabs.AB_BloodQualityUnitBuff_Mutant, -1, true);
+						break;
+					case BloodType.Rogue:
+						Buffs.AddBuff(ctx.Event.SenderUserEntity, e, Prefabs.AB_BloodQualityUnitBuff_Rogue, -1, true);
+						break;
+					case BloodType.Scholar:
+						Buffs.AddBuff(ctx.Event.SenderUserEntity, e, Prefabs.AB_BloodQualityUnitBuff_Scholar, -1, true);
+						break;
+					case BloodType.Warrior:
+						Buffs.AddBuff(ctx.Event.SenderUserEntity, e, Prefabs.AB_BloodQualityUnitBuff_Warrior, -1, true);
+						break;
+					case BloodType.Worker:
+						Buffs.AddBuff(ctx.Event.SenderUserEntity, e, Prefabs.AB_BloodQualityUnitBuff_Worker, -1, true);
+						break;
+				}
+			}
 
 			if (level > 0)
 			{
@@ -91,34 +150,12 @@ internal static class SpawnCommands
 						UnitLevel = level
 					});
 				}
-			}
 
-			switch (type)
-			{
-				case BloodType.Brute:
-					Buffs.AddBuff(ctx.Event.SenderUserEntity, e, Prefabs.AB_BloodQualityUnitBuff_Brute, -1, true);
-					break;
-				case BloodType.Creature:
-					Buffs.AddBuff(ctx.Event.SenderUserEntity, e, Prefabs.AB_BloodQualityUnitBuff_Creature, -1, true);
-					break;
-				case BloodType.Draculin:
-					Buffs.AddBuff(ctx.Event.SenderUserEntity, e, Prefabs.AB_BloodQualityUnitBuff_Draculin, -1, true);
-					break;
-				case BloodType.Mutant:
-					Buffs.AddBuff(ctx.Event.SenderUserEntity, e, Prefabs.AB_BloodQualityUnitBuff_Mutant, -1, true);
-					break;
-				case BloodType.Rogue:
-					Buffs.AddBuff(ctx.Event.SenderUserEntity, e, Prefabs.AB_BloodQualityUnitBuff_Rogue, -1, true);
-					break;
-				case BloodType.Scholar:
-					Buffs.AddBuff(ctx.Event.SenderUserEntity, e, Prefabs.AB_BloodQualityUnitBuff_Scholar, -1, true);
-					break;
-				case BloodType.Warrior:
-					Buffs.AddBuff(ctx.Event.SenderUserEntity, e, Prefabs.AB_BloodQualityUnitBuff_Warrior, -1, true);
-					break;
-				case BloodType.Worker:
-					Buffs.AddBuff(ctx.Event.SenderUserEntity, e, Prefabs.AB_BloodQualityUnitBuff_Worker, -1, true);
-					break;
+				if (!e.Has<UnitLevel>())
+					e.Add<UnitLevel>();
+				var unitLevel = e.Read<UnitLevel>();
+				unitLevel.Level._Value = level;
+				e.Write(unitLevel);
 			}
 		}, y);
 		ctx.Reply($"Spawning {unit.Name.Bold()} with {quality}% {type} blood at {x}, {z}. It is Lvl{level} and will live {(duration < 0 ? "until killed" : $"{duration} seconds")}.");

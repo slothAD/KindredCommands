@@ -70,9 +70,12 @@ internal class UnitSpawnerService
 			var buff = levelBuff.Read<Buff>();
 			var modifyUnitLevelBuff = levelBuff.Read<ModifyUnitLevelBuff>();
 
-			var unitLevel = buff.Target.Read<UnitLevel>();
-			unitLevel.Level._Value = modifyUnitLevelBuff.UnitLevel;
-			buff.Target.Write(unitLevel);
+			if (buff.Target.Has<UnitLevel>())
+			{
+				var unitLevel = buff.Target.Read<UnitLevel>();
+				unitLevel.Level._Value = modifyUnitLevelBuff.UnitLevel;
+				buff.Target.Write(unitLevel);
+			}
 		}
 	}
 
