@@ -142,7 +142,7 @@ internal class StaffCommands
 		}
 	}
 
-	[Command("autoadminauth", description: "Adds/Removes a player to the auto AdminAuth list", adminOnly: true)]
+	[Command("autoadminauth", description: "Adds/Removes yourself from the auto AdminAuth list", adminOnly: true)]
 	public static void AddAutoAuthAdmin(ChatCommandContext ctx)
 	{
 		if (Database.GetAutoAdmin().Contains(ctx.Event.SenderUserEntity.Read<User>().PlatformId.ToString()))
