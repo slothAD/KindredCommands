@@ -5,6 +5,7 @@ using KindredCommands.Commands.Converters;
 using KindredCommands.Data;
 using ProjectM;
 using ProjectM.Network;
+using Stunlock.Core;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -131,12 +132,14 @@ public static class PlayerCommands
 	}
 
 	public static DebugEventsSystem debugEventsSystem = Core.Server.GetExistingSystemManaged<DebugEventsSystem>();
+	//public static SpellSchoolProgressionEventSystem spellSchoolProgressionEventSystem = Core.Server.GetExistingSystemManaged<SpellSchoolProgressionEventSystem>();
 
 	public static void UnlockPlayer(FromCharacter fromCharacter)
 	{
 		debugEventsSystem.UnlockAllResearch(fromCharacter);
 		debugEventsSystem.UnlockAllVBloods(fromCharacter);
 		debugEventsSystem.CompleteAllAchievements(fromCharacter);
+
 		Helper.UnlockWaypoints(fromCharacter.User);
 		Helper.RevealMapForPlayer(fromCharacter.User);
 
@@ -156,7 +159,7 @@ public static class PlayerCommands
 
 	static void UnlockAllSpellSchoolPassives(Entity userEntity, Entity charEntity)
 	{
-		//var passiveBuffer = Core.EntityManager.GetBuffer<PassiveBuffer>(charEntity);
+		var passiveBuffer = Core.EntityManager.GetBuffer<PassiveBuffer>(charEntity);
 		var progressionEntity = userEntity.Read<ProgressionMapper>().ProgressionEntity.GetEntityOnServer();
 		var progressionBuffer = Core.EntityManager.GetBuffer<UnlockedProgressionElement>(progressionEntity);
 		var progressionArray = progressionBuffer.ToNativeArray(Allocator.Temp).ToArray();
@@ -174,7 +177,7 @@ public static class PlayerCommands
 				UnlockedPrefab = item.Key
 			});
 
-			Buffs.AddBuff(userEntity, charEntity, item.Key);
+			//Buffs.AddBuff(userEntity, charEntity, item.Key);
 			/*if (!BuffUtility.TryGetBuff(Core.Server.EntityManager, charEntity, item.Key, out Entity buffEntity))
 			{
 				passiveBuffer.Add(new PassiveBuffer()
@@ -183,7 +186,10 @@ public static class PlayerCommands
 					PrefabGuid = item.Key
 				});
 			}*/
+
+
 		}
+
 	}
 
 //	[Command("unlockmusic", description: "Unlocks all music tracks for a player.", adminOnly: true)]
@@ -413,6 +419,20 @@ public static class PlayerCommands
 			Core.BoostedPlayerService.UpdateBoostedPlayer(charEntity);
 			ctx.Reply($"You have slowed your pace and are now moving at the current speed of {closestNPC.EntityName()}.");
 		}
+	}
+
+	[Command("killplayer", description: "Kills the target player", adminOnly: true)]
+	public static void KillPlayer(ChatCommandContext ctx, FoundPlayer player)
+	{
+		StatChangeUtility.KillEntity(Core.EntityManager, player.Value.CharEntity, ctx.Event.SenderCharacterEntity, Core.ServerTime, StatChangeReason.Default, true);
+		ctx.Reply($"Killed {player.Value.CharacterName}");
+	}
+
+	[Command("downplayer", "dp", description: "Downs the target player", adminOnly: true)]
+	public static void DownPlayer(ChatCommandContext ctx, FoundPlayer player)
+	{
+		Buffs.AddBuff(player.Value.UserEntity, player.Value.CharEntity, new PrefabGUID(-1992158531), -1, true);
+		ctx.Reply($"Downed {player.Value.CharacterName}");
 	}
 
 	/* // This was made for a specific server who wanted to wipe players and castles but keep certain ones to clone the map.
