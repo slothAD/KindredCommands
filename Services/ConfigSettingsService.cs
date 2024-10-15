@@ -1,5 +1,6 @@
 using System.IO;
 using System.Text.Json;
+using Stunlock.Core;
 
 namespace KindredCommands.Services;
 internal class ConfigSettingsService
@@ -174,6 +175,69 @@ internal class ConfigSettingsService
 		}
 	}
 
+	public float GruelMutantChance
+	{
+		get
+		{
+			return config.GruelMutantChance ?? 0.35f;
+		}
+		set
+		{
+			config.GruelMutantChance = value;
+			SaveConfig();
+		}
+	}
+
+	public float GruelBloodMin
+	{
+		get
+		{
+			return config.GruelBloodMin ?? 0.01f;
+		}
+		set
+		{
+			config.GruelBloodMin = value;
+			SaveConfig();
+		}
+	}
+	public float GruelBloodMax
+	{
+		get
+		{
+			return config.GruelBloodMax ?? 0.02f;
+		}
+		set
+		{
+			config.GruelBloodMax = value;
+			SaveConfig();
+		}
+	} 
+	public PrefabGUID GruelTransform
+	{
+		get
+		{
+			return config.GruelTransform ?? new PrefabGUID(1092792896);
+		}
+		set
+		{
+			config.GruelTransform = value;
+			SaveConfig();
+		}
+	}
+
+	public bool BatVision
+	{
+		get
+		{
+			return config.BatVision;
+		}
+		set
+		{
+			config.BatVision = value;
+			SaveConfig();
+		}
+	}
+
 	struct Config
 	{
 		public Config()
@@ -198,6 +262,11 @@ internal class ConfigSettingsService
 		public int? ShardMonsterDropLimit { get; set; }
 		public int? ShardSolarusDropLimit { get; set; }
 		public bool? EveryoneDaywalker { get; set; }
+		public float? GruelMutantChance { get; set; }
+		public float? GruelBloodMin { get; set; }
+		public float? GruelBloodMax { get; set; }
+		public PrefabGUID? GruelTransform { get; set; }
+		public bool BatVision { get; internal set; }
 	}
 
 	Config config;
@@ -218,6 +287,12 @@ internal class ConfigSettingsService
 		Core.Log.LogInfo($"ShardManticoreDropLimit: {ShardWingedHorrorDropLimit}");
 		Core.Log.LogInfo($"ShardMonsterDropLimit: {ShardMonsterDropLimit}");
 		Core.Log.LogInfo($"ShardSolarusDropLimit: {ShardSolarusDropLimit}");
+		Core.Log.LogInfo($"EveryoneDaywalker: {EveryoneDaywalker}");
+		Core.Log.LogInfo($"GruelMutantChance: {GruelMutantChance}");
+		Core.Log.LogInfo($"GruelBloodMin: {GruelBloodMin}");
+		Core.Log.LogInfo($"GruelBloodMax: {GruelBloodMax}");
+		Core.Log.LogInfo($"GruelTransform: {GruelTransform}");
+		Core.Log.LogInfo($"BatVision: {BatVision}");
 	}
 
 	void LoadConfig()
