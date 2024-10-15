@@ -202,5 +202,37 @@ internal class ServantCommands
 		ctx.Reply($"Servant <color=white>{coffin.ServantName}</color>'s mission is now completed.");
 	}
 
+	[Command("add", "a", "Adds a servant to an empty coffin", adminOnly: true)]
+	public static void AddServant(ChatCommandContext ctx, CharacterUnit character)
+	{
+		var aimPos = ctx.Event.SenderCharacterEntity.Read<EntityAimData>().AimPosition;
+		var closest = Helper.FindClosestTilePosition<ServantCoffinstation>(aimPos);
+		if (closest == Entity.Null)
+		{
+			ctx.Reply("Not pointing at a servant coffin.");
+			return;
+		}
+
+		var servantName = character.Name + "_Servant";
+		if (!Core.Prefabs.SpawnableNameToGuid.TryGetValue(servantName.ToLower(), out var toPrefab))
+		{
+			ctx.Reply($"Can't find a servant prefab for the type {character.Name}");
+			return;
+		}
+
+		var coffin = closest.Read<ServantCoffinstation>();
+		if (coffin.State == ServantCoffinState.Empty)
+		{
+			coffin.State = ServantCoffinState.Reviving;
+			coffin.ConvertionProgress = 600;
+			coffin.ConvertFromUnit = character.Prefab;
+			coffin.ConvertToUnit = toPrefab.Prefab;
+			closest.Write(coffin);
+		}
+		else
+		{
+			ctx.Reply("Coffin is not empty.");
+		}
+	}
 
 }
