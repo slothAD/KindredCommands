@@ -99,6 +99,14 @@ public static class StealthAdminChatPatch
 				userData.IsAdmin = false;
 				fromData.User.Write(userData);
 			}
+
+			User toUser = default;
+			if (Core.Players.TryFindUserFromNetworkId(chatEventData.ReceiverEntity, out var toUserEntity))
+			{
+				toUser = toUserEntity.Read<User>();
+			}
+
+			Core.AuditService.LogChatMessage(userData, toUser, chatEventData.MessageType, result, messageText);
 		}
 		entities.Dispose();
 		return true;

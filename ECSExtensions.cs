@@ -28,7 +28,21 @@ public static class ECSExtensions
 			Core.EntityManager.SetComponentDataRaw(entity, ct.TypeIndex, p, size);
 		}
 	}
+	public delegate void ActionRef<T>(ref T item);
 
+	public static void With<T>(this Entity entity, ActionRef<T> action) where T : struct
+	{
+		T item = entity.ReadRW<T>();
+		action(ref item);
+		Core.EntityManager.SetComponentData(entity, item);
+	}
+	public unsafe static T ReadRW<T>(this Entity entity) where T : struct
+	{
+		var ct = new ComponentType(Il2CppType.Of<T>());
+		void* componentDataRawRW = Core.EntityManager.GetComponentDataRawRW(entity, ct.TypeIndex);
+		T componentData = Marshal.PtrToStructure<T>(new IntPtr(componentDataRawRW));
+		return componentData;
+	}
 	// Helper function to marshal a struct to a byte array
 	public static byte[] StructureToByteArray<T>(T structure) where T : struct
 	{

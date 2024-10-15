@@ -13,6 +13,7 @@ internal class PlayerService
 {
 	readonly Dictionary<FixedString64Bytes, PlayerData> namePlayerCache = [];
 	readonly Dictionary<ulong, PlayerData> steamPlayerCache = [];
+	readonly Dictionary<NetworkId, PlayerData> idPlayerCache = [];
 
 	internal bool TryFindSteam(ulong steamId, out PlayerData playerData)
 	{
@@ -63,6 +64,18 @@ internal class PlayerService
 
 		namePlayerCache[newName.ToLower()] = playerData;
 		steamPlayerCache[userData.PlatformId] = playerData;
+		idPlayerCache[userEntity.Read<NetworkId>()] = playerData;
+	}
+
+	public bool TryFindUserFromNetworkId(NetworkId networkId, out Entity userEntity)
+	{
+		if(idPlayerCache.TryGetValue(networkId, out var playerData))
+		{
+			userEntity = playerData.UserEntity;
+			return true;
+		}
+		userEntity = Entity.Null;
+		return false;
 	}
 
 	internal bool RenamePlayer(Entity userEntity, Entity charEntity, FixedString64Bytes newName)

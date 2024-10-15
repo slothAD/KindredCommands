@@ -28,15 +28,18 @@ internal static class Core
 
 	public static ManualLogSource Log { get; } = Plugin.PluginLog;
 	public static AnnouncementsService AnnouncementsService { get; internal set; }
+	public static AuditService AuditService { get; } = new();
 	public static BoostedPlayerService BoostedPlayerService { get; internal set; }
 	public static BossService Boss { get; internal set; }
 	public static CastleTerritoryService CastleTerritory { get; private set; }
 	public static ConfigSettingsService ConfigSettings { get; internal set; }
 	public static DropItemService DropItem { get; internal set; }
 	public static GearService GearService { get; internal set; }
+	public static GlobalMiscService GlobalMisc { get; internal set; }
 	public static LocalizationService Localization { get; } = new();
 	public static PlayerService Players { get; internal set; }
 	public static PrefabService Prefabs { get; internal set; }
+	public static PrisonerService Prisoners { get; internal set; }
 	public static RegionService Regions { get; internal set; }
 	public static SoulshardService SoulshardService { get; internal set; }
 	public static StealthAdminService StealthAdminService { get; internal set; }
@@ -71,6 +74,8 @@ internal static class Core
 		CastleTerritory = new();
 		DropItem = new();
 		GearService = new();
+		GlobalMisc = new();
+		Prisoners = new();
 		Regions = new();
 		SoulshardService = new();
 		StealthAdminService = new();
