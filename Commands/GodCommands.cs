@@ -27,6 +27,7 @@ internal class GodCommands
 		Core.BoostedPlayerService.SetHealthBoost(charEntity, 100000);
 		Core.BoostedPlayerService.SetSpeedBoost(charEntity, DEFAULT_FAST_SPEED);
 		Core.BoostedPlayerService.SetYieldMultiplier(charEntity, 10f);
+		Core.BoostedPlayerService.ToggleBatVision(charEntity);
 		Core.BoostedPlayerService.ToggleNoAggro(charEntity);
 		Core.BoostedPlayerService.ToggleNoBlooddrain(charEntity);
 		Core.BoostedPlayerService.ToggleNoCooldown(charEntity);
@@ -103,6 +104,7 @@ internal class GodCommands
 				var healthSet = Core.BoostedPlayerService.GetHealthBoost(charEntity, out var health);
 				var speedSet = Core.BoostedPlayerService.GetSpeedBoost(charEntity, out var speed);
 				var yieldSet = Core.BoostedPlayerService.GetYieldMultiplier(charEntity, out var yield);
+				var batVision = Core.BoostedPlayerService.HasBatVision(charEntity);
 				var noAggro = Core.BoostedPlayerService.HasNoAggro(charEntity);
 				var noBlooddrain = Core.BoostedPlayerService.HasNoBlooddrain(charEntity);
 				var noCooldown = Core.BoostedPlayerService.HasNoCooldown(charEntity);
@@ -124,7 +126,9 @@ internal class GodCommands
 					sb.AppendLine($"Yield: <color=white>{yield}</color>");
 
 				var flags = new List<string>();
-				if(noAggro)
+				if (batVision)
+					flags.Add("<color=white>Bat Vision</color>");
+				if (noAggro)
 					flags.Add("<color=white>No Aggro</color>");
 				if(noBlooddrain)
 					flags.Add("<color=white>No Blooddrain</color>");
@@ -280,6 +284,22 @@ internal class GodCommands
 			}
 			Core.BoostedPlayerService.UpdateBoostedPlayer(charEntity);
 			ctx.Reply($"Yield boost removed from <color=white>{name}</color>");
+		}
+
+		[Command("batvision", "bv", adminOnly: true)]
+		public static void BatVision(ChatCommandContext ctx, OnlinePlayer player = null)
+		{
+			var name = player?.Value.UserEntity.Read<User>().CharacterName ?? ctx.Event.User.CharacterName;
+			var charEntity = player?.Value.CharEntity ?? ctx.Event.SenderCharacterEntity;
+			if (Core.BoostedPlayerService.ToggleBatVision(charEntity))
+			{
+				ctx.Reply($"Bat vision added to <color=white>{name}</color>");
+			}
+			else
+			{
+				ctx.Reply($"Bat vision removed from <color=white>{name}</color>");
+			}
+			Core.BoostedPlayerService.UpdateBoostedPlayer(charEntity);
 		}
 
 		[Command("fly", "f", adminOnly: true)]

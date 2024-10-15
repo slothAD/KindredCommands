@@ -16,6 +16,7 @@ namespace KindredCommands.Services
 		readonly Dictionary<Entity, float> playerHps = [];
 		readonly Dictionary<Entity, float> playerSpeeds = [];
 		readonly Dictionary<Entity, float> playerYield = [];
+		readonly HashSet<Entity> batVisionPlayers = [];
 		readonly HashSet<Entity> flyingPlayers = [];
 		readonly HashSet<Entity> noAggroPlayers = [];
 		readonly HashSet<Entity> noBlooddrainPlayers = [];
@@ -34,7 +35,8 @@ namespace KindredCommands.Services
 		public bool IsBoostedPlayer(Entity charEntity)
 		{
 			return playerAttackSpeed.ContainsKey(charEntity) || playerDamage.ContainsKey(charEntity) || playerHps.ContainsKey(charEntity) ||
-				playerSpeeds.ContainsKey(charEntity) || playerYield.ContainsKey(charEntity) || flyingPlayers.Contains(charEntity) || 
+				playerSpeeds.ContainsKey(charEntity) || playerYield.ContainsKey(charEntity) ||
+				batVisionPlayers.Contains(charEntity) || flyingPlayers.Contains(charEntity) || 
 				noAggroPlayers.Contains(charEntity) || noBlooddrainPlayers.Contains(charEntity) || noDurabilityPlayers.Contains(charEntity) ||
 				noCooldownPlayers.Contains(charEntity) || immaterialPlayers.Contains(charEntity) || invinciblePlayers.Contains(charEntity) ||
 				shroudedPlayers.Contains(charEntity) || sunInvulnPlayers.Contains(charEntity);
@@ -130,6 +132,7 @@ namespace KindredCommands.Services
 			playerHps.Remove(charEntity);
 			playerSpeeds.Remove(charEntity);
 			playerYield.Remove(charEntity);
+			batVisionPlayers.Remove(charEntity);
 			flyingPlayers.Remove(charEntity);
 			noAggroPlayers.Remove(charEntity);
 			noBlooddrainPlayers.Remove(charEntity);
@@ -217,6 +220,22 @@ namespace KindredCommands.Services
 		public bool GetYieldMultiplier(Entity charEntity, out float yield)
 		{
 			return playerYield.TryGetValue(charEntity, out yield);
+		}
+
+		public bool ToggleBatVision(Entity charEntity)
+		{
+			if (batVisionPlayers.Contains(charEntity))
+			{
+				batVisionPlayers.Remove(charEntity);
+				return false;
+			}
+			batVisionPlayers.Add(charEntity);
+			return true;
+		}
+
+		public bool HasBatVision(Entity charEntity)
+		{
+			return batVisionPlayers.Contains(charEntity);
 		}
 
 		public bool ToggleFlying(Entity charEntity)
@@ -491,7 +510,7 @@ namespace KindredCommands.Services
 
 			if (invinciblePlayers.Contains(charEntity))
 			{
-				buffModificationFlags |= (long)(BuffModificationTypes.Invulnerable | BuffModificationTypes.ImmuneToHazards | BuffModificationTypes.ImmuneToSun | BuffModificationTypes.CannotBeDisconnectDragged | BuffModificationTypes.DisableUnitVisibility);
+				buffModificationFlags |= (long)(BuffModificationTypes.Invulnerable | BuffModificationTypes.ImmuneToHazards | BuffModificationTypes.ImmuneToSun | BuffModificationTypes.CannotBeDisconnectDragged);
 				foreach (var buff in invincibleBuffs)
 				{
 					modifyStatBuffer.Add(buff);
