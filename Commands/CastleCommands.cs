@@ -44,6 +44,28 @@ internal class CastleCommands
 		}
 		ctx.Reply("Not close enough to a castle heart");
 	}
+	[Command("relocatereset", description: "clear the timer for relocation on a castle")]
+	public static void RelocateReset(ChatCommandContext ctx)
+	{
+		var castleHearts = Helper.GetEntitiesByComponentType<CastleHeart>();
+		var playerPos = ctx.Event.SenderCharacterEntity.Read<LocalToWorld>().Position;
+		foreach (var castleHeart in castleHearts)
+		{
+			var castleHeartPos = castleHeart.Read<LocalToWorld>().Position;
+
+			if (Vector3.Distance(playerPos, castleHeartPos) > 5f)
+			{
+				continue;
+			}
+
+			var castleHeartComponent = castleHeart.Read<CastleHeart>();
+			castleHeartComponent.LastRelocationTime = double.NegativeInfinity;
+			castleHeart.Write(castleHeartComponent);
+			ctx.Reply("Relocation timer reset");
+			return;
+		}
+		ctx.Reply("Not close enough to a castle heart");
+	}
 	//folded this into playerinfo
 	/*[Command("castleinfo", "cinfo", description: "Reports information about a player's territories.", adminOnly: true)]
 	public static void CastleInfo(ChatCommandContext ctx, OnlinePlayer player)
