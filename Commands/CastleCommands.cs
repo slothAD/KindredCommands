@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using Il2CppInterop.Runtime;
 using KindredCommands.Commands.Converters;
 using ProjectM;
+using ProjectM.Behaviours;
 using ProjectM.CastleBuilding;
 using ProjectM.Network;
 using ProjectM.Terrain;
@@ -44,7 +45,7 @@ internal class CastleCommands
 		}
 		ctx.Reply("Not close enough to a castle heart");
 	}
-	[Command("relocatereset", description: "clear the timer for relocation on a castle")]
+	[Command("relocatereset", description: "clear the timer for relocation on a castle", adminOnly:true)]
 	public static void RelocateReset(ChatCommandContext ctx)
 	{
 		var castleHearts = Helper.GetEntitiesByComponentType<CastleHeart>();
@@ -261,7 +262,7 @@ internal class CastleCommands
             ctx.Reply(sb.ToString());
         }
     }
-	[Command("freezeheart", "Freezes the time left on a castle heart, keeping it from ever decaying")]
+	[Command("freezeheart", "Freezes the time left on a castle heart, keeping it from ever decaying", adminOnly:true)]
 	public static void NeverDecay(ChatCommandContext ctx)
 	{
 		var castleHearts = Helper.GetEntitiesByComponentType<CastleHeart>();
@@ -317,7 +318,7 @@ internal class CastleCommands
 
 		ctx.Reply(sb.ToString());
 	}
-	[Command("thawheart", description: "Removes the frozen time from a castle heart and resumes ticking down")]
+	[Command("thawheart", description: "Removes the frozen time from a castle heart and resumes ticking down", adminOnly:true)]
 	public static void NeverDecayRemove(ChatCommandContext ctx)
 	{
 		var castleHearts = Helper.GetEntitiesByComponentType<CastleHeart>();
