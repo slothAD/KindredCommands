@@ -190,7 +190,7 @@ internal static class SpawnCommands
 				mount.MaxSpeed = speed;
 				mount.Acceleration = acceleration;
 				mount.RotationSpeed = rotation * 10f;
-				horse.Write<Mountable>(mount);
+				horse.Write(mount);
 			});
 		}
 
