@@ -103,6 +103,43 @@ internal class RegionCommands
 		ctx.Reply($"Allowed player {player.Value.CharacterName} to enter disallowed regions");
 	}
 
+	[Command("ban", "b", description: "Bans the specified player from entering a region.", adminOnly: true)]
+	public static void BanPlayerCommand(ChatCommandContext ctx, FoundPlayer player, FoundRegion region)
+	{
+		Core.Regions.BanPlayerFromRegion(player.Value.CharacterName.ToString(), region.Value);
+
+		ctx.Reply($"Banned player {player.Value.CharacterName} from entering {region.Name}");
+	}
+
+	[Command("unban", "ub", description: "Unbans the specified player from entering a region.", adminOnly: true)]
+	public static void UnbanPlayerCommand(ChatCommandContext ctx, FoundPlayer player, FoundRegion region)
+	{
+		Core.Regions.UnbanPlayerFromRegion(player.Value.CharacterName.ToString(), region.Value);
+
+		ctx.Reply($"Unbanned player {player.Value.CharacterName} from entering {region.Name}");
+	}
+
+	[Command("listbans", "lb", description: "Lists all players banned from entering a region.", adminOnly: true)]
+    public static void ListBansCommand(ChatCommandContext ctx, FoundRegion region)
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine($"<color=red>Banned Players</color> for <color=green>{region.Name}</color>:");
+        foreach (var ban in Core.Regions.BannedPlayers)
+        {
+            if (ban.Value.Contains(region.Name))
+            {
+                if (sb.Length + ban.Key.Length > Core.MAX_REPLY_LENGTH)
+                {
+                    ctx.Reply(sb.ToString());
+                    sb.Clear();
+                }
+
+                sb.AppendLine($"<color=white>{ban.Key}</color>");
+            }
+        }
+        ctx.Reply(sb.ToString());
+    }
+
 	[Command("remove", "r", description: "Removes the specified player from the allowed list.", adminOnly: true)]
 	public static void RemovePlayerCommand(ChatCommandContext ctx, FoundPlayer player)
 	{

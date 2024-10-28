@@ -29,10 +29,12 @@ internal class RegionService
 	Dictionary<Entity, float> lastSentMessage = [];
 	Dictionary<string, float> maxPlayerLevels = [];
 	List<string> allowPlayers = [];
+	Dictionary<string, List<string>> banPlayers = [];
 
 	public IEnumerable<WorldRegionType> LockedRegions => lockedRegions;
 	public IEnumerable<KeyValuePair<string, int>> GatedRegions => gatedRegions;
 	public IEnumerable<string> AllowedPlayers => allowPlayers;
+	public IEnumerable<KeyValuePair<string, List<string>>> BannedPlayers => banPlayers;
 
 	struct RegionPolygon
 	{
@@ -49,6 +51,7 @@ internal class RegionService
 		public Dictionary<string, int> GatedRegions { get; set; }
 		public Dictionary<string, float> MaxPlayerLevels { get; set; }
 		public string[] AllowPlayers { get; set; }
+		public Dictionary<string, string[]> BanPlayers { get; set; }
 	}
 
 	public RegionService()
@@ -96,11 +99,23 @@ internal class RegionService
 		allowPlayers.Clear();
 		if(regionFile.AllowPlayers != null)
 			allowPlayers.AddRange(regionFile.AllowPlayers);
+
+		banPlayers = new();
+		if (regionFile.BanPlayers != null)
+		{
+			foreach (var (key, value) in regionFile.BanPlayers)
+				banPlayers.Add(key, new List<string>(value));
+		}
 	}
 
 	void SaveRegions()
 	{
 		if (!Directory.Exists(CONFIG_PATH)) Directory.CreateDirectory(CONFIG_PATH);
+
+
+		var banPlayersExport = new Dictionary<string, string[]>();
+		foreach (var (key, value) in banPlayers)
+			banPlayersExport.Add(key, value.ToArray());
 
 		var regionFile = new RegionFile
 		{
@@ -108,6 +123,7 @@ internal class RegionService
 			GatedRegions = gatedRegions,
 			MaxPlayerLevels = maxPlayerLevels,
 			AllowPlayers = allowPlayers.ToArray(),
+			BanPlayers = banPlayersExport
 		};
 
 		var options = new JsonSerializerOptions
@@ -165,6 +181,30 @@ internal class RegionService
 		allowPlayers.Remove(playerName);
 		SaveRegions();
 	}
+
+	public void BanPlayerFromRegion(string playerName, WorldRegionType region)
+	{
+		if (!banPlayers.TryGetValue(playerName, out var regions))
+		{
+			regions = new List<string>();
+			banPlayers[playerName] = regions;
+		}
+		regions.Add(region.ToString());
+		SaveRegions();
+	}
+
+	public void UnbanPlayerFromRegion(string playerName, WorldRegionType region)
+	{
+		if (banPlayers.TryGetValue(playerName, out var regions))
+		{
+			regions.Remove(region.ToString());
+			if (regions.Count == 0)
+				banPlayers.Remove(playerName);
+		}
+		SaveRegions();
+	}
+
+	
 
 	public int GetPlayerMaxLevel(string playerName)
 	{
@@ -224,6 +264,11 @@ internal class RegionService
 		var charName = userEntity.Read<User>().CharacterName.ToString();
 		if (allowPlayers.Contains(charName))
 			return null;
+
+		if (!banPlayers.TryGetValue(charName, out var regions))
+			return null;
+		if (regions.Contains(region.ToString()))
+			return $"You are banned from region {region.ToString()}";
 
 		if (!maxPlayerLevels.TryGetValue(charName, out var maxLevel))
 			maxLevel = 0;
