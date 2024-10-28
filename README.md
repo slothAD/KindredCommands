@@ -272,10 +272,6 @@ Feel free to reach out to me on Discord (odjit) if you have any questions or nee
   - Changes the role of a player in their clan. Roles: member, officer, leader
   - Example: *.clan changerole Joe 1*
   - Shortcut: *.c cr*
-- `.clanplotsowned`
-  - will list how many plots are owned per clan, in descending order.
-  - Example: *.clanplotsowned*
-  - Shortcut: *.cpo*
  
 ### Region/Map Commands
 - `.incomingdecay`
@@ -285,6 +281,10 @@ Feel free to reach out to me on Discord (odjit) if you have any questions or nee
   - will list how many plots are owned per player, in descending order.
   - Example: *.plotsowned*
   - Shortcut: *.po 2*
+- `.clanplotsowned`
+  - will list how many plots are owned per clan, in descending order.
+  - Example: *.clanplotsowned*
+  - Shortcut: *.cpo*
 - `.revealmap (Player)`
   - will reveal the map for a player named, or the user if no one is named.
   - Example: *.revealmap Bob*
