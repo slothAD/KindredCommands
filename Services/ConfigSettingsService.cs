@@ -266,7 +266,7 @@ internal class ConfigSettingsService
 		public float? GruelBloodMin { get; set; }
 		public float? GruelBloodMax { get; set; }
 		public PrefabGUID? GruelTransform { get; set; }
-		public bool BatVision { get; internal set; }
+		public bool BatVision { get; set; }
 	}
 
 	Config config;

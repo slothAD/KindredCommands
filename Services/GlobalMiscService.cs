@@ -1,12 +1,21 @@
+using FMOD;
 using KindredCommands.Data;
 using ProjectM.Gameplay.Scripting;
 
 namespace KindredCommands.Services;
 internal class GlobalMiscService
 {
+	float defaultBatVisionDelay = 0.3f;
 	public GlobalMiscService()
 	{
-		SetBatVisionState(Core.ConfigSettings.BatVision);
+		if (Core.PrefabCollectionSystem._PrefabGuidToEntityMap.TryGetValue(Prefabs.AB_Shapeshift_Bat_TakeFlight_Buff, out var prefabEntity))
+		{
+			var data = prefabEntity.Read<Script_SetFlyingHeightVision_Buff_DataShared>();
+			defaultBatVisionDelay = data.Delay;
+		}
+		
+		if (Core.ConfigSettings.BatVision)
+			SetBatVisionState(Core.ConfigSettings.BatVision);
 	}
 
 	public bool ToggleBatVision()
@@ -16,14 +25,13 @@ internal class GlobalMiscService
 		return Core.ConfigSettings.BatVision;
 	}
 
-	void SetBatVisionState(bool enabled)
-	{
-		if (Core.PrefabCollectionSystem._PrefabGuidToEntityMap.TryGetValue(Prefabs.AB_Shapeshift_Bat_TakeFlight_Buff, out var prefabEntity))
-		{
-			var data = prefabEntity.Read<Script_SetFlyingHeightVision_Buff_DataShared>();
-			data.BuffActive = false;
-			data.Delay = float.MaxValue;
-			prefabEntity.Write(data);
-		}
+    void SetBatVisionState(bool enabled)
+    {
+		if (!Core.PrefabCollectionSystem._PrefabGuidToEntityMap.TryGetValue(Prefabs.AB_Shapeshift_Bat_TakeFlight_Buff, out var prefabEntity))
+			return;
+
+		var data = prefabEntity.Read<Script_SetFlyingHeightVision_Buff_DataShared>();
+		data.Delay = enabled ? float.MaxValue : defaultBatVisionDelay;
+		prefabEntity.Write(data);
 	}
 }

@@ -1,14 +1,18 @@
-using System;
 using System.Collections.Generic;
+using KindredCommands.Commands.Converters;
 using ProjectM;
 using ProjectM.Network;
 using ProjectM.Shared;
 using Stunlock.Core;
-using Unity.Collections;
 using Unity.Entities;
-using Unity.Entities.UniversalDelegates;
 using Unity.Transforms;
 using VampireCommandFramework;
+using KindredCommands.Data;
+using ProjectM.Gameplay.Scripting;
+using static ProjectM.SpawnBuffsAuthoring.SpawnBuffElement_Editor;
+using HarmonyLib;
+using ProjectM.Shared.Systems;
+using UnityEngine.Rendering.HighDefinition;
 
 namespace KindredCommands.Commands
 {
@@ -94,5 +98,18 @@ namespace KindredCommands.Commands
 
 			ctx.Reply($"Everyone is now {(Core.ConfigSettings.EveryoneDaywalker ? "a daywalker" : "a vampire")}");
 		}
-}
+
+		[Command("globalbatvision", "gbv", description: "Allows players to see entities while in batform", adminOnly: true)]
+		public static void BatVision(ChatCommandContext ctx)
+		{
+			if(Core.GlobalMisc.ToggleBatVision())
+			{
+				ctx.Reply("Bat Vision is now enabled");
+			}
+			else
+			{
+				ctx.Reply("Bat Vision is now disabled");
+			}
+		}
+	}
 }
