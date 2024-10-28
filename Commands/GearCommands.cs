@@ -7,6 +7,8 @@ using Unity.Entities;
 using VampireCommandFramework;
 using System.Collections.Generic;
 using System.Collections;
+using Unity.Transforms;
+using UnityEngine;
 
 namespace KindredCommands.Commands;
 internal static class DurabilityCommands
@@ -29,6 +31,36 @@ internal static class DurabilityCommands
 			var targetEntity = player?.Value.CharEntity ?? ctx.Event.SenderCharacterEntity;
 			Helper.RepairGear(targetEntity, false);
 			ctx.Reply($"Gear broken for {targetEntity.Read<PlayerCharacter>().Name}.");
+		}
+
+		[Command("repairall", "ra", description: "Repairs all gear within a range.", adminOnly: true)]
+		public static void RepairAllCommand(ChatCommandContext ctx, float range = 10)
+		{
+			var senderPos = ctx.Event.SenderCharacterEntity.Read<LocalToWorld>().Position;
+			var playerEntities = Helper.GetEntitiesByComponentType<PlayerCharacter>();
+			foreach (var playerEntity in playerEntities)
+			{
+				var pos = playerEntity.Read<LocalToWorld>().Position;
+				if (Vector3.Distance(senderPos, pos) > range) continue;
+				Helper.RepairGear(playerEntity);
+			}
+
+			ctx.Reply($"Gear repaired for all players within {range}m.");
+		}
+
+		[Command("breakall", "ba", description: "Breaks all gear within a range.", adminOnly: true)]
+		public static void BreakAllCommand(ChatCommandContext ctx, float range = 10)
+		{
+			var senderPos = ctx.Event.SenderCharacterEntity.Read<LocalToWorld>().Position;
+			var playerEntities = Helper.GetEntitiesByComponentType<PlayerCharacter>();
+			foreach (var playerEntity in playerEntities)
+			{
+				var pos = playerEntity.Read<LocalToWorld>().Position;
+				if (Vector3.Distance(senderPos, pos) > range) continue;
+				Helper.RepairGear(playerEntity, false);
+			}
+
+			ctx.Reply($"Gear broken for all players within {range}m.");
 		}
 
 		[Command("headgear", "hg", description: "Toggles headgear loss on death.", adminOnly: true)]
