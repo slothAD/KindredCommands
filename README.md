@@ -14,6 +14,8 @@ Feel free to reach out to me on Discord (odjit) if you have any questions or nee
   - will add or remove a player from the admin list, authing and deauthing
 - `.reloadadmin `
   - will reload the admin list
+- `autoadminauth`
+  - will toggle auto admin auth for the server. If enabled, players who are in the admin list will automatically be authenticated upon joining.
 - `.stealthadmin`
   - will toggle stealth mode for the user as admin. This will enable you to still use all chat admin commands, but your name not go green. You cannnot adminauth or you will show as green again. Will persist through relog. You will get kicked, don't freak.
 - `.reloadstaff`
