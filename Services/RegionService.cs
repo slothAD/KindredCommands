@@ -265,10 +265,11 @@ internal class RegionService
 		if (allowPlayers.Contains(charName))
 			return null;
 
-		if (!banPlayers.TryGetValue(charName, out var regions))
-			return null;
-		if (regions.Contains(region.ToString()))
-			return $"You are banned from region {region.ToString()}";
+		if (banPlayers.TryGetValue(charName, out var regions))
+		{
+			if (regions.Contains(region.ToString()))
+				return $"You are banned from region {region.ToString()}";
+		}
 
 		if (!maxPlayerLevels.TryGetValue(charName, out var maxLevel))
 			maxLevel = 0;
