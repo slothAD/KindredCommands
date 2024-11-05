@@ -104,13 +104,14 @@ internal class CastleCommands
         {
             var castleTerritory = castleTerritoryEntity.Read<CastleTerritory>();
             if (castleTerritory.CastleHeart.Equals(Entity.Null)) continue;
-            castleTerritoryList.Add((castleTerritoryEntity, castleTerritory, GetFuelTimeRemaining(castleTerritory.CastleHeart)));
+			castleTerritoryList.Add((castleTerritoryEntity, castleTerritory, GetFuelTimeRemaining(castleTerritory.CastleHeart)));
         }
         castleTerritoryList.Sort((a, b) => a.Item3.CompareTo(b.Item3));
         var sb = new StringBuilder();
         foreach (var (territoryEntity, territory, secondsRemaining) in castleTerritoryList)
         {
             if (secondsRemaining <= 1) continue;
+			if (secondsRemaining == double.PositiveInfinity) continue;
 
             var time = TimeSpan.FromSeconds(secondsRemaining);
 			var region = territoryEntity.Read<TerritoryWorldRegion>().Region;
