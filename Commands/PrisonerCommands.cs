@@ -29,7 +29,7 @@ internal class PrisonerCommands
 		Core.ConfigSettings.GruelTransform = prefab.Prefab;
 		ctx.Reply($"Gruel transform set to {prefab.Name}");
 	}
-	[Command("gruelsettings", description: "show current gruel settings")]
+	[Command("gruelsettings", description: "show current gruel settings", adminOnly: true)]
     public static void ShowGruelSettings(ChatCommandContext ctx)
     {
         var prefabInt = Core.ConfigSettings.GruelTransform;

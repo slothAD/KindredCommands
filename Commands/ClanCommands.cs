@@ -434,7 +434,7 @@ class ClanCommands
 		ctx.Reply($"Changed {player.Value.CharacterName} role from {oldRole} to {newRole}");
     }
 
-	[Command("castles", "c", description: "List castles owned by a clan")]
+	[Command("castles", "c", description: "List castles owned by a clan", adminOnly: true)]
     public static void ListClanCastles(ChatCommandContext ctx, string clanName)
     {
         if (!FindClan(clanName, out var clanEntity))
