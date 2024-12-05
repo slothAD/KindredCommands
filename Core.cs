@@ -43,6 +43,7 @@ internal static class Core
 	public static RegionService Regions { get; internal set; }
 	public static SoulshardService SoulshardService { get; internal set; }
 	public static StealthAdminService StealthAdminService { get; internal set; }
+	public static TerritoryLocationService TerritoryLocation { get; internal set; }
 	public static TrackPlayerEquipmentService TrackPlayerEquipment { get; internal set; }
 	public static UnitSpawnerService UnitSpawner { get; internal set; }
 
@@ -79,6 +80,7 @@ internal static class Core
 		Regions = new();
 		SoulshardService = new();
 		StealthAdminService = new();
+		TerritoryLocation = new();
 		TrackPlayerEquipment = new();
 		UnitSpawner = new();
 

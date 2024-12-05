@@ -15,6 +15,8 @@ using Unity.Transforms;
 using UnityEngine;
 using UnityEngine.UIElements.UIR;
 using VampireCommandFramework;
+using KindredCommands.Services;
+using Unity.Mathematics;
 
 namespace KindredCommands.Commands;
 
@@ -388,4 +390,87 @@ internal class CastleCommands
 			ctx.Reply(sb.ToString());
 		}
 	}
+	[Command("teleporttoplot", "tpp", description: "Teleports you to the castle heart of the specified territory", adminOnly: true)]
+	public static void TeleportToPlot(ChatCommandContext ctx, int territoryIndex)
+	{
+		var castleTerritories = Helper.GetEntitiesByComponentType<CastleTerritory>();
+		foreach (var castleTerritoryEntity in castleTerritories)
+		{
+			var castleTerritory = castleTerritoryEntity.Read<CastleTerritory>();
+			if (castleTerritory.CastleTerritoryIndex != territoryIndex) continue;
+
+			var castleHeart = castleTerritory.CastleHeart;
+			float3 teleportTo;
+			if (castleHeart.Equals(Entity.Null))
+			{
+				var territoryCenter = Core.TerritoryLocation.GetTerritoryCenter(territoryIndex);
+
+				if (territoryCenter.Equals(float2.zero))
+				{
+					ctx.Reply("Territory has no center");
+					return;
+				}
+
+				teleportTo = new float3(territoryCenter.x, 0, territoryCenter.y);
+			}
+			else
+			{
+				var castleHeartPos = castleHeart.Read<LocalToWorld>().Position;
+				teleportTo = new float3(castleHeartPos.x + 1.5f, castleHeartPos.y, castleHeartPos.z);
+			}
+            var user = ctx.Event.SenderUserEntity.Read<User>();
+            var charEntity = user.LocalCharacter.GetEntityOnServer();
+            charEntity.Write(new Translation { Value = teleportTo });
+            charEntity.Write(new LastTranslation { Value = teleportTo });
+			ctx.Reply($"Teleported to territory {territoryIndex}");
+			return;
+		}
+
+		ctx.Reply("Territory not found");
+	}
+
+	[Command("plotinfo", "pinfo", description: "Reports information about the territory specified", adminOnly: true)]
+	public static void PlotInfo(ChatCommandContext ctx, int territoryIndex)
+	{
+		var castleTerritories = Helper.GetEntitiesByComponentType<CastleTerritory>();
+		foreach (var castleTerritoryEntity in castleTerritories)
+		{
+			var castleTerritory = castleTerritoryEntity.Read<CastleTerritory>();
+			if (castleTerritory.CastleTerritoryIndex != territoryIndex) continue;
+
+			var castleHeart = castleTerritory.CastleHeart;
+			if (castleHeart.Equals(Entity.Null))
+			{
+				ctx.Reply("Territory has no castle heart");
+				return;
+			}
+
+			var userOwner = castleHeart.Read<UserOwner>();
+			var user = userOwner.Owner.GetEntityOnServer().Read<User>();
+			var region = castleTerritoryEntity.Read<TerritoryWorldRegion>().Region;
+			var secondsRemaining = GetFuelTimeRemaining(castleHeart);
+			var sb = new StringBuilder();
+			sb.AppendLine($"Castle {territoryIndex} in {RegionName(region)}");
+			sb.AppendLine($"Owner: {user.CharacterName}");
+			if (!user.ClanEntity.Equals(NetworkedEntity.Empty))
+			{
+				var clan = user.ClanEntity.GetEntityOnServer().Read<ClanTeam>();
+				sb.AppendLine($"Clan: {clan.Name}");
+			}
+			if (secondsRemaining == double.PositiveInfinity)
+			{
+				sb.AppendLine("Time Remaining: Infinite");
+			}
+			else
+			{
+				var time = TimeSpan.FromSeconds(secondsRemaining);
+				sb.AppendLine($"Time Remaining: {time.Days}d {time.Hours}h {time.Minutes}m");
+			}
+			ctx.Reply(sb.ToString());
+			return;
+		}
+
+		ctx.Reply("Territory not found");
+	}
+
 }
