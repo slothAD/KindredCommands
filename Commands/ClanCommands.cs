@@ -5,6 +5,7 @@ using KindredCommands.Commands.Converters;
 using ProjectM;
 using ProjectM.CastleBuilding;
 using ProjectM.Network;
+using ProjectM.Terrain;
 using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
@@ -433,8 +434,38 @@ class ClanCommands
 		ctx.Reply($"Changed {player.Value.CharacterName} role from {oldRole} to {newRole}");
     }
 
+	[Command("castles", "c", description: "List castles owned by a clan")]
+    public static void ListClanCastles(ChatCommandContext ctx, string clanName)
+    {
+        if (!FindClan(clanName, out var clanEntity))
+        {
+            ctx.Reply($"No clan found matching name '{clanName}'");
+            return;
+        }
 
-    public static bool FindClan(string clanName, out Entity clanEntity)
+        var teamValue = clanEntity.Read<ClanTeam>().TeamValue;
+        var castleHearts = Helper.GetEntitiesByComponentType<CastleHeart>();
+        var castleList = new List<string>();
+        int castleCount = 0; // Initialize castle count
+
+        foreach (var castle in castleHearts)
+        {
+            var heartTeam = castle.Read<Team>().Value;
+            if (heartTeam != teamValue) continue;
+            var ownerEntity = castle.Read<UserOwner>().Owner.GetEntityOnServer();
+            var owner = ownerEntity.Read<User>();
+            var castleData = castle.Read<CastleHeart>();
+            var castleTerritoryEntity = castleData.CastleTerritoryEntity;
+            var region = castleTerritoryEntity.Read<TerritoryWorldRegion>().Region;
+
+            castleList.Add($"{owner.CharacterName} - {castleData.CastleTerritoryEntity.Read<CastleTerritory>().CastleTerritoryIndex} in {region} ");
+            castleCount++; 
+        }
+
+        ctx.Reply($"Castles owned by Clan '{clanEntity.Read<ClanTeam>().Name}' (Total: {castleCount})\n" + string.Join("\n", castleList));
+    }
+
+	public static bool FindClan(string clanName, out Entity clanEntity)
     {
         var clans = Helper.GetEntitiesByComponentType<ClanTeam>().ToArray();
         var matchedClans = clans.Where(x => x.Read<ClanTeam>().Name.ToString().ToLower() == clanName.ToLower());
