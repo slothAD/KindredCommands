@@ -216,11 +216,12 @@ internal class ConfigSettingsService
 	{
 		get
 		{
-			return config.GruelTransform ?? new PrefabGUID(1092792896);
+			return config.GruelTransformPrefabInt.HasValue ? new PrefabGUID(config.GruelTransformPrefabInt.Value) 
+				                                  : new PrefabGUID(1092792896);
 		}
 		set
 		{
-			config.GruelTransform = value;
+			config.GruelTransformPrefabInt = value.GuidHash;
 			SaveConfig();
 		}
 	}
@@ -265,7 +266,7 @@ internal class ConfigSettingsService
 		public float? GruelMutantChance { get; set; }
 		public float? GruelBloodMin { get; set; }
 		public float? GruelBloodMax { get; set; }
-		public PrefabGUID? GruelTransform { get; set; }
+		public int? GruelTransformPrefabInt { get; set; }
 		public bool BatVision { get; set; }
 	}
 
@@ -291,7 +292,7 @@ internal class ConfigSettingsService
 		Core.Log.LogInfo($"GruelMutantChance: {GruelMutantChance}");
 		Core.Log.LogInfo($"GruelBloodMin: {GruelBloodMin}");
 		Core.Log.LogInfo($"GruelBloodMax: {GruelBloodMax}");
-		Core.Log.LogInfo($"GruelTransform: {GruelTransform}");
+		Core.Log.LogInfo($"GruelTransformPrefabInt: {GruelTransform}");
 		Core.Log.LogInfo($"BatVision: {BatVision}");
 	}
 

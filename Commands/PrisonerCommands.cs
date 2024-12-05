@@ -1,6 +1,8 @@
 using KindredCommands.Services;
 using static KindredCommands.Commands.SpawnCommands;
 using VampireCommandFramework;
+using Stunlock.Core;
+using KindredCommands.Data;
 
 namespace KindredCommands.Commands;
 
@@ -27,4 +29,13 @@ internal class PrisonerCommands
 		Core.ConfigSettings.GruelTransform = prefab.Prefab;
 		ctx.Reply($"Gruel transform set to {prefab.Name}");
 	}
+	[Command("gruelsettings", description: "show current gruel settings")]
+    public static void ShowGruelSettings(ChatCommandContext ctx)
+    {
+        var prefabInt = Core.ConfigSettings.GruelTransform;
+		var prefabInt2 = Character.NameFromPrefab[prefabInt.GuidHash];
+		var prefabName = Character.NameFromPrefab.TryGetValue(prefabInt.GuidHash, out var name) ? name : prefabInt2;
+
+		ctx.Reply($"Chance: {Core.ConfigSettings.GruelMutantChance * 100}%. Quality increase: {Core.ConfigSettings.GruelBloodMin * 100}% - {Core.ConfigSettings.GruelBloodMax * 100}%. Transform: {prefabName}");
+    }
 }
