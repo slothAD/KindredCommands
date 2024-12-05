@@ -12,6 +12,8 @@ public static class BuffSystem_Spawn_ServerPatch
 {
 	public static void Prefix(BuffSystem_Spawn_Server __instance)
 	{
+		if (Core.BoostedPlayerService == null) return;
+
 		EntityManager entityManager = __instance.EntityManager;
 		NativeArray<Entity> entities = __instance.__query_401358634_0.ToEntityArray(Allocator.Temp);
 
@@ -20,7 +22,7 @@ public static class BuffSystem_Spawn_ServerPatch
 			PrefabGUID GUID = buffEntity.Read<PrefabGUID>();
 			Entity owner = buffEntity.Read<EntityOwner>().Owner;
 			if (!owner.Has<PlayerCharacter>()) continue;
-			if (!Core.BoostedPlayerService.IsBoostedPlayer(owner)) continue;
+			if (!Core.BoostedPlayerService.IsBoostedPlayer(owner, true)) continue;
 			if (GUID == Data.Prefabs.BoostedBuff1)
 			{
 				Core.BoostedPlayerService.UpdateBoostedBuff1(buffEntity);

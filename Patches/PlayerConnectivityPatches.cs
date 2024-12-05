@@ -93,9 +93,9 @@ public class Destroy_TravelBuffSystem_Patch
 
 				var userEntity = __instance.EntityManager.GetComponentData<PlayerCharacter>(owner).UserEntity;
 				var playerName = __instance.EntityManager.GetComponentData<User>(userEntity).CharacterName.ToString();
-				if (Core.ConfigSettings.EveryoneDaywalker ^ Core.BoostedPlayerService.IsSunInvulnerable(owner))
+				if (Core.ConfigSettings.EveryoneDaywalker ^ Core.BoostedPlayerService.IsDaywalker(owner))
 				{
-					Core.BoostedPlayerService.ToggleSunInvulnerable(owner);
+					Core.BoostedPlayerService.ToggleDaywalker(owner);
 					Core.BoostedPlayerService.UpdateBoostedPlayer(owner);
 				}
 

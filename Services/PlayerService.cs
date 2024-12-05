@@ -41,9 +41,9 @@ internal class PlayerService
 
 			var charEntity = userData.LocalCharacter.GetEntityOnServer();
 			if (!charEntity.Equals(Entity.Null) &&
-				Core.ConfigSettings.EveryoneDaywalker ^ Core.BoostedPlayerService.IsSunInvulnerable(charEntity))
+				Core.ConfigSettings.EveryoneDaywalker ^ Core.BoostedPlayerService.IsDaywalker(charEntity))
 			{
-				Core.BoostedPlayerService.ToggleSunInvulnerable(charEntity);
+				Core.BoostedPlayerService.ToggleDaywalker(charEntity);
 				Core.BoostedPlayerService.UpdateBoostedPlayer(charEntity);
 			}
 		}

@@ -88,9 +88,9 @@ namespace KindredCommands.Commands
 			var players = Helper.GetEntitiesByComponentType<PlayerCharacter>(includeDisabled: true);
 			foreach (var player in players)
 			{
-				if (Core.ConfigSettings.EveryoneDaywalker ^ Core.BoostedPlayerService.IsSunInvulnerable(player))
+				if (Core.ConfigSettings.EveryoneDaywalker ^ Core.BoostedPlayerService.IsDaywalker(player))
 				{
-					Core.BoostedPlayerService.ToggleSunInvulnerable(player);
+					Core.BoostedPlayerService.ToggleDaywalker(player);
 					Core.BoostedPlayerService.UpdateBoostedPlayer(player);
 				}
 			}

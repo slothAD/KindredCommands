@@ -26,20 +26,22 @@ namespace KindredCommands.Services
 		readonly HashSet<Entity> invinciblePlayers = [];
 		readonly HashSet<Entity> shroudedPlayers = [];
 		readonly HashSet<Entity> sunInvulnPlayers = [];
+		readonly HashSet<Entity> daywalkerPlayers = [];
 
 		public BoostedPlayerService()
 		{
 			LoadCurrentPlayerBoosts();
 		}
 
-		public bool IsBoostedPlayer(Entity charEntity)
+		public bool IsBoostedPlayer(Entity charEntity, bool includeDaywalkers = false)
 		{
 			return playerAttackSpeed.ContainsKey(charEntity) || playerDamage.ContainsKey(charEntity) || playerHps.ContainsKey(charEntity) ||
 				playerSpeeds.ContainsKey(charEntity) || playerYield.ContainsKey(charEntity) ||
 				batVisionPlayers.Contains(charEntity) || flyingPlayers.Contains(charEntity) || 
 				noAggroPlayers.Contains(charEntity) || noBlooddrainPlayers.Contains(charEntity) || noDurabilityPlayers.Contains(charEntity) ||
 				noCooldownPlayers.Contains(charEntity) || immaterialPlayers.Contains(charEntity) || invinciblePlayers.Contains(charEntity) ||
-				shroudedPlayers.Contains(charEntity) || sunInvulnPlayers.Contains(charEntity);
+				shroudedPlayers.Contains(charEntity) || sunInvulnPlayers.Contains(charEntity) ||
+				includeDaywalkers && daywalkerPlayers.Contains(charEntity);
 		}
 
 		public IEnumerable<Entity> GetBoostedPlayers()
@@ -52,7 +54,7 @@ namespace KindredCommands.Services
 		}
 		public void UpdateBoostedPlayer(Entity charEntity)
 		{
-			if(!IsBoostedPlayer(charEntity))
+			if(!IsBoostedPlayer(charEntity, true))
 			{
 				ClearExtraBuffs(charEntity);
 				return;
@@ -369,6 +371,22 @@ namespace KindredCommands.Services
 			return sunInvulnPlayers.Contains(charEntity);
 		}
 
+		public bool ToggleDaywalker(Entity charEntity)
+		{
+			if (daywalkerPlayers.Contains(charEntity))
+			{
+				daywalkerPlayers.Remove(charEntity);
+				return false;
+			}
+			daywalkerPlayers.Add(charEntity);
+			return true;
+		}
+
+		public bool IsDaywalker(Entity charEntity)
+		{
+			return daywalkerPlayers.Contains(charEntity);
+		}
+
 		public bool TogglePlayerShrouded(Entity charEntity)
 		{
 			if (shroudedPlayers.Contains(charEntity))
@@ -403,6 +421,7 @@ namespace KindredCommands.Services
 
 		public void UpdateBoostedBuff1(Entity buffEntity)
 		{
+			
 			var charEntity = buffEntity.Read<EntityOwner>().Owner;
 			var modifyStatBuffer = Core.EntityManager.AddBuffer<ModifyUnitStatBuff_DOTS>(buffEntity);
 			modifyStatBuffer.Clear();
@@ -450,9 +469,21 @@ namespace KindredCommands.Services
 				modifyStatBuffer.Add(Cooldown);
 			}
 
-			if (noDurabilityPlayers.Contains(charEntity))
+			long buffModificationFlags = 0;
+			if (daywalkerPlayers.Contains(charEntity))
 			{
-				modifyStatBuffer.Add(DurabilityLoss);
+				buffModificationFlags |= (long)(BuffModificationTypes.ImmuneToSun);
+			}
+
+			if (buffModificationFlags != 0)
+			{
+				buffEntity.Add<BuffModificationFlagData>();
+				var buffModificationFlagData = new BuffModificationFlagData()
+				{
+					ModificationTypes = buffModificationFlags,
+					ModificationId = ModificationId.NewId(0),
+				};
+				buffEntity.Write(buffModificationFlagData);
 			}
 		}
 
@@ -461,6 +492,11 @@ namespace KindredCommands.Services
 			var charEntity = buffEntity.Read<EntityOwner>().Owner;
 			var modifyStatBuffer = Core.EntityManager.AddBuffer<ModifyUnitStatBuff_DOTS>(buffEntity);
 			modifyStatBuffer.Clear();
+
+			if (noDurabilityPlayers.Contains(charEntity))
+			{
+				modifyStatBuffer.Add(DurabilityLoss);
+			}
 
 			if (noAggroPlayers.Contains(charEntity))
 			{
@@ -560,9 +596,9 @@ namespace KindredCommands.Services
 			if (BuffUtility.TryGetBuff(Core.Server.EntityManager, charEntity, Prefabs.BoostedBuff1, out var buffEntity) &&
 				buffEntity.Has<ModifyUnitStatBuff_DOTS>())
 			{
-				foreach(var buff in buffEntity.ReadBuffer<ModifyUnitStatBuff_DOTS>())
+				foreach (var buff in buffEntity.ReadBuffer<ModifyUnitStatBuff_DOTS>())
 				{
-					switch(buff.StatType)
+					switch (buff.StatType)
 					{
 						case UnitStatType.AttackSpeed:
 							playerAttackSpeed[charEntity] = buff.Value;
@@ -587,10 +623,33 @@ namespace KindredCommands.Services
 							break;
 					}
 				}
+
+				if (buffEntity.Has<BuffModificationFlagData>())
+				{
+					var buffModificationFlagData = buffEntity.Read<BuffModificationFlagData>();
+
+					if ((buffModificationFlagData.ModificationTypes & (long)BuffModificationTypes.ImmuneToSun) != 0)
+					{
+						daywalkerPlayers.Add(charEntity);
+					}
+				}
 			}
 
 			if (BuffUtility.TryGetBuff(Core.Server.EntityManager, charEntity, Prefabs.BoostedBuff2, out buffEntity))
 			{
+				if (Core.EntityManager.HasBuffer<ModifyUnitStatBuff_DOTS>(buffEntity))
+				{
+					foreach (var buff in buffEntity.ReadBuffer<ModifyUnitStatBuff_DOTS>())
+					{
+						switch (buff.StatType)
+						{
+							case UnitStatType.ReducedResourceDurabilityLoss:
+								noDurabilityPlayers.Add(charEntity);
+								break;
+						}
+					}
+				}
+
 				if (buffEntity.Has<DisableAggroBuff>())
 				{
 					noAggroPlayers.Add(charEntity);
