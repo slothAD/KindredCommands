@@ -12,9 +12,9 @@ namespace KindredCommands.Services;
 internal class AuditService
 {
 	static readonly string CONFIG_PATH = Path.Combine(BepInEx.Paths.ConfigPath, MyPluginInfo.PLUGIN_NAME);
-	static readonly string AUDIT_PATH = Path.Combine(CONFIG_PATH, "audit.csv");
+	static readonly string AUDIT_PATH = Path.Combine(CONFIG_PATH, $"audit-{DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss")}.csv");
 
-	Mutex mutex = new Mutex(false, "KindredCommands.AuditService");
+	Mutex mutex = new(false, $"KindredCommands.AuditService-{System.Diagnostics.Process.GetCurrentProcess().Id}");
 
 	public void LogChatMessage(User fromUser, User toUser, ChatMessageType type, CommandResult vcfResult, string message)
 	{
@@ -156,6 +156,7 @@ internal class AuditService
 		sb.Append(",");
 		sb.Append(userIndex);
 		sb.Append("\n");
+		AddAuditString(sb);
 	}
 
 	void AddAuditString(StringBuilder sb)
