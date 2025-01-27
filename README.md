@@ -501,6 +501,7 @@ Updated for V Rising 1.0 as of v1.9.0!
 - [Deca](https://github.com/deca) for CommunityCommands. This mod was originally built upon it!
 - [Zfolmt](https://github.com/zfolmt) for consultations.
 - Synetrica for requesting clanplotsowned and adjusting plotsowned themselves!
+- [Barrent](https://github.com/Barrent) for adding in bloodbound toggles for individual items!
 - [V Rising Modding Community](https://vrisingmods.com) for support and ideas.
 
 ## License
