@@ -278,6 +278,10 @@ Feel free to reach out to me on Discord (odjit) if you have any questions or nee
   - adds the player named to the clan named. Can exceed clan limitations through this method. (Kick WIP)
   - Example: *.clan add Joe “The Best Clan”*
   - Shortcut: *.c a*
+- `.clan kick (Player)`
+  - kicks a player from their clan. You cannot kick a leader, change their role first.																						
+  - Example: *.clan kick Joe*
+  - Shortcut: *.c k*
 - `.clan changerole (Player) (Role)`
   - Changes the role of a player in their clan. Roles: member, officer, leader
   - Example: *.clan changerole Joe 1*

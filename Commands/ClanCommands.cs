@@ -115,6 +115,9 @@ class ClanCommands
 				{
 					TargetUserIndex = members[i].UserIndex
 				});
+
+				Core.Log.LogInfo($"Kicking {userBufferEntry.UserEntity.Read<User>().CharacterName}\n" +
+							$"FromCharacter {fromCharacter.Character} {fromCharacter.User} TargetUserIndex: {members[i].UserIndex}");
 				ctx.Reply($"{playerToRemove.Value.CharacterName} removed from clan {clanEntity.Read<ClanTeam>().Name}");
 				return;
 			}
