@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using KindredCommands.Commands.Converters;
 using ProjectM;
 using ProjectM.Network;
 using ProjectM.Shared;
@@ -7,12 +6,6 @@ using Stunlock.Core;
 using Unity.Entities;
 using Unity.Transforms;
 using VampireCommandFramework;
-using KindredCommands.Data;
-using ProjectM.Gameplay.Scripting;
-using static ProjectM.SpawnBuffsAuthoring.SpawnBuffElement_Editor;
-using HarmonyLib;
-using ProjectM.Shared.Systems;
-using UnityEngine.Rendering.HighDefinition;
 
 namespace KindredCommands.Commands
 {
@@ -30,7 +23,7 @@ namespace KindredCommands.Commands
 		}
 
 		[Command("settime", "st", description: "Sets the game time to the day and hour", adminOnly: true)]
-		public static void SetTime(ChatCommandContext ctx, int day, int hour)
+		public static void SetTime(ChatCommandContext _, int day, int hour)
 		{
 			var st = Core.EntityManager.CreateEntity(new ComponentType[1] { ComponentType.ReadOnly<SetTimeOfDayEvent>() });
 			st.Write(new SetTimeOfDayEvent()
