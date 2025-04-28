@@ -122,7 +122,7 @@ Feel free to reach out to me on Discord (odjit) if you have any questions or nee
 ### Announcement Commands
 - `.announce add (Name) (Message) (Time) (OneTime: True/False)`
   - Adds an announcement to the list of announcements. Time is server time. OneTime true will only do it once, false will repeat the announcement every day at the same time. (Default False)
-  - Example: *.announce add Spooky ìIt is the spooky hour!î 12:00AM false*
+  - Example: *.announce add Spooky ‚ÄúIt is the spooky hour!‚Äù 12:00AM false*
 	- Additional Note: Copy pasting quotes "" makes the game not recognize them as quotes. You will need to retype them manually in game.
   - Shortcut: *.announce a*
 - `.announce remove (Name)`
@@ -134,7 +134,7 @@ Feel free to reach out to me on Discord (odjit) if you have any questions or nee
   - Shortcut: *.announce l*
 - `.announce change (Name) (Message) (Time) (OneTime: True/False)`
   - Changes an announcement in the list of announcements. Time is server time. OneTime true will only do it once, false will repeat the announcement every day at the same time. (Default False)
-  - Example: *.announce change Spooky ìIt is the spookiest hour!î 12:00AM false*
+  - Example: *.announce change Spooky ‚ÄúIt is the spookiest hour!‚Äù 12:00AM false*
   - Shortcut: *.announce c*
 
 ### Spawning Commands
@@ -290,9 +290,9 @@ Feel free to reach out to me on Discord (odjit) if you have any questions or nee
   - will list all frozen hearts on the server.
 - `.relocatereset`
   - will reset the relocation timer for the castle heart you are next to. This will only work if you're on top of a heart, making it very apparent which heart you'll be changing.
-- `.clan add (Player) ìClan Nameî`
+- `.clan add (Player) ‚ÄúClan Name‚Äù`
   - adds the player named to the clan named. Can exceed clan limitations through this method. (Kick WIP)
-  - Example: *.clan add Joe ìThe Best Clanî*
+  - Example: *.clan add Joe ‚ÄúThe Best Clan‚Äù*
   - Shortcut: *.c a*
 - `.clan kick (Player)`
   - kicks a player from their clan. You cannot kick a leader, change their role first.																						
@@ -304,7 +304,7 @@ Feel free to reach out to me on Discord (odjit) if you have any questions or nee
   - Shortcut: *.c cr*
 - `.clan castles (Clan Name)`
   - will list all castles owned by a clan.
-  - Example: *.clan castles ìThe Best Clanî*
+  - Example: *.clan castles ‚ÄúThe Best Clan‚Äù*
   - Shortcut: *.c c*
 - `.clan rename (OldClanName) (NewClanName) (LeaderName)`
   - Renames a clan. If multiple clans match the name, provide the leader's name as well.
@@ -480,9 +480,9 @@ Feel free to reach out to me on Discord (odjit) if you have any questions or nee
   - Shows a list of populated clans (and their message). Newest clans are at the start of the list.
   - Example: *.clan list 1*
   - Shortcut: *.c l*
-- `.clan members ìClan Nameî`
+- `.clan members ‚ÄúClan Name‚Äù`
   - Shows a list and ranking of players within a named clan. Use quotes around a clan name with any spaces.
-  - Example: *.clan members ìThe Best Clanî*
+  - Example: *.clan members ‚ÄúThe Best Clan‚Äù*
   - Shortcut: *.c m*
 - `.time`
   - will tell you the current server time
@@ -519,7 +519,7 @@ Feel free to reach out to me on Discord (odjit) if you have any questions or nee
    - Global server settings like giving everyone sun invulnerability or seeing entities still while a bat.
 
 
-
+Updated for V Rising 1.1 as of v2.5.0!
 Updated for V Rising 1.0 as of v1.9.0!
 
 [Territory ID Map](https://i.imgur.com/VkXoKwB.jpeg)
