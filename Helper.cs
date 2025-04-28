@@ -132,7 +132,6 @@ internal static partial class Helper
 		entities.Dispose();
 	}
 
-	static EntityQuery tilePositionQuery = default;
 	public static Entity FindClosestTilePosition(Vector3 pos, bool ignoreFloors = false)
 	{
 		var spatialData = Core.GenerateCastle._TileModelLookupSystemData;

@@ -3,7 +3,7 @@
 		<TargetFramework>net6.0</TargetFramework>
 		<AssemblyName>KindredCommands</AssemblyName>
 		<Description>Commands to expand Administration efforts and provide information</Description>
-		<Version>2.3.0</Version>
+		<Version>2.5.0</Version>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<LangVersion>latest</LangVersion>
 		<RootNamespace>KindredCommands</RootNamespace>
@@ -239,6 +239,6 @@
     <NoWarn>NU1605</NoWarn>
   </PropertyGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="copy &quot;$(TargetPath)&quot; &quot;C:\Program Files (x86)\Steam\steamapps\common\VRisingBeta\VRising_Server\BepInEx\plugins&quot; " ContinueOnError="true" />
+    <Exec Command="copy &quot;$(TargetPath)&quot; &quot;C:\Program Files (x86)\Steam\steamapps\common\VRisingDedicatedServer\BepInEx\plugins&quot; " ContinueOnError="true" />
   </Target>
 </Project>

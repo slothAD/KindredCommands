@@ -63,7 +63,7 @@ internal class SoulshardService
 	{
 		if (IsPlentiful || !Core.ConfigSettings.ShardDropManagementEnabled) return;
 		var relicDropped = GetRelicDropped();
-		for (var relicType = RelicType.TheMonster; relicType <= RelicType.Dracula; relicType++)
+		for (var relicType = RelicType.TheMonster; relicType <= RelicType.Morgana; relicType++)
 		{
 			var droppedCount = droppedSoulshards.Where(e => e.Read<Relic>().RelicType == relicType).Count();
 			var shouldDrop = droppedCount < ShardDropLimit(relicType);
@@ -115,11 +115,11 @@ internal class SoulshardService
 
 	public (bool willDrop, int droppedCount, int spawnedCount)[] GetSoulshardStatus()
 	{
-		var returning = new (bool willDrop, int droppedCount, int spawnedCount)[5];
+		var returning = new (bool willDrop, int droppedCount, int spawnedCount)[6];
 
 		var relicDropped = GetRelicDropped();
 		
-		for(var relicType = RelicType.None; relicType <= RelicType.Dracula; relicType++)
+		for(var relicType = RelicType.None; relicType <= RelicType.Morgana; relicType++)
 		{
 			var droppedCount = droppedSoulshards.Where(e => e.Read<Relic>().RelicType == relicType).Count();
 			var spawnedCount = spawnedSoulshards.Where(e => e.Read<Relic>().RelicType == relicType).Count();

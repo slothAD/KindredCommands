@@ -138,6 +138,7 @@ internal static class DurabilityCommands
 			var theMonster = soulshardStatus[(int)RelicType.TheMonster];
 			var solarus = soulshardStatus[(int)RelicType.Solarus];
 			var wingedHorror = soulshardStatus[(int)RelicType.WingedHorror];
+			var megara = soulshardStatus[(int)RelicType.Morgana];
 			var dracula = soulshardStatus[(int)RelicType.Dracula];
 			sb.Append($"The Monster: <color=white>{theMonster.droppedCount}</color>x");
 			if (managesDrops) sb.Append($" out of <color=white>{Core.ConfigSettings.ShardMonsterDropLimit}</color>x");
@@ -153,6 +154,10 @@ internal static class DurabilityCommands
 			sb.Append($"Winged Horror: <color=white>{wingedHorror.droppedCount}</color>x");
 			if (managesDrops) sb.Append($" out of <color=white>{Core.ConfigSettings.ShardWingedHorrorDropLimit}</color>x");
 			sb.AppendLine($" dropped <color=white>{wingedHorror.spawnedCount}</color>x spawned{(notPlentiful ? (wingedHorror.willDrop ? " <color=green>Will</color> drop" : " <color=red>Won't</color> drop") : "")}");
+
+			sb.Append($"Megara: <color=white>{megara.droppedCount}</color>x");
+			if (managesDrops) sb.Append($" out of <color=white>{Core.ConfigSettings.ShardMonsterDropLimit}</color>x");
+			sb.AppendLine($" dropped <color=white>{megara.spawnedCount}</color>x spawned{(notPlentiful ? (megara.willDrop ? " <color=green>Will</color> drop" : " <color=red>Won't</color> drop") : "")}");
 
 			sb.Append($"Dracula: <color=white>{dracula.droppedCount}</color>x");
 			if (managesDrops) sb.Append($" out of <color=white>{Core.ConfigSettings.ShardDraculaDropLimit}</color>x");
