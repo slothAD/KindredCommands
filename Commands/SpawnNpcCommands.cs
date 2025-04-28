@@ -177,10 +177,10 @@ internal static class SpawnCommands
 	}
 
 	[Command("spawnhorse", "sh", description: "Spawns a horse", adminOnly: true)] 
-	public static void SpawnHorse(ChatCommandContext ctx, float speed, float acceleration, float rotation, bool spectral=false, int num=1)
+	public static void SpawnHorse(ChatCommandContext ctx, float speed, float acceleration, float rotation, int num=1)
 	{
 		var pos = Core.EntityManager.GetComponentData<LocalToWorld>(ctx.Event.SenderCharacterEntity).Position;
-		var horsePrefab = spectral ? Prefabs.CHAR_Mount_Horse_Spectral : Prefabs.CHAR_Mount_Horse;
+		var horsePrefab = Prefabs.CHAR_Mount_Horse;
 
 		for (int i = 0; i < num; i++)
 		{
@@ -194,7 +194,7 @@ internal static class SpawnCommands
 			});
 		}
 
-		ctx.Reply($"Spawned {num}{(spectral == false ? "" : " spectral")} horse{(num > 1 ? "s" : "")} (with speed:{speed}, accel:{acceleration}, and rotate:{rotation}) near you.");
+		ctx.Reply($"Spawned {num} horse{(num > 1 ? "s" : "")} (with speed:{speed}, accel:{acceleration}, and rotate:{rotation}) near you.");
 	}
 
 

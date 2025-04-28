@@ -1,9 +1,11 @@
+using Il2CppInterop.Runtime;
 using ProjectM;
 using ProjectM.CastleBuilding;
-using ProjectM.Shared.Systems;
-using Stunlock.Core;
-using Unity.DebugDisplay;
+using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
+using Unity.Transforms;
+using UnityEngine;
 using VampireCommandFramework;
 using static KindredCommands.Commands.SpawnCommands;
 
@@ -12,11 +14,47 @@ namespace KindredCommands.Commands;
 [CommandGroup("servant")]
 internal class ServantCommands
 {
+	static EntityQuery servantCoffinQuery = default;
+	public static Entity FindClosestServantCoffin(Vector3 pos)
+	{
+		if (servantCoffinQuery == default)
+		{
+			var entityQueryBuilder = new EntityQueryBuilder(Allocator.Temp)
+				.AddAll(new(Il2CppType.Of<TilePosition>(), ComponentType.AccessMode.ReadOnly))
+				.AddAll(new(Il2CppType.Of<Translation>(), ComponentType.AccessMode.ReadOnly))
+				.AddAll(new(Il2CppType.Of<ServantCoffinstation>(), ComponentType.AccessMode.ReadOnly))
+				.WithOptions(EntityQueryOptions.IncludeDisabled | EntityQueryOptions.IncludeSpawnTag);
+			servantCoffinQuery = Core.EntityManager.CreateEntityQuery(ref entityQueryBuilder);
+		}
+
+		var closestEntity = Entity.Null;
+		var closestDistance = float.MaxValue;
+		var entities = servantCoffinQuery.ToEntityArray(Allocator.Temp);
+		for (var i = 0; i < entities.Length; ++i)
+		{
+			var entity = entities[i];
+			if (!entity.Has<TilePosition>()) continue;
+			var entityPos = entity.Read<Translation>().Value;
+			var distance = math.distancesq(pos, entityPos);
+			if (distance < closestDistance)
+			{
+				var prefabName = Helper.GetPrefabGUID(entity).LookupName();
+				if (!prefabName.StartsWith("TM_")) continue;
+
+				closestDistance = distance;
+				closestEntity = entity;
+			}
+		}
+		entities.Dispose();
+
+		return closestEntity;
+	}
+
 	[Command("convert", "c", "Instantly converts a servant in a coffin", adminOnly: true)]
 	public static void ConvertServant(ChatCommandContext ctx)
 	{
 		var aimPos = ctx.Event.SenderCharacterEntity.Read<EntityAimData>().AimPosition;
-		var closest = Helper.FindClosestTilePosition<ServantCoffinstation>(aimPos);
+		var closest = FindClosestServantCoffin(aimPos);
 		if (closest == Entity.Null)
 		{
 			ctx.Reply("Not pointing at a servant coffin.");
@@ -38,7 +76,7 @@ internal class ServantCommands
 	public static void PerfectServant(ChatCommandContext ctx)
 	{
 		var aimPos = ctx.Event.SenderCharacterEntity.Read<EntityAimData>().AimPosition;
-		var closest = Helper.FindClosestTilePosition<ServantCoffinstation>(aimPos);
+		var closest = FindClosestServantCoffin(aimPos);
 		if (closest == Entity.Null)
 		{
 			ctx.Reply("Not pointing at a servant coffin.");
@@ -66,7 +104,7 @@ internal class ServantCommands
 	public static void SetServantEyeColor(ChatCommandContext ctx, int colorIndex)
 	{
 		var aimPos = ctx.Event.SenderCharacterEntity.Read<EntityAimData>().AimPosition;
-		var closest = Helper.FindClosestTilePosition<ServantCoffinstation>(aimPos);
+		var closest = FindClosestServantCoffin(aimPos);
 		if (closest == Entity.Null)
 		{
 			ctx.Reply("Not pointing at a servant coffin.");
@@ -91,7 +129,7 @@ internal class ServantCommands
 	public static void ChangeServant(ChatCommandContext ctx, CharacterUnit character)
 	{
 		var aimPos = ctx.Event.SenderCharacterEntity.Read<EntityAimData>().AimPosition;
-		var closest = Helper.FindClosestTilePosition<ServantCoffinstation>(aimPos);
+		var closest = FindClosestServantCoffin(aimPos);
 		if (closest == Entity.Null)
 		{
 			ctx.Reply("Not pointing at a servant coffin.");
@@ -125,7 +163,7 @@ internal class ServantCommands
 	public static void HealServant(ChatCommandContext ctx)
 	{
 		var aimPos = ctx.Event.SenderCharacterEntity.Read<EntityAimData>().AimPosition;
-		var closest = Helper.FindClosestTilePosition<ServantCoffinstation>(aimPos);
+		var closest = FindClosestServantCoffin(aimPos);
 		if (closest == Entity.Null)
 		{
 			ctx.Reply("Not pointing at a servant coffin.");
@@ -147,7 +185,7 @@ internal class ServantCommands
 	public static void ReviveServant(ChatCommandContext ctx)
 	{
 		var aimPos = ctx.Event.SenderCharacterEntity.Read<EntityAimData>().AimPosition;
-		var closest = Helper.FindClosestTilePosition<ServantCoffinstation>(aimPos);
+		var closest = FindClosestServantCoffin(aimPos);
 		if (closest == Entity.Null)
 		{
 			ctx.Reply("Not pointing at a servant coffin.");
@@ -175,7 +213,7 @@ internal class ServantCommands
 	public static void CompleteMissionServant(ChatCommandContext ctx)
 	{
 		var aimPos = ctx.Event.SenderCharacterEntity.Read<EntityAimData>().AimPosition;
-		var closest = Helper.FindClosestTilePosition<ServantCoffinstation>(aimPos);
+		var closest = FindClosestServantCoffin(aimPos);
 		if (closest == Entity.Null)
 		{
 			ctx.Reply("Not pointing at a servant coffin.");
@@ -188,7 +226,7 @@ internal class ServantCommands
 		var activeServantMissions = Core.EntityManager.GetBuffer<ActiveServantMission>(castleHeartEntity);
 		for(var i = 0; i < activeServantMissions.Length; i++)
 		{
-			var mission = activeServantMissions[i];
+			var mission = activeServantMissions[i]	;
 			if (mission.Servant1.Equals(coffin.ConnectedServant) ||
 				mission.Servant2.Equals(coffin.ConnectedServant) ||
 				mission.Servant3.Equals(coffin.ConnectedServant))
@@ -206,7 +244,7 @@ internal class ServantCommands
 	public static void AddServant(ChatCommandContext ctx, CharacterUnit character)
 	{
 		var aimPos = ctx.Event.SenderCharacterEntity.Read<EntityAimData>().AimPosition;
-		var closest = Helper.FindClosestTilePosition<ServantCoffinstation>(aimPos);
+		var closest = FindClosestServantCoffin(aimPos);
 		if (closest == Entity.Null)
 		{
 			ctx.Reply("Not pointing at a servant coffin.");

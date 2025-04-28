@@ -4,6 +4,7 @@ using BepInEx.Logging;
 using BepInEx.Unity.IL2CPP.Utils.Collections;
 using KindredCommands.Services;
 using ProjectM;
+using ProjectM.CastleBuilding;
 using ProjectM.Physics;
 using ProjectM.Scripting;
 using Unity.Entities;
@@ -18,7 +19,9 @@ internal static class Core
 
 	public static EntityManager EntityManager { get; } = Server.EntityManager;
 	public static GameDataSystem GameDataSystem { get; } = Server.GetExistingSystemManaged<GameDataSystem>();
+	public static GenerateCastleSystem GenerateCastle { get; private set; }
 	public static PrefabCollectionSystem PrefabCollectionSystem { get; internal set; }
+	public static PrefabCollectionSystem PrefabCollection { get; } = Server.GetExistingSystemManaged<PrefabCollectionSystem>();
 	public static RelicDestroySystem RelicDestroySystem { get; internal set; }
 	public static ServerScriptMapper ServerScriptMapper { get; internal set; }
 	public static double ServerTime => ServerGameManager.ServerTime;
@@ -61,6 +64,7 @@ internal static class Core
 	{
 		if (_hasInitialized) return;
 
+		GenerateCastle = Server.GetOrCreateSystemManaged<GenerateCastleSystem>();
 		PrefabCollectionSystem = Server.GetExistingSystemManaged<PrefabCollectionSystem>();
 		RelicDestroySystem = Server.GetExistingSystemManaged<RelicDestroySystem>();
 		ServerGameSettingsSystem = Server.GetExistingSystemManaged<ServerGameSettingsSystem>();

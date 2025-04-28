@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.Json;
 using ProjectM;
 using ProjectM.Network;
+using Unity.Collections;
 using Unity.Entities;
 
 namespace KindredCommands.Services;
@@ -81,7 +82,8 @@ public class StealthAdminService
 		if (stealthUsers.Contains(userEntity))
 		{
 			var user = userEntity.Read<User>();
-			ServerChatUtils.SendSystemMessageToClient(Core.EntityManager, user, $"You are in stealth admin mode.");
+			FixedString512Bytes message = "You are in stealth admin mode.";
+			ServerChatUtils.SendSystemMessageToClient(Core.EntityManager, user, ref message);
 		}
 	}
 
@@ -101,10 +103,16 @@ public class StealthAdminService
 	static void AuthAdmin(Entity userEntity)
 	{
 		var user = userEntity.Read<User>();
-		var entity = Core.EntityManager.CreateEntity(
-						ComponentType.ReadWrite<FromCharacter>(),
-						ComponentType.ReadWrite<AdminAuthEvent>()
-					);
+
+
+
+		var archetype = Core.EntityManager.CreateArchetype(new ComponentType[]
+		{
+					ComponentType.ReadWrite<FromCharacter>(),
+					ComponentType.ReadWrite<AdminAuthEvent>()
+		});
+
+		var entity = Core.EntityManager.CreateEntity(archetype);
 		entity.Write(new FromCharacter()
 		{
 			Character = user.LocalCharacter.GetEntityOnServer(),
@@ -115,10 +123,14 @@ public class StealthAdminService
 	static void DeauthAdmin(Entity userEntity)
 	{
 		var user = userEntity.Read<User>();
-		var entity = Core.EntityManager.CreateEntity(
-						ComponentType.ReadWrite<FromCharacter>(),
-						ComponentType.ReadWrite<DeauthAdminEvent>()
-					);
+
+		var archetype = Core.EntityManager.CreateArchetype(new ComponentType[]
+		{
+					ComponentType.ReadWrite<FromCharacter>(),
+					ComponentType.ReadWrite<DeauthAdminEvent>()
+		});
+
+		var entity = Core.EntityManager.CreateEntity(archetype);
 		entity.Write(new FromCharacter()
 		{
 			Character = user.LocalCharacter.GetEntityOnServer(),

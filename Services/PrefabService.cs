@@ -16,11 +16,12 @@ internal class PrefabService
 	{
 		collectionSystem = Core.Server.GetExistingSystemManaged<PrefabCollectionSystem>();
 
-		var allPrefabs = collectionSystem.NameToPrefabGuidDictionary;
+		var allPrefabs = collectionSystem._PrefabGuidToEntityMap;
 		Core.Log.LogDebug($"All prefabs: {allPrefabs.Count}");
 		foreach (var kvp in allPrefabs)
 		{
-			bool success = AllNameToGuid.TryAdd(kvp.Key.ToLowerInvariant(), (kvp.Key, kvp.Value));
+			var name = kvp.Key.LookupName();
+			bool success = AllNameToGuid.TryAdd(name.ToLowerInvariant(), (name, kvp.Key));
 			if (!success)
 			{
 				Core.Log.LogDebug($"{kvp.Key} exist already, skipping.");

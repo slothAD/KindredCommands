@@ -33,3 +33,18 @@ internal class AbilityRunScriptsSystemPatch
 		entities.Dispose();
 	}
 }
+
+[HarmonyPatch(typeof(ReplaceAbilityOnSlotSystem), nameof(ReplaceAbilityOnSlotSystem.OnUpdate))]
+internal class ReplaceAbilityOnSlotSystemPatch
+{
+	public static void Prefix(ReplaceAbilityOnSlotSystem __instance)
+	{
+		var entities = __instance.__query_1482480545_0.ToEntityArray(Allocator.Temp);
+		foreach (var entity in entities)
+		{
+			var raosb = entity.Read<ReplaceAbilityOnSlotBuff>();
+			Core.Log.LogInfo($"ReplaceAbilityOnSlotBuff: {raosb.Target} Slot {raosb.Slot} ReplaceGroupId {raosb.ReplaceGroupId.LookupName()} NewGroupId {raosb.NewGroupId.LookupName()} Priority {raosb.Priority} CastBlockType {raosb.CastBlockType} CopyCooldown {raosb.CopyCooldown}");
+		}
+		entities.Dispose();
+	}
+}

@@ -28,11 +28,7 @@ public class BloodBoundItemParameterConverter : CommandArgumentConverter<BloodBo
 			throw ctx.Error($"{input} not found.");
 		}
 
-		// read entity name, use user input as name if fails.
-		if(!Core.PrefabCollectionSystem.PrefabGuidToNameDictionary.TryGetValue(itemParameter.Value, out var name))
-		{
-			name = input;
-		}
+		var name = Core.PrefabCollectionSystem._PrefabLookupMap.GetName(itemParameter.Value);
 
 		return new BloodBoundItemParameter(itemParameter.Value, entity, name);
 	}

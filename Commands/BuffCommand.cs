@@ -19,12 +19,16 @@ internal class BuffCommands
 			{
 				return new(buffPrefab.LookupName(), buffPrefab);
 			}
-			// "CHAR_Bandit_Bomber": -1128238456,
-			if (int.TryParse(input, out var id) && Core.Prefabs.CollectionSystem.PrefabGuidToNameDictionary.TryGetValue(new PrefabGUID(id), out var name)
-				&& Core.PrefabCollectionSystem._PrefabGuidToEntityMap.TryGetValue(new PrefabGUID(id), out var prefabEntity)
-				&& prefabEntity.Has<Buff>())
+			
+			if (int.TryParse(input, out var id))
 			{
-				return new(name, new(id));
+				var prefabGuid = new PrefabGUID(id);
+				if (Core.PrefabCollectionSystem._PrefabGuidToEntityMap.TryGetValue(prefabGuid, out var prefabEntity)
+					&& prefabEntity.Has<Buff>())
+				{
+					var name = Core.Prefabs.CollectionSystem._PrefabLookupMap.GetName(prefabGuid);
+					return new(name, prefabGuid);
+				}
 			}
 
 			throw ctx.Error($"Can't find buff {input.Bold()}");

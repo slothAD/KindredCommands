@@ -4,6 +4,7 @@ using KindredCommands.Data;
 using ProjectM;
 using ProjectM.Gameplay.Scripting;
 using ProjectM.Scripting;
+using ProjectM.Shared;
 using Stunlock.Core;
 using Unity.Entities;
 
@@ -33,14 +34,14 @@ namespace KindredCommands.Services
 			LoadCurrentPlayerBoosts();
 		}
 
-		public bool IsBoostedPlayer(Entity charEntity, bool includeDaywalkers = false)
+		public bool IsBoostedPlayer(Entity charEntity, bool includeDaywalkers = false, bool includeShrouded = true)
 		{
 			return playerAttackSpeed.ContainsKey(charEntity) || playerDamage.ContainsKey(charEntity) || playerHps.ContainsKey(charEntity) ||
 				playerSpeeds.ContainsKey(charEntity) || playerYield.ContainsKey(charEntity) ||
 				batVisionPlayers.Contains(charEntity) || flyingPlayers.Contains(charEntity) || 
 				noAggroPlayers.Contains(charEntity) || noBlooddrainPlayers.Contains(charEntity) || noDurabilityPlayers.Contains(charEntity) ||
 				noCooldownPlayers.Contains(charEntity) || immaterialPlayers.Contains(charEntity) || invinciblePlayers.Contains(charEntity) ||
-				shroudedPlayers.Contains(charEntity) || sunInvulnPlayers.Contains(charEntity) ||
+				includeShrouded && shroudedPlayers.Contains(charEntity) || sunInvulnPlayers.Contains(charEntity) ||
 				includeDaywalkers && daywalkerPlayers.Contains(charEntity);
 		}
 
@@ -48,7 +49,7 @@ namespace KindredCommands.Services
 		{
 			foreach (var charEntity in Helper.GetEntitiesByComponentType<PlayerCharacter>(includeDisabled: true))
 			{
-				if (IsBoostedPlayer(charEntity))
+				if (IsBoostedPlayer(charEntity, includeShrouded: false))
 					yield return charEntity;
 			}
 		}
@@ -59,6 +60,8 @@ namespace KindredCommands.Services
 				ClearExtraBuffs(charEntity);
 				return;
 			}
+
+			if (charEntity.Has<VampireAttributeCaps>()) charEntity.Remove<VampireAttributeCaps>();
 
 			var userEntity = charEntity.Read<PlayerCharacter>().UserEntity;
 
@@ -428,7 +431,11 @@ namespace KindredCommands.Services
 
 			if (playerAttackSpeed.TryGetValue(charEntity, out var attackSpeed))
 			{
-				var modifiedBuff = AttackSpeed;
+				var modifiedBuff = AbilityAttackSpeed;
+				modifiedBuff.Value = attackSpeed;
+				modifyStatBuffer.Add(modifiedBuff);
+
+				modifiedBuff = PrimaryAttackSpeed;
 				modifiedBuff.Value = attackSpeed;
 				modifyStatBuffer.Add(modifiedBuff);
 			}
@@ -546,7 +553,7 @@ namespace KindredCommands.Services
 
 			if (invinciblePlayers.Contains(charEntity))
 			{
-				buffModificationFlags |= (long)(BuffModificationTypes.Invulnerable | BuffModificationTypes.ImmuneToHazards | BuffModificationTypes.ImmuneToSun | BuffModificationTypes.CannotBeDisconnectDragged);
+				buffModificationFlags |= (long)(BuffModificationTypes.Invulnerable | BuffModificationTypes.ImmuneToSun | BuffModificationTypes.CannotBeDisconnectDragged);
 				foreach (var buff in invincibleBuffs)
 				{
 					modifyStatBuffer.Add(buff);
@@ -581,6 +588,16 @@ namespace KindredCommands.Services
 			{
 				Buffs.RemoveBuff(charEntity, Prefabs.EquipBuff_ShroudOfTheForest);
 			}
+
+			// Readd the caps
+			if (!charEntity.Has<VampireAttributeCaps>()) charEntity.Add<VampireAttributeCaps>();
+			
+			var prefabGuid = charEntity.Read<PrefabGUID>();
+			if (Core.PrefabCollectionSystem._PrefabGuidToEntityMap.TryGetValue(prefabGuid, out var prefab))
+			{
+				var caps = prefab.Read<VampireAttributeCaps>();
+				charEntity.Write(caps);
+			}
 		}
 
 		void LoadCurrentPlayerBoosts()
@@ -600,7 +617,7 @@ namespace KindredCommands.Services
 				{
 					switch (buff.StatType)
 					{
-						case UnitStatType.AttackSpeed:
+						case UnitStatType.AbilityAttackSpeed:
 							playerAttackSpeed[charEntity] = buff.Value;
 							break;
 						case UnitStatType.PhysicalPower:
@@ -695,6 +712,7 @@ namespace KindredCommands.Services
 		#region GodMode & Other Buff
 		static ModifyUnitStatBuff_DOTS Cooldown = new()
 		{
+			AttributeCapType = AttributeCapType.Uncapped,
 			StatType = UnitStatType.CooldownRecoveryRate,
 			Value = 100,
 			ModificationType = ModificationType.Set,
@@ -722,6 +740,7 @@ namespace KindredCommands.Services
 
 		static ModifyUnitStatBuff_DOTS SunResist = new()
 		{
+			AttributeCapType = AttributeCapType.Uncapped,
 			StatType = UnitStatType.SunResistance,
 			Value = 10000,
 			ModificationType = ModificationType.Add,
@@ -731,6 +750,7 @@ namespace KindredCommands.Services
 
 		static ModifyUnitStatBuff_DOTS Speed = new()
 		{
+			AttributeCapType = AttributeCapType.Uncapped,
 			StatType = UnitStatType.MovementSpeed,
 			Value = 15,
 			ModificationType = ModificationType.Set,
@@ -740,6 +760,7 @@ namespace KindredCommands.Services
 
 		static ModifyUnitStatBuff_DOTS PResist = new()
 		{
+			AttributeCapType = AttributeCapType.Uncapped,
 			StatType = UnitStatType.PhysicalResistance,
 			Value = 10000,
 			ModificationType = ModificationType.Add,
@@ -749,6 +770,7 @@ namespace KindredCommands.Services
 
 		static ModifyUnitStatBuff_DOTS FResist = new()
 		{
+			AttributeCapType = AttributeCapType.Uncapped,
 			StatType = UnitStatType.FireResistance,
 			Value = 10000,
 			ModificationType = ModificationType.Add,
@@ -758,6 +780,7 @@ namespace KindredCommands.Services
 
 		static ModifyUnitStatBuff_DOTS HResist = new()
 		{
+			AttributeCapType = AttributeCapType.Uncapped,
 			StatType = UnitStatType.HolyResistance,
 			Value = 10000,
 			ModificationType = ModificationType.Add,
@@ -767,6 +790,7 @@ namespace KindredCommands.Services
 
 		static ModifyUnitStatBuff_DOTS SResist = new()
 		{
+			AttributeCapType = AttributeCapType.Uncapped,
 			StatType = UnitStatType.SilverResistance,
 			Value = 10000,
 			ModificationType = ModificationType.Add,
@@ -776,6 +800,7 @@ namespace KindredCommands.Services
 
 		static ModifyUnitStatBuff_DOTS GResist = new()
 		{
+			AttributeCapType = AttributeCapType.Uncapped,
 			StatType = UnitStatType.GarlicResistance,
 			Value = 10000,
 			ModificationType = ModificationType.Add,
@@ -785,6 +810,7 @@ namespace KindredCommands.Services
 
 		static ModifyUnitStatBuff_DOTS SPResist = new()
 		{
+			AttributeCapType = AttributeCapType.Uncapped,
 			StatType = UnitStatType.SpellResistance,
 			Value = 10000,
 			ModificationType = ModificationType.Add,
@@ -794,6 +820,7 @@ namespace KindredCommands.Services
 
 		static ModifyUnitStatBuff_DOTS PPower = new()
 		{
+			AttributeCapType = AttributeCapType.Uncapped,
 			StatType = UnitStatType.PhysicalPower,
 			Value = 10000,
 			ModificationType = ModificationType.Add,
@@ -803,6 +830,7 @@ namespace KindredCommands.Services
 
 		static ModifyUnitStatBuff_DOTS SiegePower = new()
 		{
+			AttributeCapType = AttributeCapType.Uncapped,
 			StatType = UnitStatType.SiegePower,
 			Value = 10000,
 			ModificationType = ModificationType.Add,
@@ -812,6 +840,7 @@ namespace KindredCommands.Services
 
 		static ModifyUnitStatBuff_DOTS RPower = new()
 		{
+			AttributeCapType = AttributeCapType.Uncapped,
 			StatType = UnitStatType.ResourcePower,
 			Value = 10000,
 			ModificationType = ModificationType.Add,
@@ -821,6 +850,7 @@ namespace KindredCommands.Services
 
 		static ModifyUnitStatBuff_DOTS SPPower = new()
 		{
+			AttributeCapType = AttributeCapType.Uncapped,
 			StatType = UnitStatType.SpellPower,
 			Value = 10000,
 			ModificationType = ModificationType.Add,
@@ -830,6 +860,7 @@ namespace KindredCommands.Services
 
 		static ModifyUnitStatBuff_DOTS PHRegen = new()
 		{
+			AttributeCapType = AttributeCapType.Uncapped,
 			StatType = UnitStatType.PassiveHealthRegen,
 			Value = 100000,
 			ModificationType = ModificationType.Add,
@@ -839,6 +870,7 @@ namespace KindredCommands.Services
 
 		static ModifyUnitStatBuff_DOTS HRecovery = new()
 		{
+			AttributeCapType = AttributeCapType.Uncapped,
 			StatType = UnitStatType.HealthRecovery,
 			Value = 100000,
 			ModificationType = ModificationType.Add,
@@ -848,6 +880,7 @@ namespace KindredCommands.Services
 
 		static ModifyUnitStatBuff_DOTS MaxHP = new()
 		{
+			AttributeCapType = AttributeCapType.Uncapped,
 			StatType = UnitStatType.MaxHealth,
 			Value = 100000,
 			ModificationType = ModificationType.Set,
@@ -857,6 +890,7 @@ namespace KindredCommands.Services
 
 		static ModifyUnitStatBuff_DOTS MaxYield = new()
 		{
+			AttributeCapType = AttributeCapType.Uncapped,
 			StatType = UnitStatType.ResourceYield,
 			Value = 10,
 			ModificationType = ModificationType.Multiply,
@@ -866,6 +900,7 @@ namespace KindredCommands.Services
 
 		static ModifyUnitStatBuff_DOTS DurabilityLoss = new()
 		{
+			AttributeCapType = AttributeCapType.Uncapped,
 			StatType = UnitStatType.ReducedResourceDurabilityLoss,
 			Value = -1000000000,
 			ModificationType = ModificationType.Set,
@@ -873,9 +908,20 @@ namespace KindredCommands.Services
 			Id = ModificationId.NewId(0)
 		};
 
-		static ModifyUnitStatBuff_DOTS AttackSpeed = new()
+		static ModifyUnitStatBuff_DOTS PrimaryAttackSpeed = new()
 		{
-			StatType = UnitStatType.AttackSpeed,
+			AttributeCapType = AttributeCapType.Uncapped,
+			StatType = UnitStatType.PrimaryAttackSpeed,
+			Value = 5,
+			ModificationType = ModificationType.Multiply,
+			Modifier = 1,
+			Id = ModificationId.NewId(0)
+		};
+
+		static ModifyUnitStatBuff_DOTS AbilityAttackSpeed = new()
+		{
+			AttributeCapType = AttributeCapType.Uncapped,
+			StatType = UnitStatType.AbilityAttackSpeed,
 			Value = 5,
 			ModificationType = ModificationType.Multiply,
 			Modifier = 1,
@@ -891,8 +937,6 @@ namespace KindredCommands.Services
 			SunResist,
 			GResist,
 			SPResist,
-			Hazard,
-			SunCharge,
 			HRecovery,
 			PHRegen
 		];

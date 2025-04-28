@@ -11,7 +11,7 @@ internal class GiveItemCommands
 	{
 		Helper.AddItemToInventory(ctx.Event.SenderCharacterEntity, item.Value, quantity);
 		var prefabSys = Core.Server.GetExistingSystemManaged<PrefabCollectionSystem>();
-		prefabSys.PrefabGuidToNameDictionary.TryGetValue(item.Value, out var name);
+		var name = prefabSys._PrefabLookupMap.GetName(item.Value);
 		ctx.Reply($"Gave {quantity} {name}");
 	}
 }

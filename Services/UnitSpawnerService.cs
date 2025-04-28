@@ -123,6 +123,7 @@ internal class UnitSpawnerService
 					actions(entity);
 				}
 			}
+			entities.Dispose();
 		}
 	}
 }

@@ -50,6 +50,10 @@ public class FoundRegionConverter : CommandArgumentConverter<FoundRegion>
 			case "ruins":
 			case "ruinsofmortium":
 				return new FoundRegion(WorldRegionType.RuinsOfMortium, "RuinsOfMortium");
+			case "oakveil woodlands":
+			case "oakveilwoodlands":
+			case "oakveil":
+				return new FoundRegion(WorldRegionType.Strongblade, "Strongblade (Oakveil)");
 			case "none":
 				return new FoundRegion(WorldRegionType.None, "None");
 		}

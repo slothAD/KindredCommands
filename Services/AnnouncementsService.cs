@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using ProjectM;
+using Unity.Collections;
 using UnityEngine;
 
 namespace KindredCommands.Services;
@@ -52,7 +53,8 @@ class AnnouncementsService
 		do
 		{
 			yield return new WaitForSecondsRealtime((float)(announcementTime - DateTime.Now).TotalSeconds);
-			ServerChatUtils.SendSystemMessageToAllClients(Core.EntityManager, announcement.Message);
+			FixedString512Bytes message = announcement.Message;
+			ServerChatUtils.SendSystemMessageToAllClients(Core.EntityManager, ref message);
 
 			announcementTime = announcementTime.AddDays(1);
 			SortAnnouncements();
@@ -64,13 +66,13 @@ class AnnouncementsService
 		SaveAnnoucements();
 	}
 
-	public bool AddAnnouncement(string name, string message, string time, bool oneTime)
+	public bool AddAnnouncement(string name, string message, DateTime time, bool oneTime)
 	{
 		var nameLower = name.ToLowerInvariant();
 		if (announcements.Where(a => a.Name.ToLowerInvariant() == nameLower).Any())
 			return false;
 
-		var announcement = new Announcement { Name = name, Time = time, Message = message, OneTime = oneTime };
+		var announcement = new Announcement { Name = name, Time = time.ToString(), Message = message, OneTime = oneTime };
 		announcements.Add(announcement);
 		ScheduleAnnouncement(announcement);
 		SortAnnouncements();

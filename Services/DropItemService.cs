@@ -20,46 +20,41 @@ internal class DropItemService
 
 	public DropItemService()
 	{
-		EntityQueryDesc dropItemQueryDesc = new()
-		{
-			All = new ComponentType[] {
-				new(Il2CppType.Of<ItemPickup>(), ComponentType.AccessMode.ReadWrite),
-				new(Il2CppType.Of<PrefabGUID>(), ComponentType.AccessMode.ReadWrite),
-				new(Il2CppType.Of<Translation>(), ComponentType.AccessMode.ReadWrite),
-				new(Il2CppType.Of<DestroyWhenNoCharacterNearbyAfterDuration>(), ComponentType.AccessMode.ReadWrite),
+		var entityQueryBuilder = new EntityQueryBuilder(Allocator.Temp)
+			.AddAll(new(Il2CppType.Of<ItemPickup>(), ComponentType.AccessMode.ReadWrite))
+			.AddAll(new(Il2CppType.Of<PrefabGUID>(), ComponentType.AccessMode.ReadWrite))
+			.AddAll(new(Il2CppType.Of<Translation>(), ComponentType.AccessMode.ReadWrite))
+			.AddAll(new(Il2CppType.Of<DestroyWhenNoCharacterNearbyAfterDuration>(), ComponentType.AccessMode.ReadWrite))
+			.AddNone(new(Il2CppType.Of<AttachedBuffer>()))
+			.WithOptions(EntityQueryOptions.IncludeDisabled);
 
-			},
-			None = new ComponentType[]
-			{
-				new(Il2CppType.Of<AttachedBuffer>(), ComponentType.AccessMode.ReadOnly),
-			},
-			Options = EntityQueryOptions.IncludeDisabled
-		};
+		dropItemQuery = Core.EntityManager.CreateEntityQuery(ref entityQueryBuilder);
+		entityQueryBuilder.Dispose();
 
-		dropItemQuery = Core.EntityManager.CreateEntityQuery(dropItemQueryDesc);
+		entityQueryBuilder = new EntityQueryBuilder(Allocator.Temp)
+			.AddAll(new(Il2CppType.Of<ItemPickup>(), ComponentType.AccessMode.ReadWrite))
+			.AddAll(new(Il2CppType.Of<PrefabGUID>(), ComponentType.AccessMode.ReadWrite))
+			.AddAll(new(Il2CppType.Of<Translation>(), ComponentType.AccessMode.ReadWrite))
+			.AddAll(new(Il2CppType.Of<DestroyWhenNoCharacterNearbyAfterDuration>(), ComponentType.AccessMode.ReadWrite))
+			.AddNone(new(Il2CppType.Of<AttachedBuffer>()))
+			.WithOptions(EntityQueryOptions.IncludeDisabled | EntityQueryOptions.IncludePrefab);
+		dropItemWithPrefabQuery = Core.EntityManager.CreateEntityQuery(ref entityQueryBuilder);
+		entityQueryBuilder.Dispose();
 
-		dropItemQueryDesc.Options |= EntityQueryOptions.IncludePrefab;
-		dropItemWithPrefabQuery = Core.EntityManager.CreateEntityQuery(dropItemQueryDesc);
+		entityQueryBuilder = new EntityQueryBuilder(Allocator.Temp)
+			.AddAll(new(Il2CppType.Of<ItemPickup>(), ComponentType.AccessMode.ReadWrite))
+			.AddAll(new(Il2CppType.Of<PrefabGUID>(), ComponentType.AccessMode.ReadWrite))
+			.AddAll(new(Il2CppType.Of<Translation>(), ComponentType.AccessMode.ReadOnly))
+			.AddAll(new(Il2CppType.Of<DestroyAfterDuration>(), ComponentType.AccessMode.ReadOnly))
+			.AddNone(new(Il2CppType.Of<AttachedBuffer>()))
+			.WithOptions(EntityQueryOptions.IncludeDisabled);
 
-		EntityQueryDesc dropShardQueryDesc = new()
-		{
-			All = new ComponentType[]
-			{
-				new(Il2CppType.Of<ItemPickup>(), ComponentType.AccessMode.ReadWrite),
-				new(Il2CppType.Of<PrefabGUID>(), ComponentType.AccessMode.ReadWrite),
-				new(Il2CppType.Of<Translation>(), ComponentType.AccessMode.ReadOnly),
-				new(Il2CppType.Of<DestroyAfterDuration>(), ComponentType.AccessMode.ReadOnly),
-			},
-			None = new ComponentType[]
-			{
-				new(Il2CppType.Of<AttachedBuffer>(), ComponentType.AccessMode.ReadOnly),
-			},
-			Options = EntityQueryOptions.IncludeDisabled
-		};
-		dropShardQuery = Core.EntityManager.CreateEntityQuery(dropShardQueryDesc);
 
-		dropShardQueryDesc.Options |= EntityQueryOptions.IncludePrefab;
-		dropShardWithPrefabQuery = Core.EntityManager.CreateEntityQuery(dropShardQueryDesc);
+		dropShardQuery = Core.EntityManager.CreateEntityQuery(ref entityQueryBuilder);
+
+		entityQueryBuilder.WithOptions(EntityQueryOptions.IncludeDisabled | EntityQueryOptions.IncludePrefab);
+		dropShardWithPrefabQuery = Core.EntityManager.CreateEntityQuery(ref entityQueryBuilder);
+		entityQueryBuilder.Dispose();
 
 		if (Core.ConfigSettings.ItemDropLifetime > 0)
 		{

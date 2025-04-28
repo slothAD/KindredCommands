@@ -22,18 +22,14 @@ internal class GearService
 
 	public GearService()
 	{
-		EntityQueryDesc itemQueryDesc = new()
-		{
-			All = new ComponentType[] {
-				new(Il2CppType.Of<InventoryItem>(), ComponentType.AccessMode.ReadWrite),
-				new(Il2CppType.Of<PrefabGUID>(), ComponentType.AccessMode.ReadWrite),
-				new(Il2CppType.Of<ItemData>(), ComponentType.AccessMode.ReadWrite),
-				new(Il2CppType.Of<EquippableData>(), ComponentType.AccessMode.ReadWrite),
-
-			},
-			Options = EntityQueryOptions.IncludeDisabled | EntityQueryOptions.IncludePrefab
-		};
-		itemQuery = Core.EntityManager.CreateEntityQuery(itemQueryDesc);
+		var entityQueryBuilder = new EntityQueryBuilder(Allocator.Temp)
+			.AddAll(new(Il2CppType.Of<InventoryItem>(), ComponentType.AccessMode.ReadWrite))
+			.AddAll(new(Il2CppType.Of<PrefabGUID>(), ComponentType.AccessMode.ReadWrite))
+			.AddAll(new(Il2CppType.Of<ItemData>(), ComponentType.AccessMode.ReadWrite))
+			.AddAll(new(Il2CppType.Of<EquippableData>(), ComponentType.AccessMode.ReadWrite))
+			.WithOptions(EntityQueryOptions.IncludeDisabled | EntityQueryOptions.IncludePrefab);
+		itemQuery = Core.EntityManager.CreateEntityQuery(ref entityQueryBuilder);
+		entityQueryBuilder.Dispose();
 
 		SetHeadgearBloodbound(Core.ConfigSettings.HeadgearBloodbound);
 	}

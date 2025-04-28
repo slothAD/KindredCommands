@@ -31,7 +31,7 @@ public class AnnounceCommands
 			if (announcementTime < serverTime)
 				announcementTime = announcementTime.AddDays(1);
 
-			if(!Core.AnnouncementsService.AddAnnouncement(name, message, time, oneTime))
+			if(!Core.AnnouncementsService.AddAnnouncement(name, message, announcementTime, oneTime))
 			{
 				ctx.Reply($"Announcement message with the name {name} already exists.");
 				return;

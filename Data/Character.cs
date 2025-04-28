@@ -7,11 +7,12 @@ internal static class Character
 {
 	public static void Populate()
 	{
-		foreach(var (prefabGuid, name) in Core.PrefabCollectionSystem.PrefabGuidToNameDictionary)
+		foreach(var prefab in Core.PrefabCollectionSystem._PrefabGuidToEntityMap)
 		{
+			var name = Core.PrefabCollectionSystem._PrefabLookupMap.GetName(prefab.Key);
 			if (!name.StartsWith("CHAR")) continue;
-			Named[name] = prefabGuid;
-			NameFromPrefab[prefabGuid.GuidHash] = name;
+			Named[name] = prefab.Key;
+			NameFromPrefab[prefab.Key.GuidHash] = name;
 		}
 	}
 	public static Dictionary<string, PrefabGUID> Named = new(StringComparer.OrdinalIgnoreCase);

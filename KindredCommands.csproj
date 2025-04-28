@@ -24,14 +24,12 @@
 	  <EmbeddedResource Include="LICENSE.txt" />
 	</ItemGroup>
 	<ItemGroup>
-    <PackageReference Include="BepInEx.Unity.IL2CPP" Version="6.0.0-be.691" IncludeAssets="compile" />
-    <PackageReference Include="BepInEx.Core" Version="6.0.0-be.691" IncludeAssets="compile" />
-    <PackageReference Include="BepInEx.PluginInfoProps" Version="2.*" />
     <PackageReference Include="VRising.VampireCommandFramework" Version="0.9.*" />
 	</ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.Text.Json" Version="6.0.11" />
   </ItemGroup>
+
   <ItemGroup>
     <Reference Include="Backtrace.Unity" HintPath="..\interop\Backtrace.Unity.dll" />
     <Reference Include="com.rlabrecque.steamworks.net" HintPath="..\interop\com.rlabrecque.steamworks.net.dll" />
@@ -70,6 +68,7 @@
     <Reference Include="ProjectM.Haptics" HintPath="..\interop\ProjectM.Haptics.dll" />
     <Reference Include="ProjectM.HUD" HintPath="..\interop\ProjectM.HUD.dll" />
     <Reference Include="ProjectM.Hybrid.Performance" HintPath="..\interop\ProjectM.Hybrid.Performance.dll" />
+    <Reference Include="ProjectM.LiveBuildPerformanceTests.GlowingVampire" HintPath="..\interop\ProjectM.LiveBuildPerformanceTests.GlowingVampire.dll" />
     <Reference Include="ProjectM.LiveBuildPerformanceTests.Utilities" HintPath="..\interop\ProjectM.LiveBuildPerformanceTests.Utilities.dll" />
     <Reference Include="ProjectM.Misc.Systems" HintPath="..\interop\ProjectM.Misc.Systems.dll" />
     <Reference Include="ProjectM.Pathfinding" HintPath="..\interop\ProjectM.Pathfinding.dll" />
@@ -80,12 +79,19 @@
     <Reference Include="ProjectM.Shared.ColorData" HintPath="..\interop\ProjectM.Shared.ColorData.dll" />
     <Reference Include="ProjectM.Shared" HintPath="..\interop\ProjectM.Shared.dll" />
     <Reference Include="ProjectM.Shared.Systems" HintPath="..\interop\ProjectM.Shared.Systems.dll" />
+    <Reference Include="ProjectM.Steam" HintPath="..\interop\ProjectM.Steam.dll" />
     <Reference Include="ProjectM.Terrain" HintPath="..\interop\ProjectM.Terrain.dll" />
+    <Reference Include="ProjectM.VFXRendererUtility" HintPath="..\interop\ProjectM.VFXRendererUtility.dll" />
     <Reference Include="ProjectM.Wind.Shared" HintPath="..\interop\ProjectM.Wind.Shared.dll" />
     <Reference Include="RCONServerLib" HintPath="..\interop\RCONServerLib.dll" />
     <Reference Include="RootMotion" HintPath="..\interop\RootMotion.dll" />
     <Reference Include="RTLTMPro" HintPath="..\interop\RTLTMPro.dll" />
+    <Reference Include="Rukhanka.DebugDrawer" HintPath="..\interop\Rukhanka.DebugDrawer.dll" />
+    <Reference Include="Rukhanka.Hybrid" HintPath="..\interop\Rukhanka.Hybrid.dll" />
+    <Reference Include="Rukhanka.Runtime" HintPath="..\interop\Rukhanka.Runtime.dll" />
+    <Reference Include="Rukhanka.Toolbox" HintPath="..\interop\Rukhanka.Toolbox.dll" />
     <Reference Include="Sequencer" HintPath="..\interop\Sequencer.dll" />
+    <Reference Include="Stunlock.Animation.StunCloth.Runtime" HintPath="..\interop\Stunlock.Animation.StunCloth.Runtime.dll" />
     <Reference Include="Stunlock.Console" HintPath="..\interop\Stunlock.Console.dll" />
     <Reference Include="Stunlock.ContentTests" HintPath="..\interop\Stunlock.ContentTests.dll" />
     <Reference Include="Stunlock.Core.Animation" HintPath="..\interop\Stunlock.Core.Animation.dll" />
@@ -112,6 +118,7 @@
     <Reference Include="Unity.Mathematics" HintPath="..\interop\Unity.Mathematics.dll" />
     <Reference Include="Unity.Mathematics.Extensions" HintPath="..\interop\Unity.Mathematics.Extensions.dll" />
     <Reference Include="Unity.Mathematics.Extensions.Hybrid" HintPath="..\interop\Unity.Mathematics.Extensions.Hybrid.dll" />
+    <Reference Include="Unity.MemoryProfiler" HintPath="..\interop\Unity.MemoryProfiler.dll" />
     <Reference Include="Unity.Physics" HintPath="..\interop\Unity.Physics.dll" />
     <Reference Include="Unity.Physics.Hybrid" HintPath="..\interop\Unity.Physics.Hybrid.dll" />
     <Reference Include="Unity.Profiling.Core" HintPath="..\interop\Unity.Profiling.Core.dll" />
@@ -193,11 +200,45 @@
     <Reference Include="UnityEngine.XRModule" HintPath="..\interop\UnityEngine.XRModule.dll" />
     <Reference Include="VivoxUnity" HintPath="..\interop\VivoxUnity.dll" />
     <Reference Include="__Generated" HintPath="..\interop\__Generated.dll" />
-  </ItemGroup>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="0Harmony" HintPath="..\core\0Harmony.dll" />
+      <Reference Include="AsmResolver" HintPath="..\core\AsmResolver.dll" />
+      <Reference Include="AsmResolver.DotNet" HintPath="..\core\AsmResolver.DotNet.dll" />
+      <Reference Include="AsmResolver.PE" HintPath="..\core\AsmResolver.PE.dll" />
+      <Reference Include="AsmResolver.PE.File" HintPath="..\core\AsmResolver.PE.File.dll" />
+      <Reference Include="AssetRipper.CIL" HintPath="..\core\AssetRipper.CIL.dll" />
+      <Reference Include="AssetRipper.Primitives" HintPath="..\core\AssetRipper.Primitives.dll" />
+      <Reference Include="BepInEx.Core" HintPath="..\core\BepInEx.Core.dll" />
+      <Reference Include="BepInEx.Preloader.Core" HintPath="..\core\BepInEx.Preloader.Core.dll" />
+      <Reference Include="BepInEx.Unity.Common" HintPath="..\core\BepInEx.Unity.Common.dll" />
+      <Reference Include="BepInEx.Unity.IL2CPP" HintPath="..\core\BepInEx.Unity.IL2CPP.dll" />
+      <Reference Include="Cpp2IL.Core" HintPath="..\core\Cpp2IL.Core.dll" />
+      <Reference Include="Disarm" HintPath="..\core\Disarm.dll" />
+      <Reference Include="dobby" HintPath="..\core\dobby.dll" />
+      <Reference Include="Gee.External.Capstone" HintPath="..\core\Gee.External.Capstone.dll" />
+      <Reference Include="Iced" HintPath="..\core\Iced.dll" />
+      <Reference Include="Il2CppInterop.Common" HintPath="..\core\Il2CppInterop.Common.dll" />
+      <Reference Include="Il2CppInterop.Generator" HintPath="..\core\Il2CppInterop.Generator.dll" />
+      <Reference Include="Il2CppInterop.HarmonySupport" HintPath="..\core\Il2CppInterop.HarmonySupport.dll" />
+      <Reference Include="Il2CppInterop.Runtime" HintPath="..\core\Il2CppInterop.Runtime.dll" />
+      <Reference Include="LibCpp2IL" HintPath="..\core\LibCpp2IL.dll" />
+      <Reference Include="Mono.Cecil" HintPath="..\core\Mono.Cecil.dll" />
+      <Reference Include="Mono.Cecil.Mdb" HintPath="..\core\Mono.Cecil.Mdb.dll" />
+      <Reference Include="Mono.Cecil.Pdb" HintPath="..\core\Mono.Cecil.Pdb.dll" />
+      <Reference Include="Mono.Cecil.Rocks" HintPath="..\core\Mono.Cecil.Rocks.dll" />
+      <Reference Include="MonoMod.RuntimeDetour" HintPath="..\core\MonoMod.RuntimeDetour.dll" />
+      <Reference Include="MonoMod.Utils" HintPath="..\core\MonoMod.Utils.dll" />
+      <Reference Include="SemanticVersioning" HintPath="..\core\SemanticVersioning.dll" />
+      <Reference Include="StableNameDotNet" HintPath="..\core\StableNameDotNet.dll" />
+      <Reference Include="WasmDisassembler" HintPath="..\core\WasmDisassembler.dll" />
+    </ItemGroup>
+
   <PropertyGroup>
     <NoWarn>NU1605</NoWarn>
   </PropertyGroup>
-	<Target Name="PostBuild" AfterTargets="PostBuildEvent">		
-	  <Exec Command="copy &quot;$(TargetPath)&quot; &quot;D:\Program Files (x86)\Steam\steamapps\common\VRisingDedicatedServer\BepInEx\plugins&quot; " ContinueOnError="true" />
-	</Target>
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="copy &quot;$(TargetPath)&quot; &quot;C:\Program Files (x86)\Steam\steamapps\common\VRisingBeta\VRising_Server\BepInEx\plugins&quot; " ContinueOnError="true" />
+  </Target>
 </Project>

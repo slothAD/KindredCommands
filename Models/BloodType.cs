@@ -11,8 +11,10 @@ public enum BloodType
 	Worker = -1776904174,
 	Mutant = 1821108694,
 	Dracula = 2010023718,
+	Immortal = 2010023718,
 	Draculin = 1328126535,
-	GateBoss = 910644396,
-	VBlood = -338774148
+	BloodSoul = 910644396,
+	VBlood = -338774148,
+	Corrupted = -1382693416,
 }
 

@@ -3,6 +3,7 @@ using static KindredCommands.Commands.SpawnCommands;
 using VampireCommandFramework;
 using Stunlock.Core;
 using KindredCommands.Data;
+using KindredCommands.Commands.Converters;
 
 namespace KindredCommands.Commands;
 
@@ -38,4 +39,45 @@ internal class PrisonerCommands
 
 		ctx.Reply($"Chance: {Core.ConfigSettings.GruelMutantChance * 100}%. Quality increase: {Core.ConfigSettings.GruelBloodMin * 100}% - {Core.ConfigSettings.GruelBloodMax * 100}%. Transform: {prefabName}");
     }
+
+	[Command("feed", description: "Change one of the feed items that isn't gruel", adminOnly: true)]
+	public static void ChangeFeed(ChatCommandContext ctx, FoundPrisonerFeed feed,
+		                          float healthChangeMin, float healthChangeMax,
+								  float miseryChangeMin, float miseryChangeMax,
+								  float bloodQualityChangeMin, float bloodQualityChangeMax)
+	{
+		Core.Prisoners.ChangeFeed(feed.Value, healthChangeMin, healthChangeMax, miseryChangeMin, miseryChangeMax, bloodQualityChangeMin, bloodQualityChangeMax);
+		ctx.Reply($"Changed settings for {feed.Name}");
+	}
+
+	[Command("feeddefault", description: "Restores a feed prisoner to default settings", adminOnly: true)]
+	public static void DefaultFeed(ChatCommandContext ctx, FoundPrisonerFeed feed)
+	{
+		Core.Prisoners.ResetToDefault(feed.Value);
+		ctx.Reply($"Feeding {feed.Name} is reset to default");
+	}
+
+	[Command("feedsettings", description: "Show settings of a feed prisoner", adminOnly: true)]
+	public static void FeedSettings(ChatCommandContext ctx, FoundPrisonerFeed feed)
+	{
+		if (Core.ConfigSettings.PrisonerFeeds.TryGetValue(feed.Value._Value, out var prisonerFeed))
+		{
+			ctx.Reply($"Prisoner Feed Settings for {feed.Name}\n" +
+					  $"Health Change: {prisonerFeed.HealthChangeMin} - {prisonerFeed.HealthChangeMax}\n" +
+					  $"Misery Change: {prisonerFeed.MiseryChangeMin} - {prisonerFeed.MiseryChangeMax}\n" +
+					  $"Blood Quality Change: {prisonerFeed.BloodQualityChangeMin} - {prisonerFeed.BloodQualityChangeMax}");
+		}
+		else if (Core.Prisoners.defaultPrisonerFeeds.TryGetValue(feed.Value, out prisonerFeed))
+		{
+
+			ctx.Reply($"Prisoner Feed Settings are Default for {feed.Name}\n" +
+					  $"Health Change: {prisonerFeed.HealthChangeMin} - {prisonerFeed.HealthChangeMax}\n" +
+					  $"Misery Change: {prisonerFeed.MiseryChangeMin} - {prisonerFeed.MiseryChangeMax}\n" +
+					  $"Blood Quality Change: {prisonerFeed.BloodQualityChangeMin} - {prisonerFeed.BloodQualityChangeMax}");
+		}
+		else
+		{
+			ctx.Reply($"Prisoner Feed Settings unknown for {feed.Name}");
+		}
+	}
 }

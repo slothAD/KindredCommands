@@ -27,7 +27,7 @@ internal class RegionService
 	Dictionary<string, int> gatedRegions = [];
 	Dictionary<Entity, (WorldRegionType, Vector3)> lastValidPos = [];
 	Dictionary<Entity, float> lastSentMessage = [];
-	Dictionary<string, float> maxPlayerLevels = [];
+	Dictionary<string, int> maxPlayerLevels = [];
 	List<string> allowPlayers = [];
 	Dictionary<string, List<string>> banPlayers = [];
 
@@ -49,7 +49,7 @@ internal class RegionService
 	{
 		public WorldRegionType[] LockedRegions { get; set; }
 		public Dictionary<string, int> GatedRegions { get; set; }
-		public Dictionary<string, float> MaxPlayerLevels { get; set; }
+		public Dictionary<string, int> MaxPlayerLevels { get; set; }
 		public string[] AllowPlayers { get; set; }
 		public Dictionary<string, string[]> BanPlayers { get; set; }
 	}
@@ -231,7 +231,7 @@ internal class RegionService
 				var pos = charEntity.Read<Translation>().Value;
 				var currentWorldRegion = GetRegion(pos);
 				var equipment = charEntity.Read<Equipment>();
-				var maxLevel = Mathf.Max(equipment.ArmorLevel+equipment.SpellLevel+equipment.WeaponLevel,
+				var maxLevel = Mathf.Max(Mathf.RoundToInt(equipment.ArmorLevel+equipment.SpellLevel+equipment.WeaponLevel),
 										 maxPlayerLevels.TryGetValue(charName, out var cachedLevel) ? cachedLevel : 0);
 				
 				if (maxLevel > cachedLevel)
@@ -326,7 +326,8 @@ internal class RegionService
 		if (!lastSentMessage.TryGetValue(userEntity, out var lastSent) ||
 						lastSent + 10 < Time.time)
 		{
-			ServerChatUtils.SendSystemMessageToClient(Core.EntityManager, userEntity.Read<User>(), returnReason);
+			FixedString512Bytes message = returnReason;
+			ServerChatUtils.SendSystemMessageToClient(Core.EntityManager, userEntity.Read<User>(), ref message);
 			lastSentMessage[userEntity] = Time.time;
 		}
 

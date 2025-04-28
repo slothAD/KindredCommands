@@ -34,12 +34,8 @@ internal class ConfigSettingsService
 		}
 	}
 
-	/// <summary>
-	/// Entities whenever added or removed from blood-bound category.
-	/// Key: prefab guid, Value: indicates if entity belongs to blood-bound category.
-	/// Call <see cref="SetBloodBound"/> to update.
-	/// </summary>
 	public IReadOnlyDictionary<string, bool> BloodBound => config.BloodBound;
+	public IReadOnlyDictionary<int, PrisonerFeed> PrisonerFeeds => config.PrisonerFeeds;
 
 	public bool SoulshardsFlightRestricted
 	{
@@ -248,23 +244,12 @@ internal class ConfigSettingsService
 		}
 	}
 
-	/// <summary>
-	/// Adds/updates record in <see cref="BloodBound"/>.
-	/// Saves current config to a file.
-	/// </summary>
-	/// <param name="key">Record key.</param>
-	/// <param name="value">Record value.</param>
 	public void SetBloodBound(string key, bool value)
 	{
 		config.BloodBound[key] = value;
 		SaveConfig();
 	}
 
-	/// <summary>
-	/// Removes records for <see cref="BloodBound"/>.
-	/// Saves current config to a file.
-	/// </summary>
-	/// <param name="keys">Removes records from</param>
 	public void ClearBloodBound(IEnumerable<string> keys)
 	{
 		foreach (var key in keys)
@@ -273,6 +258,27 @@ internal class ConfigSettingsService
 		}
 
 		SaveConfig();
+	}
+
+	public void SetPrisonerFeed(int prefabGuid, PrisonerFeed value)
+	{
+		config.PrisonerFeeds[prefabGuid] = value;
+		SaveConfig();
+	}
+
+	public void ClearPrisonerFeed(int prefabGuid)
+	{
+		config.PrisonerFeeds.Remove(prefabGuid);
+	}
+
+	public struct PrisonerFeed
+	{
+		public float HealthChangeMin { get; set; }
+		public float HealthChangeMax { get; set; }
+		public float MiseryChangeMin { get; set; }
+		public float MiseryChangeMax { get; set; }
+		public float BloodQualityChangeMin { get; set; }
+		public float BloodQualityChangeMax { get; set; }
 	}
 
 	struct Config
@@ -311,6 +317,7 @@ internal class ConfigSettingsService
 		public float? GruelBloodMax { get; set; }
 		public int? GruelTransformPrefabInt { get; set; }
 		public bool BatVision { get; set; }
+		public Dictionary<int, PrisonerFeed> PrisonerFeeds { get; set; } = [];
 	}
 
 	Config config;

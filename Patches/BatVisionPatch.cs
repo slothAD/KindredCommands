@@ -12,7 +12,7 @@ internal class BatVisionPatch
 	static void Prefix(ScriptSpawnServer __instance)
 	{
 
-		NativeArray<Entity> entities = __instance.__query_1231292176_0.ToEntityArray(Allocator.Temp);
+		NativeArray<Entity> entities = __instance.__query_1231292170_0.ToEntityArray(Allocator.Temp);
 		try
 		{
 			foreach (Entity entity in entities)

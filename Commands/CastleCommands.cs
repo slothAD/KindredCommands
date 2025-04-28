@@ -3,20 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using Il2CppInterop.Runtime;
 using KindredCommands.Commands.Converters;
 using ProjectM;
-using ProjectM.Behaviours;
 using ProjectM.CastleBuilding;
 using ProjectM.Network;
 using ProjectM.Terrain;
 using Unity.Entities;
+using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
-using UnityEngine.UIElements.UIR;
 using VampireCommandFramework;
-using KindredCommands.Services;
-using Unity.Mathematics;
 
 namespace KindredCommands.Commands;
 
@@ -29,6 +25,7 @@ internal class CastleCommands
 
 		var castleHearts = Helper.GetEntitiesByComponentType<CastleHeart>();
 		var playerPos = ctx.Event.SenderCharacterEntity.Read<LocalToWorld>().Position;
+		var limitType = CastleHeartLimitType.User;
 		foreach (var castleHeart in castleHearts)
 		{
 			var castleHeartPos = castleHeart.Read<LocalToWorld>().Position;
@@ -42,7 +39,7 @@ internal class CastleCommands
 
 			ctx.Reply($"Assigning castle heart to {name}");
 
-			TeamUtility.ClaimCastle(Core.EntityManager, newOwnerUser, castleHeart);
+			TeamUtility.ClaimCastle(Core.EntityManager, newOwnerUser, castleHeart, limitType);
 			return;
 		}
 		ctx.Reply("Not close enough to a castle heart");
@@ -429,7 +426,7 @@ internal class CastleCommands
 		ctx.Reply("Territory not found");
 	}
 
-	[Command("plotinfo", "pinfo", description: "Reports information about the territory specified", adminOnly: true)]
+	[Command("plotinfo", description: "Reports information about the territory specified", adminOnly: true)]
 	public static void PlotInfo(ChatCommandContext ctx, int territoryIndex)
 	{
 		var castleTerritories = Helper.GetEntitiesByComponentType<CastleTerritory>();
@@ -464,7 +461,10 @@ internal class CastleCommands
 			else
 			{
 				var time = TimeSpan.FromSeconds(secondsRemaining);
-				sb.AppendLine($"Time Remaining: {time.Days}d {time.Hours}h {time.Minutes}m");
+				if (time >  TimeSpan.Zero)
+					sb.AppendLine($"Time Remaining: {time.Days}d {time.Hours}h {time.Minutes}m");
+				else
+					sb.AppendLine($"Time in Decay: {time.Days}d {time.Hours}h {time.Minutes}m");
 			}
 			ctx.Reply(sb.ToString());
 			return;

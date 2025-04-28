@@ -69,7 +69,15 @@ public class FoundVBloodConverter : CommandArgumentConverter<FoundVBlood>
 		{"Valencia", Prefabs.CHAR_Vampire_BloodKnight_VBlood },
 		{"Cassius", Prefabs.CHAR_Vampire_HighLord_VBlood },
 		{"Dracula", Prefabs.CHAR_Vampire_Dracula_VBlood },
-		{"Simon Belmont", Prefabs.CHAR_VHunter_CastleMan }
+		{"Simon Belmont", Prefabs.CHAR_VHunter_CastleMan },
+		{"Sir Erwin the Gallant Cavalier", Prefabs.CHAR_Militia_Fabian_VBlood },
+		{"Gaius The Cursed Champion", Prefabs.CHAR_Undead_ArenaChampion_VBlood },
+		{"Jakira the Shadow Huntress", Prefabs.CHAR_Blackfang_Livith_VBlood },
+		{"Stavros the Carver", Prefabs.CHAR_Blackfang_CarverBoss_VBlood },
+		{"Lucile the Venom Alchemist", Prefabs.CHAR_Blackfang_Lucie_VBlood },
+		{"Dantos the Forgebinder", Prefabs.CHAR_Blackfang_Valyr_VBlood },
+		{"Megara the Serpent Queen", Prefabs.CHAR_Blackfang_Morgana_VBlood }
+
 	};
 
 	public readonly static Dictionary<PrefabGUID, string> VBloodPrefabToName = NameToVBloodPrefab.ToDictionary(kvp => kvp.Value, kvp => kvp.Key);

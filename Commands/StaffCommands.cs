@@ -5,8 +5,7 @@ using KindredCommands.Models;
 using KindredCommands.Services;
 using ProjectM;
 using ProjectM.Network;
-using ProjectM.UI;
-using Stunlock.Network;
+using Unity.Collections;
 using Unity.Entities;
 using VampireCommandFramework;
 
@@ -102,17 +101,21 @@ internal class StaffCommands
 			user.IsAdmin = false;
 			userEntity.Write(user);
 
-			var entity = Core.EntityManager.CreateEntity(
-				ComponentType.ReadWrite<FromCharacter>(),
-				ComponentType.ReadWrite<DeauthAdminEvent>()
-			);
+			var archetype = Core.EntityManager.CreateArchetype(new ComponentType[]
+			{
+					ComponentType.ReadWrite<FromCharacter>(),
+					ComponentType.ReadWrite<DeauthAdminEvent>()
+			});
+
+			var entity = Core.EntityManager.CreateEntity(archetype);
 			entity.Write(new FromCharacter()
 			{
 				Character = player.Value.CharEntity,
 				User = userEntity
 			});
 
-			ServerChatUtils.SendSystemMessageToClient(Core.EntityManager, user, "You were removed as admin and deauthed");
+			FixedString512Bytes message = "You were removed as admin and deauthed";
+			ServerChatUtils.SendSystemMessageToClient(Core.EntityManager, user, ref message);
 
 		}
 		else
@@ -122,7 +125,8 @@ internal class StaffCommands
 
 			AdminService.AdminUser(userEntity);
 
-			ServerChatUtils.SendSystemMessageToClient(Core.EntityManager, user, "You were added as admin and authed");
+			FixedString512Bytes message = "You were added as admin and authed";
+			ServerChatUtils.SendSystemMessageToClient(Core.EntityManager, user, ref message);
 		}
 
 		adminAuthSystem._LocalAdminList.Save();

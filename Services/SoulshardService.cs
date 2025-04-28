@@ -23,39 +23,27 @@ internal class SoulshardService
 
 	public SoulshardService()
 	{
-		EntityQueryDesc relicDroppedQueryDesc = new()
-		{
-			All = new ComponentType[]
-			{
-				new(Il2CppType.Of<RelicDropped>(), ComponentType.AccessMode.ReadOnly),
-			},
-			Options = EntityQueryOptions.IncludeSystems
-		};
+		var relicDroppedQueryBuilder = new EntityQueryBuilder(Allocator.Temp)
+			.AddAll(new(Il2CppType.Of<RelicDropped>(), ComponentType.AccessMode.ReadOnly))
+			.WithOptions(EntityQueryOptions.IncludeSystems);
 
-		relicDroppedQuery = Core.EntityManager.CreateEntityQuery(relicDroppedQueryDesc);
+		relicDroppedQuery = Core.EntityManager.CreateEntityQuery(ref relicDroppedQueryBuilder);
+		relicDroppedQueryBuilder.Dispose();
 
-		EntityQueryDesc soulshardAndPrefabsQueryDesc = new()
-		{
-			All = new ComponentType[]
-			{
-				new(Il2CppType.Of<ItemData>(), ComponentType.AccessMode.ReadOnly),
-				new(Il2CppType.Of<Relic>(), ComponentType.AccessMode.ReadOnly),
-			},
-			Options = EntityQueryOptions.IncludePrefab
-		};
-		soulshardAndPrefabsQuery = Core.EntityManager.CreateEntityQuery(soulshardAndPrefabsQueryDesc);
+		var soulshardAndPrefabsQueryBuilder = new EntityQueryBuilder(Allocator.Temp)
+			.AddAll(new(Il2CppType.Of<ItemData>(), ComponentType.AccessMode.ReadOnly))
+			.AddAll(new(Il2CppType.Of<Relic>(), ComponentType.AccessMode.ReadOnly))
+			.WithOptions(EntityQueryOptions.IncludePrefab);
+		soulshardAndPrefabsQuery = Core.EntityManager.CreateEntityQuery(ref soulshardAndPrefabsQueryBuilder);
+		soulshardAndPrefabsQueryBuilder.Dispose();
 
-		EntityQueryDesc soulshardPrefabsQueryDesc = new()
-		{
-			All = new ComponentType[]
-			{
-				new(Il2CppType.Of<ItemData>(), ComponentType.AccessMode.ReadOnly),
-				new(Il2CppType.Of<Relic>(), ComponentType.AccessMode.ReadOnly),
-				new(Il2CppType.Of<Prefab>(), ComponentType.AccessMode.ReadOnly),
-			},
-			Options = EntityQueryOptions.IncludePrefab
-		};
-		soulshardPrefabsQuery = Core.EntityManager.CreateEntityQuery(soulshardPrefabsQueryDesc);
+		var souldshardPrefabsQueryBuilder = new EntityQueryBuilder(Allocator.Temp)
+			.AddAll(new(Il2CppType.Of<ItemData>(), ComponentType.AccessMode.ReadOnly))
+			.AddAll(new(Il2CppType.Of<Relic>(), ComponentType.AccessMode.ReadOnly))
+			.AddAll(new(Il2CppType.Of<Prefab>(), ComponentType.AccessMode.ReadOnly))
+			.WithOptions(EntityQueryOptions.IncludePrefab);
+		soulshardPrefabsQuery = Core.EntityManager.CreateEntityQuery(ref souldshardPrefabsQueryBuilder);
+		souldshardPrefabsQueryBuilder.Dispose();
 
 		foreach (var entity in Helper.GetEntitiesByComponentTypes<ItemData, Relic>())
 		{

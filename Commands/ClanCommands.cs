@@ -4,14 +4,11 @@ using System.Linq;
 using KindredCommands.Commands.Converters;
 using ProjectM;
 using ProjectM.CastleBuilding;
-using ProjectM.Gameplay.Clan;
 using ProjectM.Network;
 using ProjectM.Terrain;
-using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
 using VampireCommandFramework;
-using static ProjectM.Network.ClanEvents_Client;
 
 namespace KindredCommands.Commands;
 
@@ -23,6 +20,7 @@ class ClanCommands
     {
         var userToAddEntity = playerToAdd.Value.UserEntity;
 		var user = userToAddEntity.Read<User>();
+		var limitType = CastleHeartLimitType.User;
 		if (!user.ClanEntity.Equals(NetworkedEntity.Empty))
 		{
 			var clanTeam = user.ClanEntity.GetEntityOnServer().Read<ClanTeam>();
@@ -36,7 +34,7 @@ class ClanCommands
             return;
         }
 
-        TeamUtility.AddUserToClan(Core.EntityManager, clanEntity, userToAddEntity, ref user);
+        TeamUtility.AddUserToClan(Core.EntityManager, clanEntity, userToAddEntity, ref user, limitType);
         userToAddEntity.Write<User>(user);
 
         var members = Core.EntityManager.GetBuffer<ClanMemberStatus>(clanEntity);
@@ -105,10 +103,14 @@ class ClanCommands
 					ctx.Reply("Cannot remove a leader of a clan. Change their role first if you wish to kick.");
 					return;
 				}
-				var entity = Core.EntityManager.CreateEntity(
+
+				var archetype = Core.EntityManager.CreateArchetype(new ComponentType[]
+				{
 					ComponentType.ReadWrite<FromCharacter>(),
 					ComponentType.ReadWrite<ClanEvents_Client.Kick_Request>()
-					);
+				});
+
+				var entity = Core.EntityManager.CreateEntity(archetype);
 				entity.Write(fromCharacter);
 
 				entity.Write(new ClanEvents_Client.Kick_Request()
@@ -336,7 +338,7 @@ class ClanCommands
         for (var i = 0; i < members.Length; ++i)
         {
             var member = members[i];
-            var userBufferEntry = userBuffer[i];
+            var userBufferEntry =	userBuffer[i];
             var user = userBufferEntry.UserEntity.Read<User>();
 			memberList.Add($"{user.CharacterName} - {member.ClanRole}");
         }
@@ -360,7 +362,115 @@ class ClanCommands
         clanRole.Value = newRole;
         player.Value.UserEntity.Write<ClanRole>(clanRole);
 		ctx.Reply($"Changed {player.Value.CharacterName} role from {oldRole} to {newRole}");
-    }
+	}
+
+	[Command("rename", "rn", description: "Rename a clan", adminOnly: true)]
+	public static void RenameClan(ChatCommandContext ctx, string oldClanName, string newClanName, string leaderName = null)
+	{
+		var matchingClans = FindClans(oldClanName);
+
+		if (matchingClans.Count == 0)
+		{
+			ctx.Reply($"No clan found matching name '{oldClanName}'");
+			return;
+		}
+
+		if (matchingClans.Count == 1)
+		{
+			RenameClanEntity(matchingClans[0], newClanName);
+			ctx.Reply($"Clan '{oldClanName}' renamed to '{newClanName}'");
+			return;
+		}
+
+		if (leaderName != null)
+		{
+			Entity targetClan = new Entity();
+			bool foundClan = false;
+
+			foreach (var clan in matchingClans)
+			{
+				var members = Core.EntityManager.GetBuffer<ClanMemberStatus>(clan);
+				var userBuffer = Core.EntityManager.GetBuffer<SyncToUserBuffer>(clan);
+
+				// Find the leader
+				for (var j = 0; j < members.Length; ++j)
+				{
+					if (members[j].ClanRole == ClanRoleEnum.Leader)
+					{
+						var userBufferEntry = userBuffer[j];
+						var user = userBufferEntry.UserEntity.Read<User>();
+						var currentLeaderName = user.CharacterName.ToString();
+
+						// Case-insensitive comparison
+						if (currentLeaderName.ToLower() == leaderName.ToLower())
+						{
+							targetClan = clan;
+							foundClan = true;
+							break;
+						}
+					}
+				}
+
+				if (foundClan) break;
+			}
+
+			if (foundClan)
+			{
+				var oldName = targetClan.Read<ClanTeam>().Name;
+				RenameClanEntity(targetClan, newClanName);
+				ctx.Reply($"Clan '{oldName}' with leader '{leaderName}' renamed to '{newClanName}'");
+				return;
+			}
+
+			ctx.Reply($"No clan found with name '{oldClanName}' and leader '{leaderName}'");
+		}
+
+		ctx.Reply($"Found {matchingClans.Count} clans matching '{oldClanName}'. Please specify which one by including the leader's name:");
+
+		for (int i = 0; i < matchingClans.Count; i++)
+		{
+			var clan = matchingClans[i];
+			var members = Core.EntityManager.GetBuffer<ClanMemberStatus>(clan);
+			var userBuffer = Core.EntityManager.GetBuffer<SyncToUserBuffer>(clan);
+
+			// Find the leader
+			string leaderNameFound = "Unknown";
+			for (var j = 0; j < members.Length; ++j)
+			{
+				if (members[j].ClanRole == ClanRoleEnum.Leader)
+				{
+					var userBufferEntry = userBuffer[j];
+					var user = userBufferEntry.UserEntity.Read<User>();
+					leaderNameFound = user.CharacterName.ToString();
+					break;
+				}
+			}
+
+			ctx.Reply($"{i + 1}. '{oldClanName}' - Leader: {leaderNameFound}");
+		}
+
+		ctx.Reply($"Usage: .clan rename \"{oldClanName}\" \"{newClanName}\" \"LeaderName\"");
+	}
+
+	private static void RenameClanEntity(Entity clanEntity, string newClanName)
+	{
+		var clanTeam = clanEntity.Read<ClanTeam>();
+		clanTeam.Name = newClanName;
+		clanEntity.Write(clanTeam);
+		var members = Core.EntityManager.GetBuffer<ClanMemberStatus>(clanEntity);
+		var userBuffer = Core.EntityManager.GetBuffer<SyncToUserBuffer>(clanEntity);
+
+		// Update the Clan Tag on all Members
+		for (var i = 0; i < members.Length; ++i)
+		{
+			var member = members[i];
+			var userBufferEntry = userBuffer[i];
+			var user = userBufferEntry.UserEntity.Read<User>();
+			var playerCharacter = user.LocalCharacter.GetEntityOnServer().Read<PlayerCharacter>();
+			playerCharacter.SmartClanName = ClanUtility.GetSmartClanName(newClanName);
+			user.LocalCharacter.GetEntityOnServer().Write(playerCharacter);
+		}
+	}
 
 	[Command("castles", "c", description: "List castles owned by a clan", adminOnly: true)]
     public static void ListClanCastles(ChatCommandContext ctx, string clanName)
@@ -391,22 +501,37 @@ class ClanCommands
         }
 
         ctx.Reply($"Castles owned by Clan '{clanEntity.Read<ClanTeam>().Name}' (Total: {castleCount})\n" + string.Join("\n", castleList));
-    }
+	}
 
 	public static bool FindClan(string clanName, out Entity clanEntity)
-    {
-        var clans = Helper.GetEntitiesByComponentType<ClanTeam>().ToArray();
-        var matchedClans = clans.Where(x => x.Read<ClanTeam>().Name.ToString().ToLower() == clanName.ToLower());
+	{
+		var clans = Helper.GetEntitiesByComponentType<ClanTeam>().ToArray();
+		var matchedClans = clans.Where(x => x.Read<ClanTeam>().Name.ToString().ToLower() == clanName.ToLower());
 
-        foreach (var clan in matchedClans)
-        {
-            var members = Core.EntityManager.GetBuffer<ClanMemberStatus>(clan);
-            if (members.Length == 0) continue;
-            clanEntity = clan;
-            return true;
-        }
-        clanEntity = new Entity();
-        return false;
-    }
+		foreach (var clan in matchedClans)
+		{
+			var members = Core.EntityManager.GetBuffer<ClanMemberStatus>(clan);
+			if (members.Length == 0) continue;
+			clanEntity = clan;
+			return true;
+		}
+		clanEntity = new Entity();
+		return false;
+	}
+	public static List<Entity> FindClans(string clanName)
+	{
+		var matchingClans = new List<Entity>();
+		var clans = Helper.GetEntitiesByComponentType<ClanTeam>().ToArray();
+
+		var matchedClans = clans.Where(x => x.Read<ClanTeam>().Name.ToString().ToLower() == clanName.ToLower());
+		foreach (var clan in matchedClans)
+		{
+			var members = Core.EntityManager.GetBuffer<ClanMemberStatus>(clan);
+			if (members.Length == 0) continue; // Skip empty clans
+			matchingClans.Add(clan);
+		}
+
+		return matchingClans;
+	}
 }
 

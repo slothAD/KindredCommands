@@ -83,8 +83,8 @@ public static class ECSExtensions
 	public static string LookupName(this PrefabGUID prefabGuid)
 	{
 		var prefabCollectionSystem = Core.Server.GetExistingSystemManaged<PrefabCollectionSystem>();
-		return (prefabCollectionSystem.PrefabGuidToNameDictionary.ContainsKey(prefabGuid)
-			? prefabCollectionSystem.PrefabGuidToNameDictionary[prefabGuid] + " " + prefabGuid : "GUID Not Found").ToString();
+		return (prefabCollectionSystem._PrefabLookupMap.GuidToEntityMap.ContainsKey(prefabGuid)
+			? prefabCollectionSystem._PrefabLookupMap.GetName(prefabGuid) + " PrefabGuid(" + prefabGuid.GuidHash + ")" : "GUID Not Found");
 	}
 
 	public static string PrefabName(this PrefabGUID prefabGuid)
@@ -119,6 +119,5 @@ public static class ECSExtensions
 		var ct = new ComponentType(Il2CppType.Of<T>());
 		Core.EntityManager.RemoveComponent(entity, ct);
 	}
-
 }
 //#pragma warning restore CS8500

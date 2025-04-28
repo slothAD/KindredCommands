@@ -1,36 +1,17 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
+using System.Text.Json;
 using ProjectM;
 using ProjectM.Shared;
 using Stunlock.Core;
 using Stunlock.Localization;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text.Json;
 
 namespace KindredCommands.Services
 {
     internal class LocalizationService
     {
-        struct Code
-        {
-            public string Key { get; set; }
-            public string Value { get; set; }
-            public string Description { get; set; }
-        }
-
-        struct Node
-        {
-            public string Guid { get; set; }
-            public string Text { get; set; }
-        }
-
-        struct LocalizationFile
-        {
-            public Code[] Codes { get; set; }
-            public Node[] Nodes { get; set; }
-        }
 
         Dictionary<string, string> localization = [];
         Dictionary<int, string> prefabNames = [];
@@ -52,8 +33,7 @@ namespace KindredCommands.Services
                 using (var reader = new StreamReader(stream))
                 {
                     string jsonContent = reader.ReadToEnd();
-                    var localizationFile = JsonSerializer.Deserialize<LocalizationFile>(jsonContent);
-                    localization = localizationFile.Nodes.ToDictionary(x => x.Guid, x => x.Text);
+					localization = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonContent);
                 }
             }
             else

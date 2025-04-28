@@ -26,7 +26,11 @@ internal class RelicDestroySystemPatch
 	{
 		if (!queryInitialized)
 		{
-			relicDestroyQuery = Core.EntityManager.CreateEntityQuery(relicDestroyQueryDesc);
+			var entityQueryBuilder = new EntityQueryBuilder(Allocator.Temp)
+				.AddAll(new(Il2CppType.Of<ItemData>(), ComponentType.AccessMode.ReadOnly))
+				.AddAll(new(Il2CppType.Of<Relic>(), ComponentType.AccessMode.ReadOnly))
+				.AddAll(new(Il2CppType.Of<DestroyTag>(), ComponentType.AccessMode.ReadOnly));
+			relicDestroyQuery = Core.EntityManager.CreateEntityQuery(ref entityQueryBuilder);
 			queryInitialized = true;
 		}
 

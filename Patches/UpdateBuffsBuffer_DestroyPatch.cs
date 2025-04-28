@@ -11,7 +11,7 @@ internal class UpdateBuffsBuffer_DestroyPatch
 {
 	public static void Prefix(UpdateBuffsBuffer_Destroy __instance)
 	{
-		var entities = __instance.__query_401358720_0.ToEntityArray(Allocator.Temp);
+		var entities = __instance.__query_401358717_0.ToEntityArray(Allocator.Temp);
 		foreach (var entity in entities)
 		{
 			var prefabGUID = entity.Read<PrefabGUID>();

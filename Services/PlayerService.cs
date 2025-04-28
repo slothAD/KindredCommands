@@ -1,6 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
+using Il2CppInterop.Runtime;
 using KindredCommands.Models;
 using ProjectM;
 using ProjectM.Network;
@@ -97,6 +97,15 @@ internal class PlayerService
 		des.RenameUser(fromCharacter, renameEvent);
 		UpdatePlayerCache(userEntity, userData.CharacterName.ToString(), newName.ToString());
 
+		var attachedBuffer = Core.EntityManager.GetBuffer<AttachedBuffer>(charEntity);
+		foreach(var entry in attachedBuffer)
+		{
+			if (entry.PrefabGuid.GuidHash != -892362184) continue;
+			var pmi = entry.Entity.Read<PlayerMapIcon>();
+			pmi.UserName = newName;
+			entry.Entity.Write(pmi);
+		}
+
 		Core.Log.LogInfo($"Player {userData.CharacterName} renamed to {newName}");
 		Core.StealthAdminService.HandleRename(userEntity);
 
@@ -104,13 +113,16 @@ internal class PlayerService
 	}
 	public static IEnumerable<Entity> GetUsersOnline()
 	{
-
-		NativeArray<Entity> _userEntities = Core.EntityManager.CreateEntityQuery(ComponentType.ReadOnly<User>()).ToEntityArray(Allocator.Temp);
-		foreach(var entity in _userEntities)
+		var entityQueryBuilder = new EntityQueryBuilder(Allocator.Temp)
+			.AddAll(new(Il2CppType.Of<User>(), ComponentType.AccessMode.ReadOnly));
+		NativeArray<Entity> _userEntities = Core.EntityManager.CreateEntityQuery(ref entityQueryBuilder).ToEntityArray(Allocator.Temp);
+		entityQueryBuilder.Dispose();
+		foreach (var entity in _userEntities)
 		{
 			if (Core.EntityManager.Exists(entity) && entity.Read<User>().IsConnected)
 				yield return entity;
 		}
+		_userEntities.Dispose();
 	}
 
 

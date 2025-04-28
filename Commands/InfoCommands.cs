@@ -103,6 +103,15 @@ internal class InfoCommands
 		ctx.Reply("No user found with that steamid");
 	}
 
+	[Command("assignsteamID", "asid", description: "Assigns a steamID to a player", adminOnly: true)]
+	public static void AssignSteamID(ChatCommandContext ctx, FoundPlayer player, ulong steamid)
+	{
+		var user = player.Value.UserEntity.Read<User>();
+		user.PlatformId = steamid;
+		player.Value.UserEntity.Write(user);
+		ctx.Reply($"Assigned steamID {steamid} to {user.CharacterName}");
+	}
+
 	[Command("longestofflinecastles", "loc", description: "Check when a player was last online.", adminOnly: true)]
 	public static void LastOnlineAll(ChatCommandContext ctx, int page=1)
 	{

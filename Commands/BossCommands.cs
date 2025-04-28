@@ -119,18 +119,19 @@ internal class BossCommands
 			var bossEntity = foundBosses[index];
 			var pos = GetBossPos(bossEntity);
 
-			var entity = Core.EntityManager.CreateEntity(
-					ComponentType.ReadWrite<FromCharacter>(),
-					ComponentType.ReadWrite<PlayerTeleportDebugEvent>()
-				);
+			var archetype = Core.EntityManager.CreateArchetype(new ComponentType[] {
+				ComponentType.ReadWrite<FromCharacter>(),
+				ComponentType.ReadWrite<PlayerTeleportDebugEvent>()
+			});
 
-			Core.EntityManager.SetComponentData<FromCharacter>(entity, new()
+			var entity = Core.EntityManager.CreateEntity(archetype);
+			Core.EntityManager.SetComponentData(entity, new FromCharacter()
 			{
 				User = ctx.Event.SenderUserEntity,
 				Character = ctx.Event.SenderCharacterEntity
 			});
 
-			Core.EntityManager.SetComponentData<PlayerTeleportDebugEvent>(entity, new()
+			Core.EntityManager.SetComponentData(entity, new PlayerTeleportDebugEvent()
 			{
 				Position = new float3(pos.x, pos.y, pos.z),
 				Target = PlayerTeleportDebugEvent.TeleportTarget.Self

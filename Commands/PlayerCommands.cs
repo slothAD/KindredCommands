@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 using KindredCommands.Commands.Converters;
-using KindredCommands.Data;
 using ProjectM;
 using ProjectM.Network;
 using Stunlock.Core;
@@ -12,7 +11,6 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 using VampireCommandFramework;
-using static KindredCommands.Commands.PlayerCommands;
 
 namespace KindredCommands.Commands;
 
@@ -138,7 +136,9 @@ public static class PlayerCommands
 	{
 		debugEventsSystem.UnlockAllResearch(fromCharacter);
 		debugEventsSystem.UnlockAllVBloods(fromCharacter);
+		//debugEventsSystem.EnsureVBloodAbilitiesConverted(fromCharacter);
 		debugEventsSystem.CompleteAllAchievements(fromCharacter);
+		
 
 		Helper.UnlockWaypoints(fromCharacter.User);
 		Helper.RevealMapForPlayer(fromCharacter.User);
@@ -159,13 +159,13 @@ public static class PlayerCommands
 
 	static void UnlockAllSpellSchoolPassives(Entity userEntity, Entity charEntity)
 	{
-		var passiveBuffer = Core.EntityManager.GetBuffer<PassiveBuffer>(charEntity);
+		var passiveBuffer = Core.EntityManager.GetBuffer<UnlockedPassivesBuffer>(charEntity);
 		var progressionEntity = userEntity.Read<ProgressionMapper>().ProgressionEntity.GetEntityOnServer();
 		var progressionBuffer = Core.EntityManager.GetBuffer<UnlockedProgressionElement>(progressionEntity);
 		var progressionArray = progressionBuffer.ToNativeArray(Allocator.Temp).ToArray();
-		foreach (var item in Core.PrefabCollectionSystem.PrefabGuidToNameDictionary)
+		foreach (var item in Core.PrefabCollectionSystem._PrefabGuidToEntityMap)
 		{
-			if (!item.value.StartsWith("SpellPassive_"))
+			if (!item.Key.LookupName().StartsWith("SpellPassive_"))
 				continue;
 
 			// Verify it's not already unlocked
@@ -192,7 +192,7 @@ public static class PlayerCommands
 
 	}
 
-//	[Command("unlockmusic", description: "Unlocks all music tracks for a player.", adminOnly: true)]
+	/*[Command("unlockmusic", description: "Unlocks all music tracks for a player.", adminOnly: true)]
 	public static void UnlockMusic(ChatCommandContext ctx, FoundPlayer player=null)
 	{
 		var userEntity = player?.Value.UserEntity ?? ctx.Event.SenderUserEntity;
@@ -204,11 +204,11 @@ public static class PlayerCommands
 	{
 		var progressionBuffer = Core.EntityManager.GetBuffer<UnlockedProgressionElement>(progressionEntity);
 		var progressionArray = progressionBuffer.ToNativeArray(Allocator.Temp).ToArray();
-		foreach (var item in Core.PrefabCollectionSystem.PrefabGuidToNameDictionary)
+		foreach (var item in Core.PrefabCollectionSystem._PrefabGuidToEntityMap)
 		{
-			if (!item.value.StartsWith("MusicPlayerStationTrack_"))
+			if (item.Key == Prefabs.MusicPlayerStationTrack_Base)
 				continue;
-			if (item.Key == Data.Prefabs.MusicPlayerStationTrack_Base)
+			if (!item.Key.LookupName().StartsWith("MusicPlayerStationTrack_"))
 				continue;
 
 			// Verify it's not already unlocked
@@ -220,15 +220,18 @@ public static class PlayerCommands
 				UnlockedPrefab = item.Key
 			});
 		}
-	}
+	}*/
 
 	[Command("revealmap", description: "Reveal the map for a player.", adminOnly: true)]
 	public static void RevealMap(ChatCommandContext ctx, FoundPlayer player = null)
 	{
 		var userEntity = player?.Value.UserEntity ?? ctx.Event.SenderUserEntity;
 		Helper.RevealMapForPlayer(userEntity);
-		if(player != null)
-			ServerChatUtils.SendSystemMessageToClient(Core.EntityManager, userEntity.Read<User>(), "Your map has been revealed, you must relog to see.");
+		if (player != null)
+		{
+			FixedString512Bytes message = $"Your map has been revealed, you must relog to see.";
+			ServerChatUtils.SendSystemMessageToClient(Core.EntityManager, userEntity.Read<User>(), ref message);
+		}
 		ctx.Reply($"Map has been revealed, {player?.Value.CharacterName ?? "you"} must relog to see.");
 	}
 
@@ -349,7 +352,7 @@ public static class PlayerCommands
 
 	static bool initializedMoveSpeedQuery = false;
 	static EntityQuery npcMoveSpeedQuery;
-	//[Command("pace", description: "Pace at the closest NPC near you")]
+	[Command("pace", description: "Pace at the closest NPC near you")]
 	public static void TogglePace(ChatCommandContext ctx)
 	{
 		var charEntity = ctx.Event.SenderCharacterEntity;
@@ -428,11 +431,23 @@ public static class PlayerCommands
 		ctx.Reply($"Killed {player.Value.CharacterName}");
 	}
 
-	[Command("downplayer", "dp", description: "Downs the target player", adminOnly: true)]
-	public static void DownPlayer(ChatCommandContext ctx, FoundPlayer player)
+
+	[Command("staydown", description: "Downs the target player until they get revived- respawns will not get them up.", adminOnly: true)]
+	public static void PermDownPlayer(ChatCommandContext ctx, FoundPlayer player)
 	{
 		Buffs.AddBuff(player.Value.UserEntity, player.Value.CharEntity, new PrefabGUID(-1992158531), -1, true);
 		ctx.Reply($"Downed {player.Value.CharacterName}");
+	}
+
+	[Command("playerheartcount", description: "Set the number of hearts a player has", adminOnly: true)]
+	public static void PlayerHeartCount(ChatCommandContext ctx, int amount, FoundPlayer player)
+	{
+		var charEntity = player.Value.UserEntity;
+		var heartCount = charEntity.Read<UserHeartCount>();
+		heartCount.HeartCount = amount;
+		charEntity.Write(heartCount);
+		ctx.Reply($"Set {player.Value.CharacterName}'s heart count to {amount}");
+
 	}
 
 	/* // This was made for a specific server who wanted to wipe players and castles but keep certain ones to clone the map.

@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using Il2CppInterop.Runtime;
-using Il2CppInterop.Runtime.InteropTypes;
 using Il2CppSystem;
 using KindredCommands.Data;
 using ProjectM;
+using ProjectM.CastleBuilding;
 using ProjectM.Gameplay.Clan;
 using ProjectM.Network;
 using ProjectM.Scripting;
@@ -76,13 +76,11 @@ internal static partial class Helper
 		if (includePrefab) options |= EntityQueryOptions.IncludePrefab;
 		if (includeDestroyed) options |= EntityQueryOptions.IncludeDestroyTag;
 
-		EntityQueryDesc queryDesc = new()
-		{
-			All = new ComponentType[] { new(Il2CppType.Of<T1>(), ComponentType.AccessMode.ReadWrite) },
-			Options = options
-		};
+		var entityQueryBuilder = new EntityQueryBuilder(Allocator.Temp)
+			.AddAll(new(Il2CppType.Of<T1>(), ComponentType.AccessMode.ReadWrite))
+			.WithOptions(options);
 
-		var query = Core.EntityManager.CreateEntityQuery(queryDesc);
+		var query = Core.EntityManager.CreateEntityQuery(ref entityQueryBuilder);
 
 		var entities = query.ToEntityArray(Allocator.Temp);
 		return entities;
@@ -97,13 +95,12 @@ internal static partial class Helper
 		if (includePrefab) options |= EntityQueryOptions.IncludePrefab;
 		if (includeDestroyed) options |= EntityQueryOptions.IncludeDestroyTag;
 
-		EntityQueryDesc queryDesc = new()
-		{
-			All = new ComponentType[] { new(Il2CppType.Of<T1>(), ComponentType.AccessMode.ReadWrite), new(Il2CppType.Of<T2>(), ComponentType.AccessMode.ReadWrite) },
-			Options = options
-		};
+		var entityQueryBuilder = new EntityQueryBuilder(Allocator.Temp)
+			.AddAll(new(Il2CppType.Of<T1>(), ComponentType.AccessMode.ReadWrite))
+			.AddAll(new(Il2CppType.Of<T2>(), ComponentType.AccessMode.ReadWrite))
+			.WithOptions(options);
 
-		var query = Core.EntityManager.CreateEntityQuery(queryDesc);
+		var query = Core.EntityManager.CreateEntityQuery(ref entityQueryBuilder);
 
 		var entities = query.ToEntityArray(Allocator.Temp);
 		return entities;
@@ -111,9 +108,20 @@ internal static partial class Helper
 
 	public static IEnumerable<Entity> GetAllEntitiesInRadius<T>(float2 center, float radius)
 	{
-		var entities = GetEntitiesByComponentType<T>(includeSpawn: true, includeDisabled: true);
+		var spatialData = Core.GenerateCastle._TileModelLookupSystemData;
+		var tileModelSpatialLookupRO = spatialData.GetSpatialLookupReadOnlyAndComplete(Core.GenerateCastle);
+
+		var gridPos = ConvertPosToTileGrid(center);
+
+		var gridPosMin = ConvertPosToTileGrid(center - radius);
+		var gridPosMax = ConvertPosToTileGrid(center + radius);
+		var bounds = new BoundsMinMax(Mathf.FloorToInt(gridPosMin.x), Mathf.FloorToInt(gridPosMin.y),
+									  Mathf.CeilToInt(gridPosMax.x), Mathf.CeilToInt(gridPosMax.y));
+
+		var entities = tileModelSpatialLookupRO.GetEntities(ref bounds, TileType.All);
 		foreach (var entity in entities)
 		{
+			if (!entity.Has<T>()) continue;
 			if (!entity.Has<Translation>()) continue;
 			var pos = entity.Read<Translation>().Value;
 			if (math.distance(center, pos.xz) <= radius)
@@ -125,27 +133,24 @@ internal static partial class Helper
 	}
 
 	static EntityQuery tilePositionQuery = default;
-	public static Entity FindClosestTilePosition(Vector3 pos)
+	public static Entity FindClosestTilePosition(Vector3 pos, bool ignoreFloors = false)
 	{
-		if (tilePositionQuery == default)
-		{
-			tilePositionQuery = Core.EntityManager.CreateEntityQuery(new EntityQueryDesc
-			{
-				All = new ComponentType[] {
-					new(Il2CppType.Of<TilePosition>(), ComponentType.AccessMode.ReadOnly),
-					new(Il2CppType.Of<Translation>(), ComponentType.AccessMode.ReadOnly)
-				},
-				Options = EntityQueryOptions.IncludeDisabled | EntityQueryOptions.IncludeSpawnTag
-			});
-		}
+		var spatialData = Core.GenerateCastle._TileModelLookupSystemData;
+		var tileModelSpatialLookupRO = spatialData.GetSpatialLookupReadOnlyAndComplete(Core.GenerateCastle);
+
+		var gridPos = ConvertPosToTileGrid(pos);
+		var bounds = new BoundsMinMax((int)(gridPos.x - 2.5), (int)(gridPos.z - 2.5),
+									  (int)(gridPos.x + 2.5), (int)(gridPos.z + 2.5));
 
 		var closestEntity = Entity.Null;
 		var closestDistance = float.MaxValue;
-		var entities = tilePositionQuery.ToEntityArray(Allocator.Temp);
+		var entities = tileModelSpatialLookupRO.GetEntities(ref bounds, TileType.All);
 		for (var i = 0; i < entities.Length; ++i)
 		{
 			var entity = entities[i];
 			if (!entity.Has<TilePosition>()) continue;
+			if (!entity.Has<Translation>()) continue;
+			if (ignoreFloors && entity.Has<CastleFloor>()) continue;
 			var entityPos = entity.Read<Translation>().Value;
 			var distance = math.distancesq(pos, entityPos);
 			if (distance < closestDistance)
@@ -161,42 +166,15 @@ internal static partial class Helper
 
 		return closestEntity;
 	}
-	public static Entity FindClosestTilePosition<T>(Vector3 pos, float maxDist=5f)
+
+	public static float2 ConvertPosToTileGrid(float2 pos)
 	{
-		if (tilePositionQuery == default)
-		{
-			tilePositionQuery = Core.EntityManager.CreateEntityQuery(new EntityQueryDesc
-			{
-				All = new ComponentType[] {
-					new(Il2CppType.Of<TilePosition>(), ComponentType.AccessMode.ReadOnly),
-					new(Il2CppType.Of<Translation>(), ComponentType.AccessMode.ReadOnly),
-					new(Il2CppType.Of<T>(), ComponentType.AccessMode.ReadOnly)
-				},
-				Options = EntityQueryOptions.IncludeDisabled | EntityQueryOptions.IncludeSpawnTag
-			});
-		}
+		return new float2(Mathf.FloorToInt(pos.x * 2) + 6400, Mathf.FloorToInt(pos.y * 2) + 6400);
+	}
 
-		var closestEntity = Entity.Null;
-		var closestDistance = maxDist;
-		var entities = tilePositionQuery.ToEntityArray(Allocator.Temp);
-		for (var i = 0; i < entities.Length; ++i)
-		{
-			var entity = entities[i];
-			if (!entity.Has<TilePosition>()) continue;
-			var entityPos = entity.Read<Translation>().Value;
-			var distance = math.distancesq(pos, entityPos);
-			if (distance < closestDistance)
-			{
-				var prefabName = GetPrefabGUID(entity).LookupName();
-				if (!prefabName.StartsWith("TM_")) continue;
-
-				closestDistance = distance;
-				closestEntity = entity;
-			}
-		}
-		entities.Dispose();
-
-		return closestEntity;
+	public static float3 ConvertPosToTileGrid(float3 pos)
+	{
+		return new float3(Mathf.FloorToInt(pos.x * 2) + 6400, pos.y, Mathf.FloorToInt(pos.z * 2) + 6400);
 	}
 
 	public static void RepairGear(Entity Character, bool repair = true)

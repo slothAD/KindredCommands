@@ -9,6 +9,13 @@ using VampireCommandFramework;
 
 namespace KindredCommands;
 
+class MyPluginInfo
+{
+	public const string PLUGIN_GUID = "aa.odjit.KindredCommands";
+	public const string PLUGIN_NAME = "KindredCommands";
+	public const string PLUGIN_VERSION = "2.3.0";
+}
+
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
 [BepInDependency("gg.deca.VampireCommandFramework")]
 public class Plugin : BasePlugin

@@ -15,9 +15,10 @@ public static class BloodAltarSystem_StartTrackVBloodUnit_System_V2_HandleEventP
 		{
 			var huntTarget = entity.Read<StartTrackVBloodUnitEventV2>().HuntTarget;
 			var fromCharacter = entity.Read<FromCharacter>();
-			if(Core.Boss.IsBossLocked(huntTarget))
+			FixedString512Bytes lockedBossMessage = new("This boss is locked.");
+			if (Core.Boss.IsBossLocked(huntTarget))
 			{
-				ServerChatUtils.SendSystemMessageToClient(Core.EntityManager, fromCharacter.User.Read<User>(), "This boss is locked.");
+				ServerChatUtils.SendSystemMessageToClient(Core.EntityManager, fromCharacter.User.Read<User>(), ref lockedBossMessage);
 				Core.EntityManager.DestroyEntity(entity);
 			}
 		}
