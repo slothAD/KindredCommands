@@ -17,7 +17,6 @@ internal class SoulshardService
 
 	EntityQuery relicDroppedQuery;
 	EntityQuery soulshardAndPrefabsQuery;
-	EntityQuery soulshardPrefabsQuery;
 
 	public bool IsPlentiful => Core.ServerGameSettingsSystem._Settings.RelicSpawnType == RelicSpawnType.Plentiful;
 
@@ -36,14 +35,6 @@ internal class SoulshardService
 			.WithOptions(EntityQueryOptions.IncludePrefab);
 		soulshardAndPrefabsQuery = Core.EntityManager.CreateEntityQuery(ref soulshardAndPrefabsQueryBuilder);
 		soulshardAndPrefabsQueryBuilder.Dispose();
-
-		var souldshardPrefabsQueryBuilder = new EntityQueryBuilder(Allocator.Temp)
-			.AddAll(new(Il2CppType.Of<ItemData>(), ComponentType.AccessMode.ReadOnly))
-			.AddAll(new(Il2CppType.Of<Relic>(), ComponentType.AccessMode.ReadOnly))
-			.AddAll(new(Il2CppType.Of<Prefab>(), ComponentType.AccessMode.ReadOnly))
-			.WithOptions(EntityQueryOptions.IncludePrefab);
-		soulshardPrefabsQuery = Core.EntityManager.CreateEntityQuery(ref souldshardPrefabsQueryBuilder);
-		souldshardPrefabsQueryBuilder.Dispose();
 
 		foreach (var entity in Helper.GetEntitiesByComponentTypes<ItemData, Relic>())
 		{
@@ -64,6 +55,7 @@ internal class SoulshardService
 		RelicType.Solarus => Core.ConfigSettings.ShardSolarusDropLimit,
 		RelicType.WingedHorror => Core.ConfigSettings.ShardWingedHorrorDropLimit,
 		RelicType.Dracula => Core.ConfigSettings.ShardDraculaDropLimit,
+		RelicType.Morgana => Core.ConfigSettings.ShardMonsterDropLimit,
 		_ => 1
 	};
 
@@ -98,11 +90,15 @@ internal class SoulshardService
 			case RelicType.Dracula:
 				Core.ConfigSettings.ShardDraculaDropLimit = limit;
 				break;
+			case RelicType.Morgana:
+				Core.ConfigSettings.ShardMorganaDropLimit = limit;
+				break;
 			case RelicType.None:
 				Core.ConfigSettings.ShardMonsterDropLimit = limit;
 				Core.ConfigSettings.ShardSolarusDropLimit = limit;
 				Core.ConfigSettings.ShardWingedHorrorDropLimit = limit;
 				Core.ConfigSettings.ShardDraculaDropLimit = limit;
+				Core.ConfigSettings.ShardMorganaDropLimit = limit;
 				break;
 		}
 		RefreshWillDrop();

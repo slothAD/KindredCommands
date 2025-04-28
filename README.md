@@ -41,6 +41,10 @@ Feel free to reach out to me on Discord (odjit) if you have any questions or nee
 - `.idcheck (steamID)`
   - will see if a steamID is registered to a character, and if so, what character it is.
   - Example: *.idcheck 1234567890*
+- `.assignsteamID (Player) (steamID)`
+  - will assign a steamID to a character.
+  - Example: *.assignsteamID Bob 1234567890*
+  - Shortcut: *.asid*
 - `.longestofflinecastles`
   - will list all of the players who have been offline the longest and still have castles.
   - Shortcut: *.loc*
@@ -118,7 +122,7 @@ Feel free to reach out to me on Discord (odjit) if you have any questions or nee
 ### Announcement Commands
 - `.announce add (Name) (Message) (Time) (OneTime: True/False)`
   - Adds an announcement to the list of announcements. Time is server time. OneTime true will only do it once, false will repeat the announcement every day at the same time. (Default False)
-  - Example: *.announce add Spooky ‚ÄúIt is the spooky hour!‚Äù 12:00AM false*
+  - Example: *.announce add Spooky ìIt is the spooky hour!î 12:00AM false*
 	- Additional Note: Copy pasting quotes "" makes the game not recognize them as quotes. You will need to retype them manually in game.
   - Shortcut: *.announce a*
 - `.announce remove (Name)`
@@ -130,7 +134,7 @@ Feel free to reach out to me on Discord (odjit) if you have any questions or nee
   - Shortcut: *.announce l*
 - `.announce change (Name) (Message) (Time) (OneTime: True/False)`
   - Changes an announcement in the list of announcements. Time is server time. OneTime true will only do it once, false will repeat the announcement every day at the same time. (Default False)
-  - Example: *.announce change Spooky ‚ÄúIt is the spookiest hour!‚Äù 12:00AM false*
+  - Example: *.announce change Spooky ìIt is the spookiest hour!î 12:00AM false*
   - Shortcut: *.announce c*
 
 ### Spawning Commands
@@ -138,6 +142,10 @@ Feel free to reach out to me on Discord (odjit) if you have any questions or nee
   - will give Merlot of specified type and quality. You can also specify an amount
   - Example: *.bp creature 100 1*
   - Shortcut: *.bp*
+- `.bloodpotionmix (PrimaryType) (PrimaryQuality) (SecondaryType) (SecondaryQuality) (SecondaryTrait) (Quantity)`
+  - will give Merlot with two specified Blood Types, Qualities, secondary trait option and amount
+  - Example: *.bpm warrior 100 creature 100 1 5*
+  - Shortcut: *.bpm*
 - `.give (Item prefab name) (amount)`			
   - Example: *.give Headgear_arcmageCrown 1*
   - Shortcut: *.g*
@@ -169,9 +177,9 @@ Feel free to reach out to me on Discord (odjit) if you have any questions or nee
 - `.spawnban (Prefab GUID name) (reason)`
   - saves a GUID to the banned list, preventing customspawn or spawnnpc from creating it. Helps prevent server crashes and corruption. To remove from the ban list, delete the line from the nospawn.json in the Config folder.
   - Example: *.spawnban CHAR_ChurchOfLight_Lightweaver "This NPC is too cute"*
-- `.spawnhorse (speed) (acceleration) (rotation) (Spectral: true/false) (amount)`
-  - Spawns a horse at your location with the specified stats and amount..
-  - Example: *.spawnhorse 10 10 10 false 1*
+- `.spawnhorse (speed) (acceleration) (rotation) (amount)`
+  - Spawns a horse at your location with the specified stats and amount.
+  - Example: *.spawnhorse 10 10 10 1*
   - Shortcut: *.sh*
 - `.teleporthorse (radius)`
   - will teleport all dominated horses within the radius specified to your location. Useful for cleaning up horses that are stuck in walls or other objects or that are desynced.
@@ -197,6 +205,9 @@ Feel free to reach out to me on Discord (odjit) if you have any questions or nee
 - `.mortal (player)`
   - will toggle godmode off a player named, or the user if no one is named.	Also removes boosts.																							
   - Example: *.mortal Bob*
+- `.spectate (Player)`
+  - will set the player into spectate mode, where they are invisible and cannot interact with anything. Use again to remove it and teleport them to their prior position.
+  - Example: *.spectate Bob*
 - `.boost (Type) (Player)`
   - will boost a player with certain types: noaggro, noblooddrain, nocooldown, nodurability, immaterial, invincible, shrouded, fly, suninvulnerable, batvision. Remove via use of same command again as a toggle or use .mortal to strip all.
   - Example: *.boost immaterial Bob*
@@ -214,15 +225,16 @@ Feel free to reach out to me on Discord (odjit) if you have any questions or nee
   - Example: *.boost state Bob*
 - `.boost players`
   - provides a list of all boosted players
-- `.spectate (Player)`
-  - will set the player into spectate mode, where they are invisible and cannot interact with anything. Use again to remove it and teleport them to their prior position.
-  - Example: *.spectate Bob*
 - `.rename (Old Name) (New Name)`
   - Renames a player. Original name will still show on map to clanmates.
   - Example: *.rename Bob Joe*
 - `.revive (Player)`
   - will pick you up from being downed. If fully dead, sends player to coffin.
   - Example: *.revive Joe*
+- `.revivetarget (Player)`
+  - will revive the player you are hovering over.
+- `.pace`
+  - will match your movement speed to that of the closest NPC, allowing you to walk alongside them naturally. Use again to toggle back to normal speed.
 - `.gear [repair/break] (Player)`
   - will repair or break gear on a player (or self if no player specified)
   - Example: *.gear repair Joe* or *.gear break Joe*
@@ -240,9 +252,11 @@ Feel free to reach out to me on Discord (odjit) if you have any questions or nee
 - `.flyup (Player)`
   - will move a player up in the air a level from the ground.
   - Example: *.flyup Bob*
+  - Shortcut: *.f^*
 - `.flydown (Player)`
   - will move a player down a level in the air.																								
   - Example: *.flyup Bob*
+  - Shortcut: *.fv*
 - `.flylevel (Player) (Level)`
   - will set a player's level to the flight level specified. Think of levels like floor heights.																								
   - Example: *.flylevel Bob 5*
@@ -258,10 +272,12 @@ Feel free to reach out to me on Discord (odjit) if you have any questions or nee
 - `.killplayer (Player)`
   - will kill a player.																								
   - Example: *.killplayer Bob*
-- `.downplayer (Player)`
-  - will down a player.																								
-  - Example: *.downplayer Bob*
-
+- `.staydown (Player)`
+  - will down a player and keep them down until they are revived - respawns will not get them up.																								
+  - Example: *.staydown Bob*
+- `.playerheartcount (amount) (Player)`
+  - will set the number of hearts a player has. It will update back to correct amount once you place a heart. 
+  - Example: *.playerheartcount 0 Bob*
 
 ### Castle/Clan Commands
 - `.claim (Player) `
@@ -274,9 +290,9 @@ Feel free to reach out to me on Discord (odjit) if you have any questions or nee
   - will list all frozen hearts on the server.
 - `.relocatereset`
   - will reset the relocation timer for the castle heart you are next to. This will only work if you're on top of a heart, making it very apparent which heart you'll be changing.
-- `.clan add (Player) ‚ÄúClan Name‚Äù`
+- `.clan add (Player) ìClan Nameî`
   - adds the player named to the clan named. Can exceed clan limitations through this method. (Kick WIP)
-  - Example: *.clan add Joe ‚ÄúThe Best Clan‚Äù*
+  - Example: *.clan add Joe ìThe Best Clanî*
   - Shortcut: *.c a*
 - `.clan kick (Player)`
   - kicks a player from their clan. You cannot kick a leader, change their role first.																						
@@ -288,8 +304,12 @@ Feel free to reach out to me on Discord (odjit) if you have any questions or nee
   - Shortcut: *.c cr*
 - `.clan castles (Clan Name)`
   - will list all castles owned by a clan.
-  - Example: *.clan castles ‚ÄúThe Best Clan‚Äù*
+  - Example: *.clan castles ìThe Best Clanî*
   - Shortcut: *.c c*
+- `.clan rename (OldClanName) (NewClanName) (LeaderName)`
+  - Renames a clan. If multiple clans match the name, provide the leader's name as well.
+  - Example: *.clan rename "Wolf Pack" "Night Wolves" "AlphaWolf"*
+  - Shortcut: *.c rn*
  
 ### Region/Map Commands
 - `.incomingdecay`
@@ -306,6 +326,7 @@ Feel free to reach out to me on Discord (odjit) if you have any questions or nee
 - `.teleporttoplot (PlotID)`
   - will teleport you to the plot specified.																								
   - Example: *.teleporttoplot 1*
+  - Shortcut: *.tpp*
 - `.plotinfo (PlotID)`
   - will list information on the plot specified.																								
   - Example: *.plotinfo 1*
@@ -317,33 +338,45 @@ Feel free to reach out to me on Discord (odjit) if you have any questions or nee
 - `.region lock (Region)`
   - will lock a region, preventing new players from entering it. Players already in the region will not be kicked but cannot reenter if they leave.
   - Example: *.region lock silverlighthills*
+  - Shortcut: *.region l*
 - `.region unlock (Region)`
   - will unlock a region, allowing new players to enter it.
   - Example: *.region unlock silverlighthills*
+  - Shortcut: *.region ul*
 - `.region gate (Region) (level)`
   - will gate a region, preventing new players below the level threshold from entering it. Players already in the region will not be kicked but cannot reenter if they leave. It will keep track of the highest level a player has reached, providing accomodation for gear removal or "prestiging"
   - Example: *.region gate silverlighthills 60*
+  - Shortcut: *.region g*
 - `.region ungate (Region)`
   - will ungate a region, allowing all players of all levels to enter it.
   - Example: *.region ungate silverlighthills*
+  - Shortcut: *.region ug*
 - `.region allow (Player)`
   - will allow a player to enter a locked or gated region.
   - Example: *.region allow Bob*
+  - Shortcut: *.region a*
 - `.region remove (Player)`
   - will remove a player from the allowed list for a locked or gated region.
   - Example: *.region remove Bob*
+  - Shortcut: *.region r*
 - `.region listplayers`
   - will list all players who are on the allow list to bypass a locked or gated region.
+  - Shortcut: *.region lp*
 - `.region ban (Player) (Region)`
   - will ban a player from a region, preventing them from entering it. Players already in the region will not be kicked but cannot reenter if they leave.
   - Example: *.region ban Bob dunley*
+  - Shortcut: *.region b*
 - `.region unban (Player) (Region)`
   - will unban a player from a region, allowing them to enter it again.
   - Example: *.region unban Bob*
+  - Shortcut: *.region ub*
 - `.region listbans (Region)`
   - will list all players who are banned from a region.
   - Example: *.region listbans dunley*
-
+  - Shortcut: *.region lb*
+- `.region list`
+  - will list all regions and their current lock or gated status.
+  - Shortcut: *.region l*
 
 ### Servant Commands
 - `.servant convert`
@@ -355,6 +388,7 @@ Feel free to reach out to me on Discord (odjit) if you have any questions or nee
 - `.servant add (PrefabIDName)`
   - will add a servant to the coffin you are looking at. 
   - Example: *.servant add churchoflight_lightweaver*
+  - Shortcut: *.servant a*
   - See .search npc above for prefab IDs
 - `.servant change (PrefabIDName)`
   - will change the servant in the coffin you are looking at to the servant type specified.
@@ -365,6 +399,7 @@ Feel free to reach out to me on Discord (odjit) if you have any questions or nee
   - will heal the servant in the coffin you are looking at of injury.
 - `.servant revive`
   - will revive the servant in the coffin you are looking at.
+  - Shortcut: *.servant r*
 - `.servant completemission`
   - will complete the mission of the servant in the coffin you are looking at.
   - Shortcut: *.servant cm*
@@ -378,15 +413,25 @@ Feel free to reach out to me on Discord (odjit) if you have any questions or nee
   - Example: *.prisoner grueltransform ChurchOfLight_Lightweaver*
 - `.prisoner gruelsettings`
   - will list the current settings for gruel mutation if changed.
+- `.prisoner feed (FeedType) (HealthChangeMin) (HealthChangeMax) (MiseryChangeMin) (MiseryChangeMax) (BloodQualityChangeMin) (BloodQualityChangeMax)`
+  - Change the settings for a specific prisoner feed type.
+  - Example: *.prisoner feed Rat 10 15 -10 -5 0 5*
+- `.prisoner feeddefault (FeedType)`
+  - Restores the settings for a specific prisoner feed type to default values.
+  - Example: *.prisoner feeddefault Rat*
+- `.prisoner feedsettings (FeedType)`
+  - Shows the current settings for a specific prisoner feed type.
+  - Example: *.prisoner feedsettings Rat*
 
- 
 ### Misc Commands	
 - `.boss lock (boss)`
   - will stop a boss from spawning. When attempting to track said boss, it will say it is locked.
   - Example: *.boss lock solarus*
+  - Shortcut: *.boss l*
 - `.boss unlock (boss)`
   - will allow a boss to spawn normally.
   - Example: *.boss unlock solarus*
+  - Shortcut: *.boss u*
 - `.boss modify (bossname) (level)`
   - will change the level of the boss to the level specified. Upon respawn, they will be their original level. You can still modify the level of the boss while its in its 'blood walk', and it will spawn with that level. Must be near boss.
   - Example: *.boss modify solarus 100*
@@ -407,11 +452,16 @@ Feel free to reach out to me on Discord (odjit) if you have any questions or nee
   - will teleport you to the boss specified. Must be near boss. If multiple bosses are up, you can specify which one to teleport to. Bosses must have been spawned in at least once on the map to be teleported to.
   - Example: *.boss teleportto TheNameOfTheBoss 1*
   - Shortcut: *.boss tt*
+- `.boss list`
+  - will list all locked bosses
+  - Shortcut: *.boss ls*
 - `.forcerespawn (range)`
   - Sets the chain transition time for nearby spawn chains to now to force them to respawn if they can. Handy for growing plants without adding time.
+  - Example: *.forcerespawn 10*
+  - Shortcut: *.fr*
 - `.cleancontainerlessshards`
   - Will clean up the map of any shards that are not in a proper container, including map icon. Clean up command for owners running old mods on post-hotfix game.
-- `everyonedaywwalker`
+- `everyonedaywalker`
   - Will give everyone sun invuln upon logging in. Useful for testing or events.
   - Shortcut: *.ed*
 - `.globalbatvision`
@@ -425,13 +475,14 @@ Feel free to reach out to me on Discord (odjit) if you have any questions or nee
   - will list staff who are online.
 - `.ping`
   - tells you your latency
+  - Shortcut: *.p*
 - `.clan list (page #)`
   - Shows a list of populated clans (and their message). Newest clans are at the start of the list.
   - Example: *.clan list 1*
   - Shortcut: *.c l*
-- `.clan members ‚ÄúClan Name‚Äù`
+- `.clan members ìClan Nameî`
   - Shows a list and ranking of players within a named clan. Use quotes around a clan name with any spaces.
-  - Example: *.clan members ‚ÄúThe Best Clan‚Äù*
+  - Example: *.clan members ìThe Best Clanî*
   - Shortcut: *.c m*
 - `.time`
   - will tell you the current server time
@@ -447,6 +498,8 @@ Feel free to reach out to me on Discord (odjit) if you have any questions or nee
   - Shortcut: *.gear sss*
 - `.checklevel (playername)`
   - will tell you the highest level acquired by a player
+  - Example: *.checklevel Bob*
+  - Shortcut: *.cl*
 </details>
 
 ## Command Types

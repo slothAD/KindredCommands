@@ -154,6 +154,19 @@ internal class ConfigSettingsService
 		}
 	}
 
+	public int ShardMorganaDropLimit
+	{
+		get
+		{
+			return config.ShardMorganaDropLimit ?? (config.ShardDropLimit ?? 1);
+		}
+		set
+		{
+			config.ShardMorganaDropLimit = value;
+			SaveConfig();
+		}
+	}
+
 	public int ShardSolarusDropLimit
 	{
 		get
@@ -310,6 +323,7 @@ internal class ConfigSettingsService
 		public int? ShardDraculaDropLimit { get; set; }
 		public int? ShardWingedHorrorDropLimit { get; set; }
 		public int? ShardMonsterDropLimit { get; set; }
+		public int? ShardMorganaDropLimit { get; set; }
 		public int? ShardSolarusDropLimit { get; set; }
 		public bool? EveryoneDaywalker { get; set; }
 		public float? GruelMutantChance { get; set; }
