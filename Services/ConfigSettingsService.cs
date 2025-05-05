@@ -235,7 +235,7 @@ internal class ConfigSettingsService
 		get
 		{
 			return config.GruelTransformPrefabInt.HasValue ? new PrefabGUID(config.GruelTransformPrefabInt.Value) 
-				                                  : new PrefabGUID(1092792896);
+				                                  : new PrefabGUID(-1025552087);
 		}
 		set
 		{
