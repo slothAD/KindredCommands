@@ -20,6 +20,9 @@ public class RelicTypeConverter : CommandArgumentConverter<RelicType>
 		if(input=="adam")
 			return RelicType.TheMonster;
 
+		if (input == "megara")
+			return RelicType.Morgana;
+
 		if (input=="all")
 			return RelicType.None;
 
@@ -30,6 +33,6 @@ public class RelicTypeConverter : CommandArgumentConverter<RelicType>
 
 		if (search.Count > 1)
 			throw ctx.Error($"Multiple Shard Types found matching {input}. Please be more specific.\n" + string.Join("\n", search.Select(x => x.ToString())));
-		throw ctx.Error("Could not find Shard Type.  Possible Options TheMonster, Solarus, WingedHorror, Dracula, or All");
+		throw ctx.Error("Could not find Shard Type.  Possible Options TheMonster, Solarus, WingedHorror, Megara, Dracula, or All");
 	}
 }
