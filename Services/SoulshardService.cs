@@ -55,7 +55,7 @@ internal class SoulshardService
 		RelicType.Solarus => Core.ConfigSettings.ShardSolarusDropLimit,
 		RelicType.WingedHorror => Core.ConfigSettings.ShardWingedHorrorDropLimit,
 		RelicType.Dracula => Core.ConfigSettings.ShardDraculaDropLimit,
-		RelicType.Morgana => Core.ConfigSettings.ShardMonsterDropLimit,
+		RelicType.Morgana => Core.ConfigSettings.ShardMorganaDropLimit,
 		_ => 1
 	};
 

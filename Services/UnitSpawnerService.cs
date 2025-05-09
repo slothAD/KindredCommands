@@ -90,7 +90,7 @@ internal class UnitSpawnerService
 		{
 			if (!Enabled) return;
 
-			var entities = __instance.__query_2099432189_0.ToEntityArray(Unity.Collections.Allocator.Temp);
+			var entities = __instance._Query.ToEntityArray(Unity.Collections.Allocator.Temp);
 
 			Core.Log.LogDebug($"Processing {entities.Length} in UnitSpawnerReactionSystem");
 
