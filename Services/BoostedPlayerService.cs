@@ -53,6 +53,14 @@ namespace KindredCommands.Services
 					yield return charEntity;
 			}
 		}
+
+		bool ShouldRemoveCaps(Entity charEntity)
+		{
+			return playerAttackSpeed.ContainsKey(charEntity) ||  playerSpeeds.ContainsKey(charEntity) ||
+				playerYield.ContainsKey(charEntity) || noBlooddrainPlayers.Contains(charEntity) ||
+				noCooldownPlayers.Contains(charEntity);
+		}
+
 		public void UpdateBoostedPlayer(Entity charEntity)
 		{
 			if(!IsBoostedPlayer(charEntity, true))
@@ -61,7 +69,7 @@ namespace KindredCommands.Services
 				return;
 			}
 
-			if (charEntity.Has<VampireAttributeCaps>()) charEntity.Remove<VampireAttributeCaps>();
+			if (charEntity.Has<VampireAttributeCaps>() && ShouldRemoveCaps(charEntity)) charEntity.Remove<VampireAttributeCaps>();
 
 			var userEntity = charEntity.Read<PlayerCharacter>().UserEntity;
 
@@ -459,9 +467,15 @@ namespace KindredCommands.Services
 
 			if (playerSpeeds.TryGetValue(charEntity, out var speed))
 			{
-				var modifiedBuff = Speed;
-				modifiedBuff.Value = speed;
-				modifyStatBuffer.Add(modifiedBuff);
+				foreach (var speedBuff in speedBuffs)
+				{
+					var modifiedBuff = speedBuff;
+					if (speedBuff.StatType == UnitStatType.MovementSpeed)
+						modifiedBuff.Value = speed;
+					else
+						modifiedBuff.Value = (speed - 4)/4f;
+					modifyStatBuffer.Add(modifiedBuff);
+				}
 			}
 
 			if (playerYield.TryGetValue(charEntity, out var yield))
@@ -758,6 +772,26 @@ namespace KindredCommands.Services
 			Id = ModificationId.NewId(4)
 		};
 
+		static ModifyUnitStatBuff_DOTS ShapeshiftSpeed = new()
+		{
+			AttributeCapType = AttributeCapType.Uncapped,
+			StatType = UnitStatType.BonusShapeshiftMovementSpeed,
+			Value = 15,
+			ModificationType = ModificationType.Set,
+			Modifier = 1,
+			Id = ModificationId.NewId(4)
+		};
+
+		static ModifyUnitStatBuff_DOTS MountSpeed = new()
+		{
+			AttributeCapType = AttributeCapType.Uncapped,
+			StatType = UnitStatType.BonusMountMovementSpeed,
+			Value = 15,
+			ModificationType = ModificationType.Set,
+			Modifier = 1,
+			Id = ModificationId.NewId(4)
+		};
+
 		static ModifyUnitStatBuff_DOTS PResist = new()
 		{
 			AttributeCapType = AttributeCapType.Uncapped,
@@ -947,6 +981,13 @@ namespace KindredCommands.Services
 			RPower,
 			SPPower,
 			SiegePower
+		];
+
+		public readonly static List<ModifyUnitStatBuff_DOTS> speedBuffs =
+		[
+			Speed,
+			ShapeshiftSpeed,
+			MountSpeed
 		];
 		#endregion
 	}

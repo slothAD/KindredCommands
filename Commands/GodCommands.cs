@@ -1,9 +1,7 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using KindredCommands.Commands.Converters;
 using KindredCommands.Data;
-using KindredCommands.Models;
 using ProjectM;
 using ProjectM.Network;
 using Unity.Transforms;

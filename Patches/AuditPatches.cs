@@ -106,7 +106,7 @@ internal class ServerBootstrapSystemPatch
 {
 	public static void Prefix(ServerBootstrapSystem __instance)
 	{
-		var entities = __instance.__query_677018906_5.ToEntityArray(Unity.Collections.Allocator.Temp);
+		var entities = __instance.__query_677018907_5.ToEntityArray(Unity.Collections.Allocator.Temp);
 
 		foreach (var entity in entities)
 		{

@@ -57,11 +57,11 @@ Feel free to reach out to me on Discord (odjit) if you have any questions or nee
 - `.bloodbound add (Item prefab name)`
   - will add Blood-Bound attribute to an item. Saves out to config file to persist through restarts. Note: Attribute won't be displayed on client side since it remains unmodded.
   - Example: *.bloodbound add Item_Ingredient_Crystal*
-  - Shortcut: *.bb a -257494203*	
+  - Shortcut: *.blb a -257494203*	
 - `.bloodbound remove (Item prefab name)`
   - will remove Blood-Bound attribute from an item. Saves out to config file to persist through restarts. Note: Attribute will be still displayed on client side since it remains unmodded.
   - Example: *.bloodbound remove Item_Ingredient_Crystal*
-  - Shortcut: *.bb r -257494203*
+  - Shortcut: *.blb r -257494203*
 
 ### Gear Management Commands
 - `.gear headgear`

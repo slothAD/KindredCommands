@@ -28,7 +28,7 @@ internal class FoundPlayerConverter : CommandArgumentConverter<FoundPlayer>
 	public static PlayerData HandleFindPlayerData(ICommandContext ctx, string input, bool requireOnline)
 	{
 		Core.Log.LogDebug($"FoundPlayerConverter.Parse({input})");
-		var isLong = ulong.TryParse(input, out var numeric);
+		var isLong = ulong.TryParse(input, out var numeric) && numeric!=0;
 		Core.Log.LogDebug($"\tisSteam64: {isLong} {numeric}");
 		if (isLong && Core.Players.TryFindSteam(numeric, out var player) && (!requireOnline || player.IsOnline))
 		{
@@ -42,6 +42,7 @@ internal class FoundPlayerConverter : CommandArgumentConverter<FoundPlayer>
 			return playerByName;
 		}
 		Core.Log.LogDebug($"\tNot found by name, throwing error.");
+		
 		throw ctx.Error($"Player {input} not found.");
 	}
 }

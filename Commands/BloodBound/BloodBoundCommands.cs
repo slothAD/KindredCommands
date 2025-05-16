@@ -5,7 +5,7 @@ namespace KindredCommands.Commands.BloodBound;
 /// <summary>
 /// Commands adding/removing entities from blood-bound category.
 /// </summary>
-[CommandGroup("bloodbound", "bb")]
+[CommandGroup("bloodbound", "blb")]
 public static class BloodBoundCommands
 {
 	/// <summary>
