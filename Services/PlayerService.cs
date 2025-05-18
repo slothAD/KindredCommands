@@ -107,7 +107,6 @@ internal class PlayerService
 		}
 
 		Core.Log.LogInfo($"Player {userData.CharacterName} renamed to {newName}");
-		Core.StealthAdminService.HandleRename(userEntity);
 
 		return true;
 	}

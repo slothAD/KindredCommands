@@ -91,7 +91,6 @@ internal class StaffCommands
 		{
 			ctx.Reply($"Admin deauthed for {player.Value.CharacterName}");
 			adminAuthSystem._LocalAdminList.Remove(platformId);
-			Core.StealthAdminService.RemoveStealthAdmin(userEntity);
 
 			if (userEntity.Has<AdminUser>())
 			{
@@ -130,20 +129,6 @@ internal class StaffCommands
 		}
 
 		adminAuthSystem._LocalAdminList.Save();
-	}
-
-	[Command("stealthadmin", description: "Toggles stealth admin", adminOnly: true)]
-	public static void StealthAdmin(ChatCommandContext ctx)
-	{
-		var user = ctx.Event.SenderUserEntity;
-		if(Core.StealthAdminService.ToggleStealthUser(user))
-		{
-			ctx.Reply("Stealth admin enabled!");
-		}
-		else
-		{
-			ctx.Reply("Stealth admin disabled!");
-		}
 	}
 
 	[Command("autoadminauth", description: "Adds/Removes yourself from the auto AdminAuth list", adminOnly: true)]

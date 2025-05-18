@@ -78,8 +78,6 @@ public static class PlayerCommands
 		user = userEntity.Read<User>();
 		user.PlatformId = 0;
 		userEntity.Write(user);
-
-		Core.StealthAdminService.RemoveStealthAdmin(userEntity);
 	}
 
 	[Command("swapplayers", description: "Switches the steamIDs of two players.", adminOnly: true)]
@@ -100,9 +98,6 @@ public static class PlayerCommands
 		(user1.PlatformId, user2.PlatformId) = (user2.PlatformId, user1.PlatformId);
 		userEntity1.Write(user1);
 		userEntity2.Write(user2);
-
-		Core.StealthAdminService.RemoveStealthAdmin(userEntity1);
-		Core.StealthAdminService.RemoveStealthAdmin(userEntity2);
 	}
 
 	[Command("unlock", description: "Unlocks a player's skills, journal, etc.", adminOnly: true)]
