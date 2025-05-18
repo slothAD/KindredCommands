@@ -1,5 +1,7 @@
 using System.Collections;
+using System.Linq;
 using HarmonyLib;
+using KindredCommands.Data;
 using ProjectM;
 using ProjectM.Network;
 using ProjectM.Shared;
@@ -25,13 +27,15 @@ public static class EquipItemSystemPatch
 
 			var eie = entity.Read<EquipItemEvent>();
 
-			var ab = Core.EntityManager.GetBuffer<AttachedBuffer>(fc.Character);
-			var ib = Core.EntityManager.GetBuffer<InventoryBuffer>(ab[0].Entity);
+			var ab = Core.EntityManager.GetBuffer<AttachedBuffer>(fc.Character).ToNativeArray(Allocator.Temp);
+			var inventoryEntity = ab.ToArray().Where(x => x.PrefabGuid == Prefabs.External_Inventory).Select(x => x.Entity).FirstOrDefault();
+			ab.Dispose();
+
+			var ib = Core.EntityManager.GetBuffer<InventoryBuffer>(inventoryEntity);
 
 			var item = ib[eie.SlotIndex];
 			if (!item.ItemEntity.Equals(NetworkedEntity.Empty) && item.ItemEntity.GetEntityOnServer().Has<LegendaryItemGeneratorTemplate>())
 			{
-				Core.Log.LogInfo("Unique Item");
 				var charEntity = fc.Character;
 
 				// Readd the caps
@@ -46,8 +50,6 @@ public static class EquipItemSystemPatch
 					Core.StartCoroutine(RemoveCapsAgain(charEntity));
 				}
 			}
-
-			Core.Log.LogInfo($"EquipItemEvent {eie.SlotIndex}");
 		}
 	}
 
