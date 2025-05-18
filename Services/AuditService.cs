@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Reflection;
 using System.Text;
@@ -20,7 +21,6 @@ class AuditMiddleware : CommandMiddleware
 	{
 		var chatCommandContext = (ChatCommandContext)ctx;
 
-
 		var commandName = method.DeclaringType.Assembly.GetName().Name;
 
 		if (method.DeclaringType.IsDefined(typeof(CommandGroupAttribute)))
@@ -35,12 +35,19 @@ class AuditMiddleware : CommandMiddleware
 	}
 }
 
-internal class AuditService
+internal class AuditService : IDisposable
 {
 	static readonly string CONFIG_PATH = Path.Combine(BepInEx.Paths.ConfigPath, MyPluginInfo.PLUGIN_NAME);
 	static readonly string AUDIT_PATH = Path.Combine(CONFIG_PATH, $"audit-{DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss")}.csv");
 
-	Mutex mutex = new(false, $"KindredCommands.AuditService-{System.Diagnostics.Process.GetCurrentProcess().Id}");
+	// Define the datetime format with milliseconds once for consistency
+	private const string DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss.fff";
+
+	private readonly ConcurrentQueue<string> _auditQueue = new();
+	private readonly AutoResetEvent _signal = new(false);
+	private readonly Task _processingTask;
+	private bool _isDisposed = false;
+	private readonly CancellationTokenSource _cancellationTokenSource = new();
 
 	public AuditService()
 	{
@@ -50,6 +57,36 @@ internal class AuditService
 
 		var auditMiddleware = new AuditMiddleware();
 		CommandRegistry.Middlewares.Add(auditMiddleware);
+
+		// Make sure directory exists
+		Directory.CreateDirectory(CONFIG_PATH);
+
+		// Start the background processing task
+		_processingTask = Task.Run(ProcessQueueAsync, _cancellationTokenSource.Token);
+	}
+
+	private async Task ProcessQueueAsync()
+	{
+		while (!_cancellationTokenSource.Token.IsCancellationRequested)
+		{
+			// Wait for signal or timeout (checking periodically helps ensure we eventually exit)
+			await Task.Run(() => _signal.WaitOne(TimeSpan.FromSeconds(1)), _cancellationTokenSource.Token);
+
+			// Process all current items in the queue
+			while (_auditQueue.TryDequeue(out var message) && !_cancellationTokenSource.Token.IsCancellationRequested)
+			{
+				try
+				{
+					// Write to file
+					File.AppendAllText(AUDIT_PATH, message);
+				}
+				catch (Exception ex)
+				{
+					// Log error but continue processing
+					Console.WriteLine($"Error writing to audit log: {ex.Message}");
+				}
+			}
+		}
 	}
 
 	static void CanCommandExecutePostfix(ICommandContext ctx, CommandMetadata command, ref bool __result)
@@ -59,23 +96,23 @@ internal class AuditService
 			// Check if we're being called from ExecuteCommandWithArgs
 			bool isFromExecuteCommandWithArgs = false;
 			var stackTrace = new System.Diagnostics.StackTrace();
-			
+
 			// Iterate through the stack frames to find if ExecuteCommandWithArgs is in the call chain
 			for (int i = 0; i < Math.Min(stackTrace.FrameCount, 7); i++)
 			{
 				var frame = stackTrace.GetFrame(i);
 				var method = frame.GetMethod();
-				
-				if (method != null && 
-					method.Name == "ExecuteCommandWithArgs" && 
-					method.DeclaringType != null && 
+
+				if (method != null &&
+					method.Name == "ExecuteCommandWithArgs" &&
+					method.DeclaringType != null &&
 					method.DeclaringType.Name == "CommandRegistry")
 				{
 					isFromExecuteCommandWithArgs = true;
 					break;
 				}
 			}
-			
+
 			// Only log rejected commands when they come from ExecuteCommandWithArgs
 			if (isFromExecuteCommandWithArgs)
 			{
@@ -96,7 +133,7 @@ internal class AuditService
 	public void LogChatMessage(User fromUser, User toUser, ChatMessageType type, string message)
 	{
 		var sb = new StringBuilder();
-		sb.Append(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+		sb.Append(DateTime.Now.ToString(DATE_TIME_FORMAT));
 		sb.Append(",");
 		sb.Append("chat");
 		sb.Append(",");
@@ -118,7 +155,7 @@ internal class AuditService
 	public void LogCommandUsage(User user, string command)
 	{
 		var sb = new StringBuilder();
-		sb.Append(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+		sb.Append(DateTime.Now.ToString(DATE_TIME_FORMAT));
 		sb.Append(",");
 		sb.Append("command");
 		sb.Append(",");
@@ -134,7 +171,7 @@ internal class AuditService
 	public void LogRejectCommand(User user, string commandName)
 	{
 		var sb = new StringBuilder();
-		sb.Append(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+		sb.Append(DateTime.Now.ToString(DATE_TIME_FORMAT));
 		sb.Append(",");
 		sb.Append("rejectCommand");
 		sb.Append(",");
@@ -150,7 +187,7 @@ internal class AuditService
 	public void LogMapTeleport(User user, PlayerTeleportDebugEvent.TeleportTarget teleportTarget, float3 destination)
 	{
 		var sb = new StringBuilder();
-		sb.Append(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+		sb.Append(DateTime.Now.ToString(DATE_TIME_FORMAT));
 		sb.Append(",");
 		sb.Append("teleportMap");
 		sb.Append(",");
@@ -165,11 +202,11 @@ internal class AuditService
 		AddAuditString(sb);
 	}
 
-	public void LogTeleport(User user, TeleportDebugEvent.TeleportTarget teleportTarget, float3 mousePosition, 
+	public void LogTeleport(User user, TeleportDebugEvent.TeleportTarget teleportTarget, float3 mousePosition,
 		TeleportDebugEvent.TeleportLocation location, float3 locationPosition)
 	{
 		var sb = new StringBuilder();
-		sb.Append(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+		sb.Append(DateTime.Now.ToString(DATE_TIME_FORMAT));
 		sb.Append(",");
 		sb.Append("teleport");
 		sb.Append(",");
@@ -191,7 +228,7 @@ internal class AuditService
 	public void LogDestroy(User user, string what, DestroyDebugEvent.DestroyWhere where, PrefabGUID prefabGuid, float3 position, int amount)
 	{
 		var sb = new StringBuilder();
-		sb.Append(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+		sb.Append(DateTime.Now.ToString(DATE_TIME_FORMAT));
 		sb.Append(",");
 		sb.Append("destroy");
 		sb.Append(",");
@@ -215,7 +252,7 @@ internal class AuditService
 	public void LogGive(User user, PrefabGUID prefabGuid, int amount)
 	{
 		var sb = new StringBuilder();
-		sb.Append(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+		sb.Append(DateTime.Now.ToString(DATE_TIME_FORMAT));
 		sb.Append(",");
 		sb.Append("give");
 		sb.Append(",");
@@ -233,7 +270,7 @@ internal class AuditService
 	public void LogBecomeObserver(User user, int mode)
 	{
 		var sb = new StringBuilder();
-		sb.Append(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+		sb.Append(DateTime.Now.ToString(DATE_TIME_FORMAT));
 		sb.Append(",");
 		sb.Append("becomeObserver");
 		sb.Append(",");
@@ -249,7 +286,7 @@ internal class AuditService
 	public void LogCastleHeartAdmin(User user, CastleHeartInteractEventType eventType, NetworkId castleHeart, int userIndex)
 	{
 		var sb = new StringBuilder();
-		sb.Append(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+		sb.Append(DateTime.Now.ToString(DATE_TIME_FORMAT));
 		sb.Append(",");
 		sb.Append("castleHeartAdmin");
 		sb.Append(",");
@@ -268,18 +305,35 @@ internal class AuditService
 
 	void AddAuditString(StringBuilder sb)
 	{
-		// Asynchronously write to the audit log
-		Task.Run(() =>
+		if (_isDisposed) return;
+
+		// Add the message to the queue
+		_auditQueue.Enqueue(sb.ToString());
+
+		// Signal that there's work to do
+		_signal.Set();
+	}
+
+	public void Dispose()
+	{
+		if (_isDisposed) return;
+		_isDisposed = true;
+
+		// Cancel the processing task
+		_cancellationTokenSource.Cancel();
+
+		// Wait for processing to complete
+		try
 		{
-			try
-			{
-				mutex.WaitOne();
-				File.AppendAllText(AUDIT_PATH, sb.ToString());
-			}
-			finally
-			{
-				mutex.ReleaseMutex();
-			}
-		});
+			_processingTask.Wait(TimeSpan.FromSeconds(5));
+		}
+		catch (TaskCanceledException)
+		{
+			// This is expected
+		}
+
+		// Dispose managed resources
+		_cancellationTokenSource.Dispose();
+		_signal.Dispose();
 	}
 }
