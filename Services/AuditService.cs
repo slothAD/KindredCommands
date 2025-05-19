@@ -55,6 +55,8 @@ internal class AuditService : IDisposable
 		var postfix = new HarmonyMethod(typeof(AuditService), nameof(CanCommandExecutePostfix));
 		Plugin.Harmony.Patch(canCommandExecuteMethod, postfix: postfix);
 
+		HookUpForSeeingIfCheckingPermission();
+
 		var auditMiddleware = new AuditMiddleware();
 		CommandRegistry.Middlewares.Add(auditMiddleware);
 
@@ -64,6 +66,7 @@ internal class AuditService : IDisposable
 		// Start the background processing task
 		_processingTask = Task.Run(ProcessQueueAsync, _cancellationTokenSource.Token);
 	}
+
 
 	private async Task ProcessQueueAsync()
 	{
@@ -91,43 +94,20 @@ internal class AuditService : IDisposable
 
 	static void CanCommandExecutePostfix(ICommandContext ctx, CommandMetadata command, ref bool __result)
 	{
-		if (!__result)
+		// Only log rejected commands when they come from ExecuteCommandWithArgs but not help commands
+		if (__result) return;
+		if (!InExecute) return;
+		
+		var chatCommandContext = (ChatCommandContext)ctx;
+
+		var commandName = command.Assembly.GetName().Name;
+		if (command.GroupAttribute != null)
 		{
-			// Check if we're being called from ExecuteCommandWithArgs
-			bool isFromExecuteCommandWithArgs = false;
-			var stackTrace = new System.Diagnostics.StackTrace();
-
-			// Iterate through the stack frames to find if ExecuteCommandWithArgs is in the call chain
-			for (int i = 0; i < Math.Min(stackTrace.FrameCount, 7); i++)
-			{
-				var frame = stackTrace.GetFrame(i);
-				var method = frame.GetMethod();
-
-				if (method != null &&
-					method.Name == "ExecuteCommandWithArgs" &&
-					method.DeclaringType != null &&
-					method.DeclaringType.Name == "CommandRegistry")
-				{
-					isFromExecuteCommandWithArgs = true;
-					break;
-				}
-			}
-
-			// Only log rejected commands when they come from ExecuteCommandWithArgs
-			if (isFromExecuteCommandWithArgs)
-			{
-				var chatCommandContext = (ChatCommandContext)ctx;
-
-				var commandName = command.Assembly.GetName().Name;
-				if (command.GroupAttribute != null)
-				{
-					commandName += "." + command.GroupAttribute.Name;
-				}
-				commandName += "." + command.Attribute.Name;
-
-				Core.AuditService.LogRejectCommand(chatCommandContext.User, commandName);
-			}
+			commandName += "." + command.GroupAttribute.Name;
 		}
+		commandName += "." + command.Attribute.Name;
+
+		Core.AuditService.LogRejectCommand(chatCommandContext.User, commandName);
 	}
 
 	public void LogChatMessage(User fromUser, User toUser, ChatMessageType type, string message)
@@ -335,5 +315,96 @@ internal class AuditService : IDisposable
 		// Dispose managed resources
 		_cancellationTokenSource.Dispose();
 		_signal.Dispose();
+	}
+
+	static bool inExecuteCommandWithArgs = false;
+	static bool inHelpCmd = false;
+	static bool InExecute => inExecuteCommandWithArgs && !inHelpCmd;
+
+	static void EnterExecuteCommandWithArgs()
+	{
+		inExecuteCommandWithArgs = true;
+	}
+
+	static void ExitExecuteCommandWithArgs()
+	{
+		inExecuteCommandWithArgs = false;
+	}
+
+
+	static void EnterHelpCommand()
+	{
+		inHelpCmd = true;
+	}
+
+	static void ExitHelpCommand()
+	{
+		inHelpCmd = false;
+	}
+	static void HookUpForSeeingIfCheckingPermission()
+	{
+		var executeCommandWithArgsMethod = AccessTools.Method(typeof(CommandRegistry), "ExecuteCommandWithArgs");
+		var prefixExecute = new HarmonyMethod(typeof(AuditService), nameof(EnterExecuteCommandWithArgs));
+		var postfixExecute = new HarmonyMethod(typeof(AuditService), nameof(ExitExecuteCommandWithArgs));
+		Plugin.Harmony.Patch(executeCommandWithArgsMethod, prefix: prefixExecute, postfix: postfixExecute);
+
+		var prefixHelp = new HarmonyMethod(typeof(AuditService), nameof(EnterHelpCommand));
+		var postfixHelp = new HarmonyMethod(typeof(AuditService), nameof(ExitHelpCommand));
+
+		// Use reflection to get the internal static property AssemblyCommandMap
+		var assemblyCommandMapProp = typeof(CommandRegistry).GetProperty(
+			"AssemblyCommandMap",
+			BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+
+		if (assemblyCommandMapProp == null)
+			return;
+
+		var assemblyCommandMap = assemblyCommandMapProp.GetValue(null) as System.Collections.IDictionary;
+		if (assemblyCommandMap == null)
+			return;
+
+		foreach (System.Collections.DictionaryEntry asmEntry in assemblyCommandMap)
+		{
+			// Only process the VampireCommandFramework assembly
+			if (asmEntry.Key is Assembly asm && asm.GetName().Name == "VampireCommandFramework")
+			{
+				var commandDict = asmEntry.Value as System.Collections.IDictionary;
+				if (commandDict == null)
+					continue;
+
+				foreach (System.Collections.DictionaryEntry cmdEntry in commandDict)
+				{
+					var metadata = cmdEntry.Key;
+					var commandList = cmdEntry.Value as System.Collections.IEnumerable;
+					if (commandList == null)
+						continue;
+
+					// Check if any command string is ".help" or ".help-all"
+					bool isHelp = false;
+					foreach (var cmd in commandList)
+					{
+						if (cmd is string s && (s == ".help" || s == ".help-all"))
+						{
+							isHelp = true;
+							break;
+						}
+					}
+					if (!isHelp)
+						continue;
+
+					// Get the MethodInfo from the metadata (reflection, since it's an internal record)
+					var methodProp = metadata.GetType().GetProperty("Method");
+					if (methodProp == null)
+						continue;
+
+					var methodInfo = methodProp.GetValue(metadata) as MethodInfo;
+					if (methodInfo == null)
+						continue;
+
+					// Patch the help command method
+					Plugin.Harmony.Patch(methodInfo, prefix: prefixHelp, postfix: postfixHelp);
+				}
+			}
+		}
 	}
 }
