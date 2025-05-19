@@ -110,6 +110,14 @@ internal class AuditService : IDisposable
 		Core.AuditService.LogRejectCommand(chatCommandContext.User, commandName);
 	}
 
+	static string CsvEscape(string field)
+	{
+		if (field == null) return "";
+		bool mustQuote = field.Contains(',') || field.Contains('"') || field.Contains('\n') || field.Contains('\r');
+		if (!mustQuote) return field;
+		return "\"" + field.Replace("\"", "\"\"") + "\"";
+	}
+
 	public void LogChatMessage(User fromUser, User toUser, ChatMessageType type, string message)
 	{
 		var sb = new StringBuilder();
@@ -127,7 +135,7 @@ internal class AuditService : IDisposable
 		sb.Append(",");
 		sb.Append(toUser.CharacterName);
 		sb.Append(",");
-		sb.Append(message);
+		sb.Append(CsvEscape(message));
 		sb.Append("\n");
 		AddAuditString(sb);
 	}
@@ -331,7 +339,6 @@ internal class AuditService : IDisposable
 		inExecuteCommandWithArgs = false;
 	}
 
-
 	static void EnterHelpCommand()
 	{
 		inHelpCmd = true;
@@ -341,9 +348,17 @@ internal class AuditService : IDisposable
 	{
 		inHelpCmd = false;
 	}
+
 	static void HookUpForSeeingIfCheckingPermission()
 	{
 		var executeCommandWithArgsMethod = AccessTools.Method(typeof(CommandRegistry), "ExecuteCommandWithArgs");
+		if (executeCommandWithArgsMethod == null)
+		{
+			// PreCommand Overloading changes in VCF
+			inExecuteCommandWithArgs = true;
+			return;
+		}
+
 		var prefixExecute = new HarmonyMethod(typeof(AuditService), nameof(EnterExecuteCommandWithArgs));
 		var postfixExecute = new HarmonyMethod(typeof(AuditService), nameof(ExitExecuteCommandWithArgs));
 		Plugin.Harmony.Patch(executeCommandWithArgsMethod, prefix: prefixExecute, postfix: postfixExecute);
@@ -365,7 +380,6 @@ internal class AuditService : IDisposable
 
 		foreach (System.Collections.DictionaryEntry asmEntry in assemblyCommandMap)
 		{
-			// Only process the VampireCommandFramework assembly
 			if (asmEntry.Key is Assembly asm && asm.GetName().Name == "VampireCommandFramework")
 			{
 				var commandDict = asmEntry.Value as System.Collections.IDictionary;
