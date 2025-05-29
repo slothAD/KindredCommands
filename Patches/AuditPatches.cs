@@ -15,7 +15,7 @@ internal static class AuditPatchHelper
 		var fromCharacter = entity.Read<FromCharacter>();
 		var user = fromCharacter.User.Read<User>();
 
-		var eventType = "Unknown Event";
+		var eventType = "未知 Event";
 
 		if (entity.Has<DestroyDebugEvent>())
 		{
@@ -43,7 +43,7 @@ internal static class AuditPatchHelper
 			Core.AuditService.LogCastleHeartAdmin(user, castleHeartEvent.EventType,
 				castleHeartEvent.CastleHeart, castleHeartEvent.UserIndex);
 		}
-		else if (eventType == "Unknown Event")
+		else if (eventType == "未知 Event")
 		{
 			var componentTypes = Core.EntityManager.GetComponentTypes(entity);
 			try

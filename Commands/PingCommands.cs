@@ -14,6 +14,6 @@ internal static class PingCommands
 		}
 
 		var ping = ctx.Event.SenderCharacterEntity.Read<Latency>().Value * 1000;
-		ctx.Reply($"Your call into the vast emptiness echoes all around, bouncing back to you in <color=#FFFE0F>{ping:0}</color> ms");
+		ctx.Reply($"你向虛空的呼喚迴盪四周，在 <color=#FFFE0F>{ping:0}</color> 毫秒內回響於耳。");
 	}
 }

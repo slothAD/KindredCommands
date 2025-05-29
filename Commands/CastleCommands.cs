@@ -37,12 +37,12 @@ internal class CastleCommands
 
 			var name = player?.Value.CharacterName.ToString() ?? ctx.Name;
 
-			ctx.Reply($"Assigning castle heart to {name}");
+			ctx.Reply($"正在將城堡之心指派給 {name}");
 
 			TeamUtility.ClaimCastle(Core.EntityManager, newOwnerUser, castleHeart, limitType);
 			return;
 		}
-		ctx.Reply("Not close enough to a castle heart");
+		ctx.Reply("距離城堡之心太遠");
 	}
 	[Command("relocatereset", description: "clear the timer for relocation on a castle", adminOnly:true)]
 	public static void RelocateReset(ChatCommandContext ctx)
@@ -61,17 +61,17 @@ internal class CastleCommands
 			var castleHeartComponent = castleHeart.Read<CastleHeart>();
 			castleHeartComponent.LastRelocationTime = double.NegativeInfinity;
 			castleHeart.Write(castleHeartComponent);
-			ctx.Reply("Relocation timer reset");
+			ctx.Reply("重置搬遷計時器");
 			return;
 		}
-		ctx.Reply("Not close enough to a castle heart");
+		ctx.Reply("距離城堡之心太遠");
 	}
 	//folded this into playerinfo
 	/*[Command("castleinfo", "cinfo", description: "Reports information about a player's territories.", adminOnly: true)]
 	public static void CastleInfo(ChatCommandContext ctx, OnlinePlayer player)
 	{
 		var foundCastle = false;
-		ctx.Reply($"Castle Report for {player.Value.CharacterName}");
+		ctx.Reply($"{player.Value.CharacterName} 的城堡報告");
 		foreach(var castleTerritoryEntity in Helper.GetEntitiesByComponentType<CastleTerritory>())
 		{
 			var castleTerritory = castleTerritoryEntity.Read<CastleTerritory>();
@@ -83,13 +83,13 @@ internal class CastleCommands
 			var region = TerritoryRegions(castleTerritory);
 			var pylonstation = castleTerritory.CastleHeart.Read<Pylonstation>();
 			var time = TimeSpan.FromMinutes(pylonstation.MinutesRemaining);
-			ctx.Reply($"Castle {castleTerritory.CastleTerritoryIndex} in {region} with {time:%d}d {time:%h}h {time:%m} remaining.");
+			ctx.Reply($"{region} 的第 {castleTerritory.CastleTerritoryIndex} 號城堡剩餘 {time:%d} 天 {time:%h} 小時 {time:%m} 分鐘");
 			foundCastle = true;
 		}
 
 		if(!foundCastle)
 		{
-			ctx.Reply("No owned territories found.");
+			ctx.Reply("未找到任何所擁有的領地。");
 		}
 	}*/
 	[Command("incomingdecay", "incd", description: "Reports which territories have the least time remaining", adminOnly: true)]
@@ -279,10 +279,10 @@ internal class CastleCommands
 			var castleHeartComponent = castleHeart.Read<CastleHeart>();
 			castleHeartComponent.FuelEndTime = double.PositiveInfinity;
 			castleHeart.Write(castleHeartComponent);
-			ctx.Reply("Castle Heart will never decay");
+			ctx.Reply("城堡之心將不會衰退");
 			return;
 		}
-		ctx.Reply("Not close enough to a castle heart");
+		ctx.Reply("距離城堡之心太遠");
 	}
 	[Command("frozenhearts", description: "Lists all the castle hearts that will never decay", adminOnly: true)]
 	public static void NeverDecayList(ChatCommandContext ctx, int page = 1)
@@ -295,14 +295,14 @@ internal class CastleCommands
 
 		if (!nonDecayingHearts.Any())
 		{
-			ctx.Reply("No Castle Hearts are frozen in time");
+			ctx.Reply("目前無任何城堡之心處於凍結狀態");
 			return;
 		}
 
 		var numOfPages = (nonDecayingHearts.Count() + 7)/ 8;
 		if (numOfPages < page)
 		{
-			ctx.Reply($"No more Castle Hearts to display ({numOfPages} pages)");
+			ctx.Reply($"沒有更多城堡之心可顯示（共 {numOfPages} 頁）");
 			return;
 		}
 
@@ -335,10 +335,10 @@ internal class CastleCommands
 			var castleHeartComponent = castleHeart.Read<CastleHeart>();
 			castleHeartComponent.FuelEndTime = 0;
 			castleHeart.Write(castleHeartComponent);
-			ctx.Reply("Castle Heart will decay normally");
+			ctx.Reply("城堡之心將正常衰退");
 			return;
 		}
-		ctx.Reply("Not close enough to a castle heart");
+		ctx.Reply("距離城堡之心太遠");
 	}
 
 	[Command("clanplotsowned", "cpo", description: "Reports the number of plots owned by each clan", adminOnly: true)]
@@ -404,7 +404,7 @@ internal class CastleCommands
 
 				if (territoryCenter.Equals(float2.zero))
 				{
-					ctx.Reply("Territory has no center");
+					ctx.Reply("該領地沒有中心座標");
 					return;
 				}
 
@@ -419,11 +419,11 @@ internal class CastleCommands
             var charEntity = user.LocalCharacter.GetEntityOnServer();
             charEntity.Write(new Translation { Value = teleportTo });
             charEntity.Write(new LastTranslation { Value = teleportTo });
-			ctx.Reply($"Teleported to territory {territoryIndex}");
+			ctx.Reply($"已傳送至領地 {territoryIndex}");
 			return;
 		}
 
-		ctx.Reply("Territory not found");
+		ctx.Reply("找不到該領地");
 	}
 
 	[Command("plotinfo", description: "Reports information about the territory specified", adminOnly: true)]
@@ -438,7 +438,7 @@ internal class CastleCommands
 			var castleHeart = castleTerritory.CastleHeart;
 			if (castleHeart.Equals(Entity.Null))
 			{
-				ctx.Reply("Territory has no castle heart");
+				ctx.Reply("該領地內沒有城堡之心");
 				return;
 			}
 
@@ -470,7 +470,7 @@ internal class CastleCommands
 			return;
 		}
 
-		ctx.Reply("Territory not found");
+		ctx.Reply("找不到該領地");
 	}
 
 }

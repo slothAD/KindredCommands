@@ -42,7 +42,7 @@ internal class BuffCommands
 		var charEntity = player?.Value.CharEntity ?? ctx.Event.SenderCharacterEntity;
 
 		Buffs.AddBuff(userEntity, charEntity, buff.Prefab, duration, immortal);
-		ctx.Reply($"Applied the buff {buff.Name} to {userEntity.Read<User>().CharacterName}");
+		ctx.Reply($"已對 {userEntity.Read<User>().CharacterName} 套用增益效果 {buff.Name}");
 	}
 
 	[Command("debuff", adminOnly: true)]
@@ -50,7 +50,7 @@ internal class BuffCommands
 	{
 		var targetEntity = (Entity)(player?.Value.CharEntity ?? ctx.Event.SenderCharacterEntity);
 		Buffs.RemoveBuff(targetEntity, buff.Prefab);
-		ctx.Reply($"Removed the buff {buff.Name} from {targetEntity.Read<PlayerCharacter>().Name}");
+		ctx.Reply($"已從 {targetEntity.Read<PlayerCharacter>().Name} 移除增益效果 {buff.Name}");
 	}
 
 	[Command("listbuffs", description: "Lists the buffs a player has", adminOnly: true)]

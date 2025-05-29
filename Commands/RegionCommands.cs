@@ -16,11 +16,11 @@ internal class RegionCommands
 	{
 		if (Core.Regions.LockRegion(region.Value))
 		{
-			ctx.Reply($"Locked region {region.Name}");
+			ctx.Reply($"已鎖定區域 {region.Name}");
 		}
 		else
 		{
-			ctx.Reply($"Region {region.Name} is already locked.");
+			ctx.Reply($"區域 {region.Name} 已處於鎖定狀態。");
 		}
 	}
 
@@ -29,11 +29,11 @@ internal class RegionCommands
 	{
 		if (Core.Regions.UnlockRegion(region.Value))
 		{
-			ctx.Reply($"Unlocked region {region.Name}");
+			ctx.Reply($"已解鎖區域 {region.Name}");
 		}
 		else
 		{
-			ctx.Reply($"Region {region.Name} is already unlocked.");
+			ctx.Reply($"區域 {region.Name} 已處於解鎖狀態。");
 		}
 	}
 
@@ -41,16 +41,16 @@ internal class RegionCommands
 	public static void GateRegionCommand(ChatCommandContext ctx, FoundRegion region, int level)
 	{
 		Core.Regions.GateRegion(region.Value, level);
-		ctx.Reply($"Gated region {region.Name} at level {level}");
+		ctx.Reply($"區域 {region.Name} 已設為等級限制：{level}");
 	}
 
 	[Command("ungate", "ug", description: "Ungates the specified region.", adminOnly: true)]
 	public static void UngateRegionCommand(ChatCommandContext ctx, FoundRegion region)
 	{
 		if(Core.Regions.UngateRegion(region.Value))
-			ctx.Reply($"Ungated region {region.Name}");
+			ctx.Reply($"已移除區域 {region.Name} 的等級限制");
 		else
-			ctx.Reply($"Region {region.Name} is not gated.");
+			ctx.Reply($"區域 {region.Name} 無等級限制。");
 	}
 
 	[Command("list", "l", description: "Lists all locked and gated regions.", adminOnly: false)]
@@ -100,7 +100,7 @@ internal class RegionCommands
 	public static void AllowPlayerCommand(ChatCommandContext ctx, FoundPlayer player)
 	{
 		Core.Regions.AllowPlayer(player.Value.CharacterName.ToString());
-		ctx.Reply($"Allowed player {player.Value.CharacterName} to enter disallowed regions");
+		ctx.Reply($"允許玩家 {player.Value.CharacterName} 進入原禁止區域");
 	}
 
 	[Command("ban", "b", description: "Bans the specified player from entering a region.", adminOnly: true)]
@@ -108,7 +108,7 @@ internal class RegionCommands
 	{
 		Core.Regions.BanPlayerFromRegion(player.Value.CharacterName.ToString(), region.Value);
 
-		ctx.Reply($"Banned player {player.Value.CharacterName} from entering {region.Name}");
+		ctx.Reply($"已禁止玩家 {player.Value.CharacterName} 進入區域 {region.Name}");
 	}
 
 	[Command("unban", "ub", description: "Unbans the specified player from entering a region.", adminOnly: true)]
@@ -116,7 +116,7 @@ internal class RegionCommands
 	{
 		Core.Regions.UnbanPlayerFromRegion(player.Value.CharacterName.ToString(), region.Value);
 
-		ctx.Reply($"Unbanned player {player.Value.CharacterName} from entering {region.Name}");
+		ctx.Reply($"已解除玩家 {player.Value.CharacterName} 對區域 {region.Name} 的禁令");
 	}
 
 	[Command("listbans", "lb", description: "Lists all players banned from entering a region.", adminOnly: true)]
@@ -144,7 +144,7 @@ internal class RegionCommands
 	public static void RemovePlayerCommand(ChatCommandContext ctx, FoundPlayer player)
 	{
 		Core.Regions.RemovePlayer(player.Value.CharacterName.ToString());
-		ctx.Reply($"Removed player {player.Value.CharacterName} from being able to enter disallowed regions");
+		ctx.Reply($"已取消玩家 {player.Value.CharacterName} 進入禁區的權限");
 	}
 
 	[Command("listplayers", "lp", description: "Lists all players allowed to enter disallowed regions.", adminOnly: true)]

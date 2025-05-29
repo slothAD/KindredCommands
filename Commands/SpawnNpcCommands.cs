@@ -75,7 +75,7 @@ internal static class SpawnCommands
 
 			});
 		}
-		ctx.Reply($"Spawning {count} {character.Name.Bold()} at your position");
+		ctx.Reply($"正在你的位置生成 {count} 名 {character.Name.Bold()}");
 	}
 
 	[Command("customspawn", "cspwn", "customspawn <Prefab Name> [<BloodType> <BloodQuality> <Consumable(\"true/false\")> <Duration> <level>]", "Spawns a modified NPC at your current position.", adminOnly: true)]
@@ -158,7 +158,7 @@ internal static class SpawnCommands
 				e.Write(unitLevel);
 			}
 		}, y);
-		ctx.Reply($"Spawning {unit.Name.Bold()} with {quality}% {type} blood at {x}, {z}. It is Lvl{level} and will live {(duration < 0 ? "until killed" : $"{duration} seconds")}.");
+		ctx.Reply($"正在 {x}, {z} 生成 {unit.Name.Bold()}，擁有 {quality}% 的 {type} 血型，等級為 {level}，存活時間為 {(duration < 0 ? "直到被殺死" : $"{duration} 秒")}")}.");
 	}
 
 	[Command("despawnnpc", "dspwn", description: "Despawns CHAR_ npcs", adminOnly: true)]
@@ -173,7 +173,7 @@ internal static class SpawnCommands
 			StatChangeUtility.KillOrDestroyEntity(Core.EntityManager, e, charEntity, charEntity, Time.time, StatChangeReason.Default, true);
 			count++;
 		}
-		ctx.Reply($"You've killed {count} {character.Name.Bold()} at your position. You murderer!");
+		ctx.Reply($"你在此地殺死了 {count} 名 {character.Name.Bold()}。你這個殺人魔！");
 	}
 
 	[Command("spawnhorse", "sh", description: "Spawns a horse", adminOnly: true)] 
@@ -194,7 +194,7 @@ internal static class SpawnCommands
 			});
 		}
 
-		ctx.Reply($"Spawned {num} horse{(num > 1 ? "s" : "")} (with speed:{speed}, accel:{acceleration}, and rotate:{rotation}) near you.");
+		ctx.Reply($"已生成 {num} 匹馬")} (with speed:{speed}, accel:{acceleration}, and rotate:{rotation}) near you.");
 	}
 
 
@@ -202,7 +202,7 @@ internal static class SpawnCommands
 	public static void SpawnBan(ChatCommandContext ctx, CharacterUnit character, string reason)
 	{
 		Database.SetNoSpawn(character.Name, reason);
-		ctx.Reply($"Banned '{character.Name}' from spawning with reason '{reason}'");
+		ctx.Reply($"已禁止 '{character.Name}' 出現在世界中，理由為「{reason}」");
 	}
 
 	[Command("teleporthorse", description: "teleports horses to you", adminOnly: true)]
@@ -218,6 +218,6 @@ internal static class SpawnCommands
 			count++;
 		}
 
-		ctx.Reply($"You've teleported {count} horses to your position.");
+		ctx.Reply($"你已將 {count} 匹馬傳送到你的所在地。");
 	}
 }

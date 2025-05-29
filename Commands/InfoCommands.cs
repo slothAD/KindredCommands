@@ -19,7 +19,7 @@ internal class InfoCommands
 	public static void WhereAmI(ChatCommandContext ctx)
 	{
 		var pos = ctx.Event.SenderCharacterEntity.Read<LocalToWorld>().Position;
-		ctx.Reply($"You are at {pos.x}, {pos.y}, {pos.z} on Territory Index {Core.CastleTerritory.GetTerritoryIndex(pos)}");
+		ctx.Reply($"你目前位於 {pos.x}, {pos.y}, {pos.z}，領地索引為 {Core.CastleTerritory.GetTerritoryIndex(pos)}");
 	}
 
 	[Command("checklevel", "cl", description: "Check the level of a player", adminOnly: false)]
@@ -27,7 +27,7 @@ internal class InfoCommands
 	{
 		var user = player.Value.UserEntity.Read<User>();
 		var level = Core.Regions.GetPlayerMaxLevel(user.CharacterName.ToString());
-		ctx.Reply($"Player {user.CharacterName} has reached level {level}");
+		ctx.Reply($"玩家 {user.CharacterName} 已達到等級 {level}");
 	}
 
 	[Command("playerinfo", "pinfo", description: "Displays information about a player.", adminOnly: true)]
@@ -100,7 +100,7 @@ internal class InfoCommands
 			}
 		}
 		
-		ctx.Reply("No user found with that steamid");
+		ctx.Reply("找不到符合該 SteamID 的使用者");
 	}
 
 	[Command("assignsteamID", "asid", description: "Assigns a steamID to a player", adminOnly: true)]
@@ -109,7 +109,7 @@ internal class InfoCommands
 		var user = player.Value.UserEntity.Read<User>();
 		user.PlatformId = steamid;
 		player.Value.UserEntity.Write(user);
-		ctx.Reply($"Assigned steamID {steamid} to {user.CharacterName}");
+		ctx.Reply($"已將 SteamID {steamid} 指派給 {user.CharacterName}");
 	}
 
 	[Command("longestofflinecastles", "loc", description: "Check when a player was last online.", adminOnly: true)]

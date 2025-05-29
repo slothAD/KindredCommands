@@ -22,7 +22,7 @@ internal static class DurabilityCommands
 			var targetEntity = player?.Value.CharEntity ?? ctx.Event.SenderCharacterEntity;
 
 			Helper.RepairGear(targetEntity);
-			ctx.Reply($"Gear repaired for {targetEntity.Read<PlayerCharacter>().Name}.");
+			ctx.Reply($"{targetEntity.Read<PlayerCharacter>().Name} 的裝備已修復。");
 		}
 
 		[Command("break", "b", description: "Breaks all gear.", adminOnly: true)]
@@ -30,7 +30,7 @@ internal static class DurabilityCommands
 		{
 			var targetEntity = player?.Value.CharEntity ?? ctx.Event.SenderCharacterEntity;
 			Helper.RepairGear(targetEntity, false);
-			ctx.Reply($"Gear broken for {targetEntity.Read<PlayerCharacter>().Name}.");
+			ctx.Reply($"{targetEntity.Read<PlayerCharacter>().Name} 的裝備已損壞。");
 		}
 
 		[Command("repairall", "ra", description: "Repairs all gear within a range.", adminOnly: true)]
@@ -45,7 +45,7 @@ internal static class DurabilityCommands
 				Helper.RepairGear(playerEntity);
 			}
 
-			ctx.Reply($"Gear repaired for all players within {range}m.");
+			ctx.Reply($"半徑 {range} 公尺內所有玩家的裝備已修復。");
 		}
 
 		[Command("breakall", "ba", description: "Breaks all gear within a range.", adminOnly: true)]
@@ -60,7 +60,7 @@ internal static class DurabilityCommands
 				Helper.RepairGear(playerEntity, false);
 			}
 
-			ctx.Reply($"Gear broken for all players within {range}m.");
+			ctx.Reply($"半徑 {range} 公尺內所有玩家的裝備已損壞。");
 		}
 
 		[Command("headgear", "hg", description: "Toggles headgear loss on death.", adminOnly: true)]
@@ -68,11 +68,11 @@ internal static class DurabilityCommands
 		{
 			if(Core.GearService.ToggleHeadgearBloodbound())
 			{
-				ctx.Reply("Headgear will not be lost on death.");
+				ctx.Reply("死亡時不會失去頭部裝備。");
 			}
 			else
 			{
-				ctx.Reply("Headgear will be lost on death.");
+				ctx.Reply("死亡時會失去頭部裝備。");
 			}
 		}
 
@@ -82,13 +82,13 @@ internal static class DurabilityCommands
 			if (Core.GearService.ToggleShardsFlightRestricted())
 			{
 				if (Core.ServerGameSettingsSystem._Settings.BatBoundShards)
-					ctx.Reply("Soulshards will not allowing flying.");
+					ctx.Reply("靈魂碎片不再允許飛行。");
 				else
-					ctx.Reply("Current game settings have BatBoundShards set false which KindredCommands can't override");
+					ctx.Reply("目前遊戲設定中 BatBoundShards 為關閉狀態，KindredCommands 無法強制啟用。");
 			}
 			else
 			{
-				ctx.Reply("Soulshards will allow flying.");
+				ctx.Reply("靈魂碎片現在允許飛行。");
 			}
 		}
 
@@ -97,11 +97,11 @@ internal static class DurabilityCommands
 		{
 			if (Core.SoulshardService.ToggleShardDropManagement())
 			{
-				ctx.Reply("Soulshard drop management by KindredCommands enabled.");
+				ctx.Reply("KindredCommands 的靈魂碎片掉落管理已啟用。");
 			}
 			else
 			{
-				ctx.Reply("Soulshard drop management by KindredCommands disabled.");
+				ctx.Reply("KindredCommands 的靈魂碎片掉落管理已停用。");
 			}
 		}
 
@@ -115,11 +115,11 @@ internal static class DurabilityCommands
 			Core.SoulshardService.SetShardDropLimit(limit, shardType);
 			if (shardType == RelicType.None)
 			{
-				ctx.Reply($"Soulshard limit set to {limit} for all soulshards.");
+				ctx.Reply($"所有靈魂碎片的上限設為 {limit}。");
 			}
 			else
 			{
-				ctx.Reply($"Soulshard limit set to {limit} for {shardType}.");
+				ctx.Reply($"靈魂碎片類型 {shardType} 的上限設為 {limit}。");
 			}
 		}
 
@@ -200,9 +200,9 @@ internal static class DurabilityCommands
 
 			var playerName = charEntity.Read<PlayerCharacter>().Name;
 			if (shardsChanged > 0)
-				ctx.Reply($"<color=white>{shardsChanged}</color>x soulshards had their durability set to {durability} for <color=yellow>{playerName}</color>.");
+				ctx.Reply($"<color=white>{shardsChanged}</color> 個靈魂碎片的耐久度已為 <color=yellow>{playerName}</color> 設為 {durability}");
 			else
-				ctx.Reply($"No soulshards found in <color=yellow>{playerName}</color>'s inventory.");
+				ctx.Reply($"<color=yellow>{playerName}</color> 的背包中未找到靈魂碎片。");
 		}
 
 		[Command("soulsharddurabilitytime", "ssdt", description: "How many seconds will soulshards last before they break", adminOnly: true)]
@@ -215,11 +215,11 @@ internal static class DurabilityCommands
 			Core.SoulshardService.SetShardDurabilityTime(seconds);
 			if (seconds == null)
 			{
-				ctx.Reply("Soulshard durability time restored to default.");
+				ctx.Reply("靈魂碎片的耐久時間已還原為預設值。");
 			}
 			else
 			{
-				ctx.Reply($"Soulshard durability time set to {seconds} seconds.");
+				ctx.Reply($"靈魂碎片的耐久時間設為 {seconds} 秒。");
 			}
 		}
 
@@ -268,7 +268,7 @@ internal static class DurabilityCommands
 
 			foreach (var (guid, count) in destroyedPrefabs)
 			{
-				ctx.Reply($"Destroyed <color=white>{count}</color>x <color=yellow>{guid.LookupName()}</color>");
+				ctx.Reply($"已摧毀 <color=white>{count}</color> 個 <color=yellow>{guid.LookupName()}</color>");
 				Core.Log.LogInfo($"Destroyed {count}x {guid.LookupName()}");
 			}
 		}
@@ -281,7 +281,7 @@ internal static class DurabilityCommands
 
 			   if (equipment.ArmorHeadgearSlot.Equals(Entity.Null))
 			   {
-				   ctx.Reply("No headgear equipped.");
+				   ctx.Reply("未裝備頭部裝備。");
 				   return;
 			   }
 
@@ -290,7 +290,7 @@ internal static class DurabilityCommands
 			   equipmentToggleData.HideCharacterHairOnEquip = !equipmentToggleData.HideCharacterHairOnEquip;
 			   headgear.Write(equipmentToggleData);
 
-			   ctx.Reply("Hair is " + (equipmentToggleData.HideCharacterHairOnEquip ? " hidden" : "visible") + " with current headgear");
+			   ctx.Reply("頭髮目前為「" + (equipmentToggleData.HideCharacterHairOnEquip ? "隱藏" : "顯示")") + " with current headgear");
 		   }
 
 	   */

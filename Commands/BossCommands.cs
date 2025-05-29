@@ -37,7 +37,7 @@ internal class BossCommands
 
 		if (closestVBlood.Equals(Entity.Null))
         {
-            ctx.Reply($"Couldn't find '{boss.Name}' to modify");
+            ctx.Reply($"找不到要修改的首領「{boss.Name}」");
             return;
         }
 		
@@ -46,7 +46,7 @@ internal class BossCommands
 		unitLevel.Level._Value = level;
         closestVBlood.Write<UnitLevel>(unitLevel);
 
-		ctx.Reply($"Changed the nearest {boss.Name} to level {level} from level {previousLevel}");
+		ctx.Reply($"已將最近的 {boss.Name} 從等級 {previousLevel} 調整至 {level}");
 	}
 
 	[Command("modifyprimal", "mp", description: "Modify the level of the specified nearest primal boss.", adminOnly: true)]
@@ -72,7 +72,7 @@ internal class BossCommands
 
 		if (closestVBlood.Equals(Entity.Null))
 		{
-			ctx.Reply($"Couldn't find '{boss.Name}' to modify");
+			ctx.Reply($"找不到要修改的首領「{boss.Name}」");
 			return;
 		}
 
@@ -81,7 +81,7 @@ internal class BossCommands
 		unitLevel.Level._Value = level;
 		closestVBlood.Write<UnitLevel>(unitLevel);
 
-		ctx.Reply($"Changed the nearest {boss.Name} to level {level} from level {previousLevel}");
+		ctx.Reply($"已將最近的 {boss.Name} 從等級 {previousLevel} 調整至 {level}");
 	}
 
 	[Command("teleportto", "tt", description: "Teleports you to the named boss. (If multiple specify the number of which one)", adminOnly: true)]
@@ -107,11 +107,11 @@ internal class BossCommands
 
 		if(!foundBosses.Any())
 		{
-			ctx.Reply($"Couldn't find {boss.Name}");
+			ctx.Reply($"找不到 {boss.Name}");
 		}
 		else if (foundBosses.Count > 1 && whichOne==0)
 		{
-			ctx.Reply($"Found {foundBosses.Count} {boss.Name}. Please specify the number of which one to teleport to.");
+			ctx.Reply($"找到 {foundBosses.Count} 個 {boss.Name}，請指定要傳送至哪一個編號。");
 		}
 		else
 		{
@@ -137,7 +137,7 @@ internal class BossCommands
 				Target = PlayerTeleportDebugEvent.TeleportTarget.Self
 			});
 
-			ctx.Reply($"Teleporting to {boss.Name} at {pos}");
+			ctx.Reply($"正在傳送至 {boss.Name}（位置：{pos}）");
 		}
     }
 
@@ -145,9 +145,9 @@ internal class BossCommands
 	public static void LockBossCommand(ChatCommandContext ctx, FoundVBlood boss)
 	{
 		if (Core.Boss.LockBoss(boss))
-			ctx.Reply($"Locked {boss.Name}");
+			ctx.Reply($"已鎖定 {boss.Name}");
 		else
-			ctx.Reply($"{boss.Name} is already locked");
+			ctx.Reply($"{boss.Name} 已處於鎖定狀態");
 	}
 
 
@@ -155,9 +155,9 @@ internal class BossCommands
 	public static void UnlockBossCommand(ChatCommandContext ctx, FoundVBlood boss)
 	{
 		if(Core.Boss.UnlockBoss(boss))
-			ctx.Reply($"Unlocked {boss.Name}");
+			ctx.Reply($"已解鎖 {boss.Name}");
 		else
-			ctx.Reply($"{boss.Name} is already unlocked");
+			ctx.Reply($"{boss.Name} 已處於解鎖狀態");
 	}
 
 	[Command("lockprimal", "lp", description: "Locks the specified primal boss from spawning.", adminOnly: true)]
@@ -165,9 +165,9 @@ internal class BossCommands
 	{
 		var boss = new FoundVBlood(primalBoss.Value, "Primal "+primalBoss.Name);
 		if (Core.Boss.LockBoss(boss))
-			ctx.Reply($"Locked {boss.Name}");
+			ctx.Reply($"已鎖定 {boss.Name}");
 		else
-			ctx.Reply($"{boss.Name} is already locked");
+			ctx.Reply($"{boss.Name} 已處於鎖定狀態");
 	}
 
 	[Command("unlockprimal", "up", description: "Unlocks the specified primal boss allowing it to spawn.", adminOnly: true)]
@@ -175,9 +175,9 @@ internal class BossCommands
 	{
 		var boss = new FoundVBlood(primalBoss.Value, "Primal " + primalBoss.Name);
 		if (Core.Boss.UnlockBoss(boss))
-			ctx.Reply($"Unlocked {boss.Name}");
+			ctx.Reply($"已解鎖 {boss.Name}");
 		else
-			ctx.Reply($"{boss.Name} is already unlocked");
+			ctx.Reply($"{boss.Name} 已處於解鎖狀態");
 	}
 
 	[Command("list", "ls", description: "Lists all locked bosses.", adminOnly: false)]
@@ -186,11 +186,11 @@ internal class BossCommands
         var lockedBosses = Core.Boss.LockedBossNames;
         if (lockedBosses.Any())
         {
-            ctx.Reply($"Locked bosses: {string.Join(", ", lockedBosses)}");
+            ctx.Reply($"已鎖定的首領：{string.Join(", ", lockedBosses)}");
         }
         else
         {
-            ctx.Reply("No bosses are currently locked.");
+            ctx.Reply("目前沒有首領處於鎖定狀態。");
         }
     }
 }

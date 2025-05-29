@@ -19,11 +19,11 @@ public static class BloodBoundCommands
 		if (Core.BloodBoundService.SetBloodBound(descriptor.Prefab, descriptor.Entity, true))
 		{
 			Core.ConfigSettings.SetBloodBound(descriptor.Name, true);
-			ctx.Reply($"Added Blood-Bound attribute to {descriptor.Name}");
+			ctx.Reply($"已為 {descriptor.Name} 添加血契屬性");
 		}
 		else
 		{
-			ctx.Reply($"{descriptor.Name} is Blood-Bound already.");
+			ctx.Reply($"{descriptor.Name} 已擁有血契屬性。");
 		}
 	}
 
@@ -38,11 +38,11 @@ public static class BloodBoundCommands
 		if (Core.BloodBoundService.SetBloodBound(descriptor.Prefab, false))
 		{
 			Core.ConfigSettings.SetBloodBound(descriptor.Name, false);
-			ctx.Reply($"Removed Blood-Bound attribute from {descriptor.Name}");
+			ctx.Reply($"已移除 {descriptor.Name} 的血契屬性");
 		}
 		else
 		{
-			ctx.Reply($"{descriptor.Name} isn't Blood-Bound already.");
+			ctx.Reply($"{descriptor.Name} 尚未擁有血契屬性。");
 		}
 	}
 }

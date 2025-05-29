@@ -48,7 +48,7 @@ namespace KindredCommands.Commands
 
 			foreach (var (guid, count) in destroyedPrefabs)
 			{
-				ctx.Reply($"Destroyed <color=white>{count}</color>x <color=yellow>{guid.LookupName()}</color>");
+				ctx.Reply($"已摧毀 <color=white>{count}</color> 個 <color=yellow>{guid.LookupName()}</color>");
 				Core.Log.LogInfo($"Destroyed {count}x {guid.LookupName()}");
 			}
 		}
@@ -89,7 +89,7 @@ namespace KindredCommands.Commands
 			}
 			players.Dispose();
 
-			ctx.Reply($"Everyone is now {(Core.ConfigSettings.EveryoneDaywalker ? "a daywalker" : "a vampire")}");
+			ctx.Reply($"目前所有人已變為 {(Core.ConfigSettings.EveryoneDaywalker ? "日行者" : "吸血鬼")}")}");
 		}
 
 		[Command("globalbatvision", "gbv", description: "Allows players to see entities while in batform", adminOnly: true)]
@@ -97,11 +97,11 @@ namespace KindredCommands.Commands
 		{
 			if(Core.GlobalMisc.ToggleBatVision())
 			{
-				ctx.Reply("Bat Vision is now enabled");
+				ctx.Reply("蝙蝠視覺已啟用");
 			}
 			else
 			{
-				ctx.Reply("Bat Vision is now disabled");
+				ctx.Reply("蝙蝠視覺已關閉");
 			}
 		}
 	}

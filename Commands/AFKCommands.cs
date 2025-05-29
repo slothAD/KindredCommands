@@ -13,12 +13,12 @@ internal class AFKCommands
 		if (!BuffUtility.TryGetBuff(Core.EntityManager, ctx.Event.SenderCharacterEntity, Prefabs.AB_Bear_FallAsleep_SleepingIdle_Buff, out var buffEntity))
 		{
 			Buffs.AddBuff(ctx.Event.SenderUserEntity, ctx.Event.SenderCharacterEntity, Prefabs.AB_Bear_FallAsleep_SleepingIdle_Buff, -1, false);
-			ctx.Reply("You are now AFK!");
+			ctx.Reply("你現在進入掛機狀態！");
 		}
 		else
 		{
 			DestroyUtility.Destroy(Core.EntityManager, buffEntity, DestroyDebugReason.TryRemoveBuff);
-			ctx.Reply("You are no longer AFK!");
+			ctx.Reply("你已解除掛機狀態！");
 		}
 	}
 }

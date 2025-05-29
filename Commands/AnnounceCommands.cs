@@ -24,7 +24,7 @@ public class AnnounceCommands
 
 			if (!DateTime.TryParse(time, out var announcementTime))
 			{
-				ctx.Reply($"Invalid time format for '{time}'. Please use HH:mm AM/PM for daily repeating times and for one time messages can specify exact dates with month name, day, and time");
+				ctx.Reply($"時間格式無效：'{time}'。請使用「HH:mm AM/PM」格式（每日重複），或使用完整日期格式（含月份名稱、日期與時間）");
 				return;
 			}
 
@@ -33,15 +33,15 @@ public class AnnounceCommands
 
 			if(!Core.AnnouncementsService.AddAnnouncement(name, message, announcementTime, oneTime))
 			{
-				ctx.Reply($"Announcement message with the name {name} already exists.");
+				ctx.Reply($"名稱為 {name} 的公告訊息已存在。");
 				return;
 			}
 
 			string timeUntilStr = GetTimeUntil(announcementTime);
 			if (!oneTime)
-				ctx.Reply($"Announcement of \"{message}\" will be made at: {announcementTime:hh:mm tt}. Time until then: {timeUntilStr}");
+				ctx.Reply($"公告 \"{message}\" 將於 {announcementTime:hh:mm tt} 發佈，距離現在：{timeUntilStr}");
 			else
-				ctx.Reply($"One time announcement of \"{message}\" will be made at: {announcementTime}. Time until then: {timeUntilStr}");
+				ctx.Reply($"單次公告 \"{message}\" 將於 {announcementTime} 發佈，距離現在：{timeUntilStr}");
 		}
 
 		private static string GetTimeUntil(DateTime time)
@@ -95,9 +95,9 @@ public class AnnounceCommands
 		public static void RemoveAnnouncementCommand(ChatCommandContext ctx, string name)
 		{
 			if(Core.AnnouncementsService.RemoveAnnouncement(name))
-				ctx.Reply($"Announcement {name} removed.");
+				ctx.Reply($"公告 {name} 已移除。");
 			else
-				ctx.Reply($"Announcement {name} not found.");
+				ctx.Reply($"找不到名稱為 {name} 的公告訊息。");
 		}
 	}
 }
