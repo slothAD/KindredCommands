@@ -20,14 +20,14 @@ public static class PlayerCommands
 	public static void RenameOther(ChatCommandContext ctx, FoundPlayer player, NewName newName)
 	{
 		Core.Players.RenamePlayer(player.Value.UserEntity, player.Value.CharEntity, newName.Name);
-		ctx.Reply($"將名稱 {Format.B(player.Value.CharacterName.ToString())} 改為 {Format.B(newName.Name.ToString())}");
+		ctx.Reply($"Renamed {Format.B(player.Value.CharacterName.ToString())} -> {Format.B(newName.Name.ToString())}");
 	}
 
 	[Command("rename", description: "Rename yourself.", adminOnly: true)]
 	public static void RenameMe(ChatCommandContext ctx, NewName newName)
 	{
 		Core.Players.RenamePlayer(ctx.Event.SenderUserEntity, ctx.Event.SenderCharacterEntity, newName.Name);
-		ctx.Reply($"你的名稱已更新為：{Format.B(newName.Name.ToString())}");
+		ctx.Reply($"Your name has been updated to: {Format.B(newName.Name.ToString())}");
 	}
 
 	public record struct NewName(FixedString64Bytes Name);
@@ -71,7 +71,7 @@ public static class PlayerCommands
 	{
 		var userEntity = player.Value.UserEntity;
 		var user = userEntity.Read<User>();
-		ctx.Reply($"已解除玩家 {user.CharacterName} 的綁定");
+		ctx.Reply($"Unbound the player {user.CharacterName}");
 
 		Helper.KickPlayer(userEntity);
 
@@ -91,7 +91,7 @@ public static class PlayerCommands
 		Helper.KickPlayer(userEntity1);
 		Helper.KickPlayer(userEntity2);
 
-		ctx.Reply($"{user1.CharacterName} 與 {user2.CharacterName} 已互換位置");
+		ctx.Reply($"Swapped {user1.CharacterName} with {user2.CharacterName}");
 
 		user1 = userEntity1.Read<User>();
 		user2 = userEntity2.Read<User>();
@@ -116,7 +116,7 @@ public static class PlayerCommands
 			};
 
 			UnlockPlayer(fromCharacter);
-			ctx.Reply($"已為 {player?.Value.CharacterName ?? "你"} 解鎖所有項目。");
+			ctx.Reply($"Unlocked everything for {player?.Value.CharacterName ?? "you"}.");
 		}
 		catch (Exception e)
 		{
@@ -227,7 +227,7 @@ public static class PlayerCommands
 			FixedString512Bytes message = $"Your map has been revealed, you must relog to see.";
 			ServerChatUtils.SendSystemMessageToClient(Core.EntityManager, userEntity.Read<User>(), ref message);
 		}
-		ctx.Reply($"地圖已揭示，{player?.Value.CharacterName ?? "你"} 需重新登入以顯示變更。");
+		ctx.Reply($"Map has been revealed, {player?.Value.CharacterName ?? "you"} must relog to see.");
 	}
 
 	[Command("revealmapforallplayers", description: "Reveal the map for all players.", adminOnly: true)]
@@ -235,11 +235,11 @@ public static class PlayerCommands
 	{
 		if(Core.ConfigSettings.RevealMapToAll)
 		{
-			ctx.Reply("地圖已對所有玩家揭示。");
+			ctx.Reply("Map is already revealed for all players.");
 			return;
 		}
 
-		ctx.Reply("已向所有玩家揭示地圖，目前線上玩家需重新登入以查看更新。");
+		ctx.Reply("Revealing map to all players. Current logged in players will require a relog to see it.");
 		Core.ConfigSettings.RevealMapToAll = true;
 		var userEntities = Helper.GetEntitiesByComponentType<User>();
 		foreach (var userEntity in userEntities)
@@ -255,7 +255,7 @@ public static class PlayerCommands
 		var pos = new float3(x, y, z);
 		charEntity.Write(new Translation { Value = pos });
 		charEntity.Write(new LastTranslation { Value = pos });
-		ctx.Reply($"已將 {charEntity.Read<PlayerCharacter>().Name} 傳送至 {pos}");
+		ctx.Reply($"Teleported {charEntity.Read<PlayerCharacter>().Name} to {pos}");
 	}
 
 	[Command ("fly" , description: "Toggle fly mode for a player.", adminOnly: true)]
@@ -266,11 +266,11 @@ public static class PlayerCommands
 
 		if (Core.BoostedPlayerService.ToggleFlying(charEntity))
 		{
-			ctx.Reply($"{name} 獲得飛行能力");
+			ctx.Reply($"Flying added to {name}");
 		}
 		else
 		{
-			ctx.Reply($"{name} 的飛行能力已移除");
+			ctx.Reply($"Flying removed from {name}");
 		}
 		Core.BoostedPlayerService.UpdateBoostedPlayer(charEntity);
 	}
@@ -289,7 +289,7 @@ public static class PlayerCommands
         var floorLevel = newHeight / 5;
         var name = player?.Value.UserEntity.Read<User>().CharacterName ?? ctx.Event.User.CharacterName;
 
-        ctx.Reply($"已將 {name} 移至樓層 {floorLevel}");
+        ctx.Reply($"Moved {name} up to floor level {floorLevel}");
     }
 
 	[Command("flydown", "fv", description: "Set fly height down a floor", adminOnly: true)]
@@ -306,7 +306,7 @@ public static class PlayerCommands
 		var floorLevel = newHeight / 5;
 		var name = player?.Value.UserEntity.Read<User>().CharacterName ?? ctx.Event.User.CharacterName;
 
-		ctx.Reply($"已將 {name} 移至樓層 {floorLevel}");
+		ctx.Reply($"Moved {name} down to floor level {floorLevel}");
 	}
 
 	[Command("flylevel", description: "Set fly height to a specific level", adminOnly: true)]
@@ -321,7 +321,7 @@ public static class PlayerCommands
 
 		var name = player?.Value.UserEntity.Read<User>().CharacterName ?? ctx.Event.User.CharacterName;
 
-		ctx.Reply($"已將 {name} 的飛行高度調整至第 {floor} 層");
+		ctx.Reply($"Adjusted {name}'s fly height to level {floor}");
 	}
 
 	[Command("flyheight", description: "Sets the fly height for the user", adminOnly: true)]
@@ -331,7 +331,7 @@ public static class PlayerCommands
 		var canFly = charEntity.Read<CanFly>();
 		canFly.FlyingHeight._Value = height;
 		charEntity.Write(canFly);
-		ctx.Reply($"設置飛行高度為 {height}");
+		ctx.Reply($"Set fly height to {height}");
 	}
 
 	[Command("flyobstacleheight", description: "Set the height to fly above any obstacles", adminOnly: true)]
@@ -341,7 +341,7 @@ public static class PlayerCommands
 		var canFly = charEntity.Read<CanFly>();
 		canFly.HeightAboveObstacle._Value = height;
 		charEntity.Write(canFly);
-		ctx.Reply($"設置飛行障礙高度為 {height}");
+		ctx.Reply($"Set fly obstacle height to {height}");
 	}
 
 
@@ -383,12 +383,12 @@ public static class PlayerCommands
 			
 			if (Core.BoostedPlayerService.RemoveSpeedBoost(charEntity))
 			{
-				ctx.Reply("附近沒有發現任何 NPC，將恢復你正常的移動速度。");
+				ctx.Reply("No NPCs found nearby but restoring you normal pace.");
 				Core.BoostedPlayerService.UpdateBoostedPlayer(charEntity);
 			}
 			else
 			{
-				ctx.Reply("附近未發現任何 NPC。");
+				ctx.Reply("No NPCs found nearby.");
 			}
 			return;
 		}
@@ -397,7 +397,7 @@ public static class PlayerCommands
 
 		if (moveSpeed > 4.0)
 		{
-			ctx.Reply($"{closestNPC.EntityName()} 移動速度太快，你無法跟上。");
+			ctx.Reply($"{closestNPC.EntityName()} is moving too fast for you to pace with.");
 			if(Core.BoostedPlayerService.RemoveSpeedBoost(charEntity))
 				Core.BoostedPlayerService.UpdateBoostedPlayer(charEntity);
 			return;
@@ -409,13 +409,13 @@ public static class PlayerCommands
 		{
 			Core.BoostedPlayerService.RemoveSpeedBoost(charEntity);
 			Core.BoostedPlayerService.UpdateBoostedPlayer(charEntity);
-			ctx.Reply("你已恢復正常速度。");
+			ctx.Reply("You have resumed your normal pace.");
 		}
 		else
 		{
 			Core.BoostedPlayerService.SetSpeedBoost(charEntity, moveSpeed);
 			Core.BoostedPlayerService.UpdateBoostedPlayer(charEntity);
-			ctx.Reply($"你已減緩移動速度，現在正以 {closestNPC.EntityName()} 的速度移動。");
+			ctx.Reply($"You have slowed your pace and are now moving at the current speed of {closestNPC.EntityName()}.");
 		}
 	}
 
@@ -423,7 +423,7 @@ public static class PlayerCommands
 	public static void KillPlayer(ChatCommandContext ctx, FoundPlayer player)
 	{
 		StatChangeUtility.KillEntity(Core.EntityManager, player.Value.CharEntity, ctx.Event.SenderCharacterEntity, Core.ServerTime, StatChangeReason.Default, true);
-		ctx.Reply($"已擊殺 {player.Value.CharacterName}");
+		ctx.Reply($"Killed {player.Value.CharacterName}");
 	}
 
 
@@ -431,7 +431,7 @@ public static class PlayerCommands
 	public static void PermDownPlayer(ChatCommandContext ctx, FoundPlayer player)
 	{
 		Buffs.AddBuff(player.Value.UserEntity, player.Value.CharEntity, new PrefabGUID(-1992158531), -1, true);
-		ctx.Reply($"{player.Value.CharacterName} 已被擊倒");
+		ctx.Reply($"Downed {player.Value.CharacterName}");
 	}
 
 	[Command("playerheartcount", description: "Set the number of hearts a player has", adminOnly: true)]
@@ -441,7 +441,7 @@ public static class PlayerCommands
 		var heartCount = charEntity.Read<UserHeartCount>();
 		heartCount.HeartCount = amount;
 		charEntity.Write(heartCount);
-		ctx.Reply($"將 {player.Value.CharacterName} 的心臟數量設為 {amount}");
+		ctx.Reply($"Set {player.Value.CharacterName}'s heart count to {amount}");
 
 	}
 
@@ -456,13 +456,13 @@ public static class PlayerCommands
 		// Check if they are allowed to wipe
 		if (!Database.CanWipe(ctx.Event.SenderUserEntity))
 		{
-			ctx.Reply("你沒有權限清除伺服器資料。");
+			ctx.Reply("You are not allowed to wipe the server.");
 			return;
 		}
 
 		if(UserDoingWipe != Entity.Null)
 		{
-			ctx.Reply($"{UserDoingWipe.Read<User>().CharacterName} 已經啟動清除作業");
+			ctx.Reply($"A wipe is already in progress by {UserDoingWipe.Read<User>().CharacterName}");
 			return;
 		}
 
@@ -483,7 +483,7 @@ public static class PlayerCommands
 				var userOwner = heartEntity.Read<UserOwner>();
 				var userEntity = userOwner.Owner.GetEntityOnServer();
 				userList.Add(userEntity);
-				ctx.Reply($"{userEntity.Read<User>().CharacterName} 因位於領地 {castleTerritoryIndex} 而排除於清除作業之外");
+				ctx.Reply($"{userEntity.Read<User>().CharacterName} is excluded from the wipe via territoryId {castleTerritoryIndex}");
 			}
 		}
 		castleHearts.Dispose();
@@ -491,7 +491,7 @@ public static class PlayerCommands
 		UserDoingWipe = ctx.Event.SenderUserEntity;
 		castleHeartsToNotWipe = castleHeartList.ToArray();
 		usersToNotWipe = userList.ToArray();
-		ctx.Reply("若要繼續清除，請使用指令 .commencewipe；若要取消，請使用 .cancelwipe。");
+		ctx.Reply("Use the command .commencewipe to actually perform the wipe if you wish to continue or .cancelwipe to disengage the wipe.");
 		ServerChatUtils.SendSystemMessageToAllClients(Core.EntityManager, $"{ctx.User.CharacterName} has started to initiate a wipe");
 	}
 
@@ -502,10 +502,10 @@ public static class PlayerCommands
 		{
 			if(UserDoingWipe == Entity.Null)
 			{
-				ctx.Reply("目前未進行任何清除作業。");
+				ctx.Reply("There is no wipe in progress.");
 				return;
 			}
-			ctx.Reply($"你不是啟動清除作業的使用者。該操作由 {UserDoingWipe.Read<User>().CharacterName} 發起。");
+			ctx.Reply($"You are not the user who initiated the wipe. It was initiated by {UserDoingWipe.Read<User>().CharacterName}");
 			return;
 		}
 
@@ -624,14 +624,14 @@ public static class PlayerCommands
 	{
 		if (UserDoingWipe == Entity.Null)
 		{
-			ctx.Reply("目前未進行任何清除作業。");
+			ctx.Reply("There is no wipe in progress.");
 			return;
 		}
 
 		UserDoingWipe = Entity.Null;
 		castleHeartsToNotWipe = null;
 		usersToNotWipe = null;
-		ctx.Reply("清除作業已取消。");
+		ctx.Reply("Wipe has been cancelled.");
 		ServerChatUtils.SendSystemMessageToAllClients(Core.EntityManager, $"{ctx.User.CharacterName} has canceled the wipe");
 	}
 	*/

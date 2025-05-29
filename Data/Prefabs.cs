@@ -15703,7 +15703,7 @@ public static class Prefabs
 	public static readonly PrefabGUID MapIcon_POI_Discover_SpiderForest = new PrefabGUID(-680026394);
 	public static readonly PrefabGUID MapIcon_POI_Discover_TerokiMeadows = new PrefabGUID(-1379366510);
 	public static readonly PrefabGUID MapIcon_POI_Discover_TownFarmlands = new PrefabGUID(563819869);
-	public static readonly PrefabGUID MapIcon_POI_Discover_未知 = new PrefabGUID(-1443504104);
+	public static readonly PrefabGUID MapIcon_POI_Discover_Unknown = new PrefabGUID(-1443504104);
 	public static readonly PrefabGUID MapIcon_POI_Discover_WolfDen = new PrefabGUID(-1443808553);
 	public static readonly PrefabGUID MapIcon_POI_Knowledge_Church = new PrefabGUID(-1571811509);
 	public static readonly PrefabGUID MapIcon_POI_Knowledge_LumberjackCamp = new PrefabGUID(351553164);
@@ -15769,7 +15769,7 @@ public static class Prefabs
 	public static readonly PrefabGUID MapIcon_ProxyObject_POI_SpiderForest = new PrefabGUID(-2037460151);
 	public static readonly PrefabGUID MapIcon_ProxyObject_POI_TerokiMeadows = new PrefabGUID(-526736389);
 	public static readonly PrefabGUID MapIcon_ProxyObject_POI_Town = new PrefabGUID(22097164);
-	public static readonly PrefabGUID MapIcon_ProxyObject_POI_未知 = new PrefabGUID(636813227);
+	public static readonly PrefabGUID MapIcon_ProxyObject_POI_Unknown = new PrefabGUID(636813227);
 	public static readonly PrefabGUID MapIcon_ProxyObject_POI_VBloodSource = new PrefabGUID(-993684152);
 	public static readonly PrefabGUID MapIcon_ProxyObject_POI_WerewolfSettlement = new PrefabGUID(1488363605);
 	public static readonly PrefabGUID MapIcon_ProxyObject_POI_WolfDen = new PrefabGUID(-655042455);

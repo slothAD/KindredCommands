@@ -57,19 +57,19 @@ internal class ServantCommands
 		var closest = FindClosestServantCoffin(aimPos);
 		if (closest == Entity.Null)
 		{
-			ctx.Reply("未指向任何僕人棺材。");
+			ctx.Reply("Not pointing at a servant coffin.");
 			return;
 		}
 		if (closest.Read<ServantCoffinstation>().State != ServantCoffinState.Converting)
 		{
-			ctx.Reply("僕人未處於轉化中。");
+			ctx.Reply("Servant is not converting.");
 			return;
 		}
 		var coffin = closest.Read<ServantCoffinstation>();
 		coffin.State = ServantCoffinState.WakeUpReady;
 		closest.Write(coffin);
 
-		ctx.Reply($"僕人轉化已完成。");
+		ctx.Reply($"Servant conversion is now finished.");
 	}
 
 	[Command("perfect", "p", "Makes the servant from the coffin perfect expertise", adminOnly: true)]
@@ -79,7 +79,7 @@ internal class ServantCommands
 		var closest = FindClosestServantCoffin(aimPos);
 		if (closest == Entity.Null)
 		{
-			ctx.Reply("未指向任何僕人棺材。");
+			ctx.Reply("Not pointing at a servant coffin.");
 			return;
 		}
 
@@ -97,7 +97,7 @@ internal class ServantCommands
 			servant.Write(stats);
 		}
 
-		ctx.Reply($"僕人 <color=white>{coffin.ServantName}</color> 現在狀態完美。");
+		ctx.Reply($"Servant <color=white>{coffin.ServantName}</color> is now perfect.");
 	}
 
 	//[Command("seteyecolor", "sc", "Sets the eye color of the servant in the coffin", adminOnly: true)]
@@ -107,7 +107,7 @@ internal class ServantCommands
 		var closest = FindClosestServantCoffin(aimPos);
 		if (closest == Entity.Null)
 		{
-			ctx.Reply("未指向任何僕人棺材。");
+			ctx.Reply("Not pointing at a servant coffin.");
 			return;
 		}
 		var coffin = closest.Read<ServantCoffinstation>();
@@ -122,7 +122,7 @@ internal class ServantCommands
 			servant.Write(stats);
 		}
 
-		ctx.Reply($"僕人 <color=white>{coffin.ServantName}</color> 的眼睛顏色現在為 <color=white>{colorIndex}</color>。");
+		ctx.Reply($"Servant <color=white>{coffin.ServantName}</color>'s eye color is now <color=white>{colorIndex}</color>.");
 	}
 
 	[Command("change", "ch", "Changes the servant in the coffin to a different servant", adminOnly: true)]
@@ -132,14 +132,14 @@ internal class ServantCommands
 		var closest = FindClosestServantCoffin(aimPos);
 		if (closest == Entity.Null)
 		{
-			ctx.Reply("未指向任何僕人棺材。");
+			ctx.Reply("Not pointing at a servant coffin.");
 			return;
 		}
 
 		var servantName = character.Name + "_Servant";
 		if (!Core.Prefabs.SpawnableNameToGuid.TryGetValue(servantName.ToLower(), out var toPrefab))
 		{
-			ctx.Reply($"無法找到 {character.Name} 的僕人預設模型");
+			ctx.Reply($"Can't find a servant prefab for the type {character.Name}");
 			return;
 		}
 
@@ -156,7 +156,7 @@ internal class ServantCommands
 			closest.Write(coffin);
 		}
 		
-		ctx.Reply($"僕人已變更為 <color=white>{character.Name}</color>。");
+		ctx.Reply($"Servant has been changed to <color=white>{character.Name}</color>.");
 	}
 
 	[Command("heal", description: "Cures the servant of injuries", adminOnly: true)]
@@ -166,7 +166,7 @@ internal class ServantCommands
 		var closest = FindClosestServantCoffin(aimPos);
 		if (closest == Entity.Null)
 		{
-			ctx.Reply("未指向任何僕人棺材。");
+			ctx.Reply("Not pointing at a servant coffin.");
 			return;
 		}
 
@@ -178,7 +178,7 @@ internal class ServantCommands
 			closest.Write(coffin);
 		}
 
-		ctx.Reply($"僕人 <color=white>{coffin.ServantName}</color> 的傷勢已痊癒。");
+		ctx.Reply($"Servant <color=white>{coffin.ServantName}</color> has been healed or injuries.");
 	}
 
 	[Command("revive", "r", "Revives the servant in the coffin", adminOnly: true)]
@@ -188,7 +188,7 @@ internal class ServantCommands
 		var closest = FindClosestServantCoffin(aimPos);
 		if (closest == Entity.Null)
 		{
-			ctx.Reply("未指向任何僕人棺材。");
+			ctx.Reply("Not pointing at a servant coffin.");
 			return;
 		}
 
@@ -206,7 +206,7 @@ internal class ServantCommands
 			closest.Write(coffin);
 		}
 
-		ctx.Reply($"僕人 <color=white>{coffin.ServantName}</color> 已被復活。");
+		ctx.Reply($"Servant <color=white>{coffin.ServantName}</color> is now revived.");
 	}
 
 	[Command("completemission", "cm", "Completes the mission of the servant in the coffin", adminOnly: true)]
@@ -216,7 +216,7 @@ internal class ServantCommands
 		var closest = FindClosestServantCoffin(aimPos);
 		if (closest == Entity.Null)
 		{
-			ctx.Reply("未指向任何僕人棺材。");
+			ctx.Reply("Not pointing at a servant coffin.");
 			return;
 		}
 
@@ -237,7 +237,7 @@ internal class ServantCommands
 			}
 		}
 
-		ctx.Reply($"僕人 <color=white>{coffin.ServantName}</color> 的任務已完成。");
+		ctx.Reply($"Servant <color=white>{coffin.ServantName}</color>'s mission is now completed.");
 	}
 
 	[Command("add", "a", "Adds a servant to an empty coffin", adminOnly: true)]
@@ -247,14 +247,14 @@ internal class ServantCommands
 		var closest = FindClosestServantCoffin(aimPos);
 		if (closest == Entity.Null)
 		{
-			ctx.Reply("未指向任何僕人棺材。");
+			ctx.Reply("Not pointing at a servant coffin.");
 			return;
 		}
 
 		var servantName = character.Name + "_Servant";
 		if (!Core.Prefabs.SpawnableNameToGuid.TryGetValue(servantName.ToLower(), out var toPrefab))
 		{
-			ctx.Reply($"無法找到 {character.Name} 的僕人預設模型");
+			ctx.Reply($"Can't find a servant prefab for the type {character.Name}");
 			return;
 		}
 
@@ -269,7 +269,7 @@ internal class ServantCommands
 		}
 		else
 		{
-			ctx.Reply("棺材尚未清空。");
+			ctx.Reply("Coffin is not empty.");
 		}
 	}
 

@@ -20,8 +20,8 @@ internal static class BloodCommands
 
 			if(entity == Entity.Null)
 			{
-				ctx.Reply($"獲得 <color=#ff0>{i}</color> 瓶 <color=#ff0>{type}</color> 血型的血之梅洛，品質 <color=#ff0>{quality}</color>%");
-				ctx.Reply($"背包已滿，無法加入最後的 <color=#ff0>{quantity - i}</color> 瓶血之梅洛");
+				ctx.Reply($"Received <color=#ff0>{i}</color> Blood Merlot of <color=#ff0>{type}</color> type of <color=#ff0>{quality}</color>% quality");
+				ctx.Reply($"Inventory is full, could not add the last <color=#ff0>{quantity - i}</color> Blood Merlot");
 				return;
 			}
 
@@ -33,7 +33,7 @@ internal static class BloodCommands
 
 			Core.EntityManager.SetComponentData(entity, blood);
 		}
-		ctx.Reply($"獲得 <color=#ff0>{quantity}</color> 瓶 <color=#ff0>{type}</color> 血型的血之梅洛，品質 <color=#ff0>{quality}</color>%");
+		ctx.Reply($"Received <color=#ff0>{quantity}</color> Blood Merlot of <color=#ff0>{type}</color> type of <color=#ff0>{quality}</color>% quality");
 	}
 
 	[Command("bloodpotionmix", "bpm", description: "Creates a Potion with two specified Blood Types, Qualities, secondary trait option and amount", adminOnly: true)]
@@ -48,8 +48,9 @@ internal static class BloodCommands
 
 			if (entity == Entity.Null)
 			{
-				ctx.Reply($"獲得 <color=#ff0>{i}</color> 瓶主屬性為 <color=#ff0>{primaryType}</color>、品質 <color=#ff0>{primaryQuality}</color>% 的血之梅洛，附加副屬性 <color=#ff0>{secondaryType}</color>、品質 <color=#ff0>{secondaryQuality}</color>%，特性為 {secondaryTrait}");
-				ctx.Reply($"背包已滿，無法加入最後的 <color=#ff0>{quantity - i}</color> 瓶血之梅洛");
+				ctx.Reply($"Received <color=#ff0>{i}</color> Blood Merlot of <color=#ff0>{primaryType}</color> type of <color=#ff0>{primaryQuality}</color>% quality "+
+					      $"with secondary <color=#ff0>{secondaryType}</color> type of <color=#ff0>{secondaryQuality}</color>% quality and trait option {secondaryTrait}");
+				ctx.Reply($"Inventory is full, could not add the last <color=#ff0>{quantity - i}</color> Blood Merlot");
 				return;
 			}
 
@@ -68,6 +69,7 @@ internal static class BloodCommands
 			Core.EntityManager.SetComponentData(entity, blood);
 		}
 
-		ctx.Reply($"獲得 <color=#ff0>{quantity}</color> 瓶主屬性為 <color=#ff0>{primaryType}</color>、品質 <color=#ff0>{primaryQuality}</color>% 的血之梅洛，附加副屬性 <color=#ff0>{secondaryType}</color>、品質 <color=#ff0>{secondaryQuality}</color>%，特性為 {secondaryTrait}");
+		ctx.Reply($"Received <color=#ff0>{quantity}</color> Blood Merlot of <color=#ff0>{primaryType}</color> type of <color=#ff0>{primaryQuality}</color>% quality " +
+				  $"with secondary <color=#ff0>{secondaryType}</color> type of <color=#ff0>{secondaryQuality}</color>% quality and trait option {secondaryTrait}");
 	}
 }

@@ -28,7 +28,7 @@ public class SearchCommands
 
 			if (!searchResults.Any())
 			{
-				ctx.Reply("找不到符合條件的預設物件。");
+				ctx.Reply("Could not find any matching prefabs.");
 			}
 
 			searchResults = searchResults.OrderBy(kvp => kvp.Name).ToList();
@@ -77,7 +77,7 @@ public class SearchCommands
 
 			if (!searchResults.Any())
 			{
-				ctx.Reply("找不到符合條件的預設物件。");
+				ctx.Reply("Could not find any matching prefabs.");
 			}
 
 			searchResults = searchResults.OrderBy(kvp => kvp.Name).ToList();

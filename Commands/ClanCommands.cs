@@ -24,13 +24,13 @@ class ClanCommands
 		if (!user.ClanEntity.Equals(NetworkedEntity.Empty))
 		{
 			var clanTeam = user.ClanEntity.GetEntityOnServer().Read<ClanTeam>();
-			ctx.Reply($"玩家已隸屬於氏族「{clanTeam.Name}」");
+			ctx.Reply($"Player is in an existing clan of '{clanTeam.Name}'");
 			return;
 		}
 
 		if (!FindClan(clanName, out var clanEntity))
         {
-            ctx.Reply($"找不到名稱為「{clanName}」的氏族");
+            ctx.Reply($"No clan found matching name '{clanName}'");
             return;
         }
 
@@ -52,7 +52,7 @@ class ClanCommands
             }
         }
 
-        ctx.Reply($"{playerToAdd.Value.CharacterName} 已加入氏族 {clanEntity.Read<ClanTeam>().Name}");
+        ctx.Reply($"{playerToAdd.Value.CharacterName} added to clan {clanEntity.Read<ClanTeam>().Name}");
     }
 
 	[Command("kick", "k", description: "Removes a player from a clan", adminOnly: true)]
@@ -61,7 +61,7 @@ class ClanCommands
 		var clanEntity = playerToRemove.Value.UserEntity.Read<User>().ClanEntity.GetEntityOnServer();
 		if (clanEntity.Equals(Entity.Null))
 		{
-			ctx.Reply("玩家未加入任何氏族");
+			ctx.Reply("Player is not in a clan");
 			return;
 		}
 
@@ -88,7 +88,7 @@ class ClanCommands
 
 		if (!foundLeader)
 		{
-			ctx.Reply("氏族中未找到領袖");
+			ctx.Reply("No leader found in the clan");
 			return;
 		}
 
@@ -100,7 +100,7 @@ class ClanCommands
 				var member = members[i];
 				if (member.ClanRole == ClanRoleEnum.Leader)
 				{
-					ctx.Reply("無法移除氏族領袖。若要踢出，請先更改其職位。");
+					ctx.Reply("Cannot remove a leader of a clan. Change their role first if you wish to kick.");
 					return;
 				}
 
@@ -120,7 +120,7 @@ class ClanCommands
 
 				Core.Log.LogInfo($"Kicking {userBufferEntry.UserEntity.Read<User>().CharacterName}\n" +
 							$"FromCharacter {fromCharacter.Character} {fromCharacter.User} TargetUserIndex: {members[i].UserIndex}");
-				ctx.Reply($"{playerToRemove.Value.CharacterName} 已退出氏族 {clanEntity.Read<ClanTeam>().Name}");
+				ctx.Reply($"{playerToRemove.Value.CharacterName} removed from clan {clanEntity.Read<ClanTeam>().Name}");
 				return;
 			}
 		}
@@ -149,12 +149,12 @@ class ClanCommands
 					if (prefabGuid != Data.Prefabs.ClanTeam) continue;
 
 					found = true;
-					ctx.Reply($"{user.CharacterName} 同時屬於也不屬於氏族「{allyEntity.Read<ClanTeam>().Name}」");
+					ctx.Reply($"{user.CharacterName} is in and not in \"{allyEntity.Read<ClanTeam>().Name}\"");
 				}
 			}
 
 			if(!found)
-				ctx.Reply("未發現無效的氏族成員");
+				ctx.Reply("No invalid clan members found");
 		}
 
 		[Command("fix", "f", description: "Fixes person not in clan but shows in those clans", adminOnly: true)]
@@ -164,14 +164,14 @@ class ClanCommands
 			var user = userEntity.Read<User>();
 			if (!user.ClanEntity.Equals(NetworkedEntity.Empty))
 			{
-				ctx.Reply($"玩家已經加入一個氏族");
+				ctx.Reply($"Player is already in a clan");
 				return;
 			}
 
 			var teamReference = userEntity.Read<TeamReference>();
 			if (teamReference.Value.Equals(Entity.Null))
 			{
-				ctx.Reply($"玩家不屬於任何隊伍");
+				ctx.Reply($"Player is not in a team");
 				return;
 			}
 
@@ -185,7 +185,7 @@ class ClanCommands
 				var prefabGuid = allyEntity.Read<PrefabGUID>();
 				if (prefabGuid != Data.Prefabs.ClanTeam) continue;
 
-				ctx.Reply($"從氏族「{allyEntity.Read<ClanTeam>().Name}」中移除");
+				ctx.Reply($"Removing from clan \"{allyEntity.Read<ClanTeam>().Name}\"");
 				removing.Add(i);
 
 				var members = Core.EntityManager.GetBuffer<ClanMemberStatus>(allyEntity);
@@ -282,7 +282,7 @@ class ClanCommands
 			}
 
 			// Remove the player from the castle hearts
-			ctx.Reply($"已修復 {playerToFix.Value.CharacterName}");
+			ctx.Reply($"Fixed {playerToFix.Value.CharacterName}");
 		}*/
 
 
@@ -312,20 +312,22 @@ class ClanCommands
         var totalPages = groupedClans.Count;
         if (totalPages == 0)
         {
-            ctx.Reply("無氏族");
+            ctx.Reply("No Clans");
             return;
         }
 
         page = Mathf.Clamp(page, 1, totalPages);
 
-        ctx.Reply($"氏族列表（第 {page} 頁 / 共 {totalPages} 頁）
-" + String.Join("
-", groupedClans[page - 1]));")]
+        ctx.Reply($"Clans (Page {page}/{totalPages})\n" + String.Join("\n", groupedClans[page - 1]));
+    }
+
+
+    [Command("members", "m", description: "List members")]
     public static void ListClanMembers(ChatCommandContext ctx, string clanName)
     {
         if (!FindClan(clanName, out var clanEntity))
         {
-            ctx.Reply($"找不到名稱為「{clanName}」的氏族");
+            ctx.Reply($"No clan found matching name '{clanName}'");
             return;
         }
 
@@ -341,9 +343,17 @@ class ClanCommands
 			memberList.Add($"{user.CharacterName} - {member.ClanRole}");
         }
 
-        ctx.Reply($"氏族「{clanEntity.Read<ClanTeam>().Name}」成員列表：
-" + string.Join("
-", memberList)");
+        ctx.Reply($"Members in Clan '{clanEntity.Read<ClanTeam>().Name}'\n" + string.Join("\n", memberList));
+    }
+
+
+    [Command("changerole", "cr", description: "Change clan role of a player", adminOnly: true)]
+    public static void ChangeClanRole(ChatCommandContext ctx, OnlinePlayer player, ClanRoleEnum newRole)
+    {
+        var user = player.Value.UserEntity.Read<User>();
+        if (user.ClanEntity.Equals(NetworkedEntity.Empty))
+        {
+            ctx.Reply($"{player.Value.CharacterName} isn't in a clan");
             return;
         }
 
@@ -351,7 +361,7 @@ class ClanCommands
         var oldRole = clanRole.Value;
         clanRole.Value = newRole;
         player.Value.UserEntity.Write<ClanRole>(clanRole);
-		ctx.Reply($"已將 {player.Value.CharacterName} 的角色由 {oldRole} 變更為 {newRole}");
+		ctx.Reply($"Changed {player.Value.CharacterName} role from {oldRole} to {newRole}");
 	}
 
 	[Command("rename", "rn", description: "Rename a clan", adminOnly: true)]
@@ -361,14 +371,14 @@ class ClanCommands
 
 		if (matchingClans.Count == 0)
 		{
-			ctx.Reply($"找不到名稱為「{oldClanName}」的氏族");
+			ctx.Reply($"No clan found matching name '{oldClanName}'");
 			return;
 		}
 
 		if (matchingClans.Count == 1)
 		{
 			RenameClanEntity(matchingClans[0], newClanName);
-			ctx.Reply($"氏族「{oldClanName}」已更名為「{newClanName}」");
+			ctx.Reply($"Clan '{oldClanName}' renamed to '{newClanName}'");
 			return;
 		}
 
@@ -408,14 +418,14 @@ class ClanCommands
 			{
 				var oldName = targetClan.Read<ClanTeam>().Name;
 				RenameClanEntity(targetClan, newClanName);
-				ctx.Reply($"由領袖「{leaderName}」帶領的氏族「{oldName}」已更名為「{newClanName}」");
+				ctx.Reply($"Clan '{oldName}' with leader '{leaderName}' renamed to '{newClanName}'");
 				return;
 			}
 
-			ctx.Reply($"找不到名稱為「{oldClanName}」且領袖為「{leaderName}」的氏族");
+			ctx.Reply($"No clan found with name '{oldClanName}' and leader '{leaderName}'");
 		}
 
-		ctx.Reply($"找到 {matchingClans.Count} 個符合「{oldClanName}」的氏族，請附上領袖名稱以指定目標：");
+		ctx.Reply($"Found {matchingClans.Count} clans matching '{oldClanName}'. Please specify which one by including the leader's name:");
 
 		for (int i = 0; i < matchingClans.Count; i++)
 		{
@@ -424,7 +434,7 @@ class ClanCommands
 			var userBuffer = Core.EntityManager.GetBuffer<SyncToUserBuffer>(clan);
 
 			// Find the leader
-			string leaderNameFound = "未知";
+			string leaderNameFound = "Unknown";
 			for (var j = 0; j < members.Length; ++j)
 			{
 				if (members[j].ClanRole == ClanRoleEnum.Leader)
@@ -436,10 +446,10 @@ class ClanCommands
 				}
 			}
 
-			ctx.Reply($"{i + 1}. 「{oldClanName}」- 領袖：{leaderNameFound}");
+			ctx.Reply($"{i + 1}. '{oldClanName}' - Leader: {leaderNameFound}");
 		}
 
-		ctx.Reply($"用法：.clan rename \"{oldClanName}\" \"{newClanName}\" \"LeaderName\"");
+		ctx.Reply($"Usage: .clan rename \"{oldClanName}\" \"{newClanName}\" \"LeaderName\"");
 	}
 
 	private static void RenameClanEntity(Entity clanEntity, string newClanName)
@@ -467,7 +477,7 @@ class ClanCommands
     {
         if (!FindClan(clanName, out var clanEntity))
         {
-            ctx.Reply($"找不到名稱為「{clanName}」的氏族");
+            ctx.Reply($"No clan found matching name '{clanName}'");
             return;
         }
 

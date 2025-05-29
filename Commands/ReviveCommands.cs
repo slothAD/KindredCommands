@@ -17,7 +17,7 @@ internal class ReviveCommands
 
 		Helper.ReviveCharacter(character, user);
 
-		ctx.Reply($"已復活 {user.Read<User>().CharacterName}");
+		ctx.Reply($"Revived {user.Read<User>().CharacterName}");
 	}
 	
 	[Command("revivetarget", adminOnly: true)]
@@ -35,21 +35,21 @@ internal class ReviveCommands
 				if (entityInput.HoveredEntity.Read<Health>().Value <= 0)
 				{
 					Helper.ReviveCharacter(entityInput.HoveredEntity, userEntity);
-					ctx.Reply($"已復活 {name}");
+					ctx.Reply($"Revived {name}");
 				}
 				else
 				{
-					ctx.Reply($"{name} 尚未死亡");
+					ctx.Reply($"{name} is not dead");
 				}
 			}
 			else
 			{
-				ctx.Reply("目標不是玩家");
+				ctx.Reply("Target is not a player");
 			}
 		}
 		else
 		{
-			ctx.Reply("尚未選擇目標");
+			ctx.Reply("No target selected");
 		}
 	}
 

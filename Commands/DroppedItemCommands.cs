@@ -15,14 +15,14 @@ internal class DroppedItemCommands
 			throw ctx.Error("Lifetime must be a positive number.");
 		}
 		Core.DropItem.SetDroppedItemLifetime(seconds);
-		ctx.Reply($"掉落物存續時間設為 {seconds} 秒。");
+		ctx.Reply($"Dropped item lifetime set to {seconds} seconds.");
 	}
 
 	[Command("removelifetime", "rlt", description:"Removes the lifetime of dropped items.", adminOnly: true)]
 	public static void RemoveDroppedItemLifetime(ChatCommandContext ctx)
 	{
 		Core.DropItem.RemoveDroppedItemLifetime();
-		ctx.Reply("掉落物的存續時間已取消。");
+		ctx.Reply("Dropped item lifetime removed.");
 	}
 
 	[Command("lifetimewhendisabled", "ltwd", description:"Sets the lifetime of dropped items when disabled in seconds.", adminOnly: true)]
@@ -33,7 +33,7 @@ internal class DroppedItemCommands
 			throw ctx.Error("Lifetime must be a positive number.");
 		}
 		Core.DropItem.SetDroppedItemLifetimeWhenDisabled(seconds);
-		ctx.Reply($"掉落物禁用狀態下的存續時間設為 {seconds} 秒。");
+		ctx.Reply($"Dropped item lifetime when disabled set to {seconds} seconds.");
 	}
 
 	[Command("shardlifetime", "slt", description: "Sets the lifetime of dropped shards when disabled in seconds.", adminOnly: true)]
@@ -44,7 +44,7 @@ internal class DroppedItemCommands
 			throw ctx.Error("Lifetime must be a positive number.");
 		}
 		Core.DropItem.SetDroppedShardLifetime(seconds);
-		ctx.Reply($"靈魂碎片存續時間設為 {seconds} 秒。");
+		ctx.Reply($"Dropped shard lifetime set to {seconds} seconds.");
 	}
 
 	//remove dropped items around the player in a radius
@@ -53,14 +53,14 @@ internal class DroppedItemCommands
 	{
 		var pos = ctx.Event.SenderCharacterEntity.Read<Translation>().Value;
 		var cleared = Core.DropItem.ClearDropItemsInRadius(pos, radius);
-		ctx.Reply($"已清除半徑 {radius} 內的 {cleared} 個掉落物。");
+		ctx.Reply($"Cleared {cleared}x dropped items within a radius of {radius}.");
 	}
 
 	[Command("clearall", "ca", description: "Clears all dropped items in the world.", adminOnly: true)]
 	public static void ClearAllDroppedItems(ChatCommandContext ctx)
 	{
 		var cleared = Core.DropItem.ClearDropItems();
-		ctx.Reply($"已清除世界中所有 {cleared} 個掉落物。");
+		ctx.Reply($"Cleared all {cleared} dropped items in the world.");
 	}
 
 	[Command("clearshards", "cs", description: "Clears all dropped shards within a radius of the player.", adminOnly: true)]
@@ -68,13 +68,13 @@ internal class DroppedItemCommands
 	{
 		var pos = ctx.Event.SenderCharacterEntity.Read<Translation>().Value;
 		var cleared = Core.DropItem.ClearDropShardsInRadius(pos, radius);
-		ctx.Reply($"已清除半徑 {radius} 內的 {cleared} 個靈魂碎片。");
+		ctx.Reply($"Cleared {cleared} dropped shards within a radius of {radius}.");
 	}
 
 	[Command("clearallshards", "cas", description: "Clears all dropped shards in the world.", adminOnly: true)]
 	public static void ClearAllDroppedShards(ChatCommandContext ctx)
 	{
 		var cleared = Core.DropItem.ClearDropShards();
-		ctx.Reply($"已清除世界中所有 {cleared} 個掉落的靈魂碎片。");
+		ctx.Reply($"Cleared all {cleared} dropped shards in the world.");
 	}
 }

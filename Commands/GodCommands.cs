@@ -36,7 +36,7 @@ internal class GodCommands
 		Core.BoostedPlayerService.UpdateBoostedPlayer(charEntity);
 
 		var name = player?.Value.UserEntity.Read<User>().CharacterName ?? ctx.Event.User.CharacterName;
-		ctx.Reply($"<color=white>{name}</color> 已啟用無敵模式");
+		ctx.Reply($"God mode added to <color=white>{name}</color>");
 	}
 
 	[Command("mortal", adminOnly: true)]
@@ -49,7 +49,7 @@ internal class GodCommands
 		Core.BoostedPlayerService.RemoveBoostedPlayer(charEntity);
 
 		var name = player?.Value.UserEntity.Read<User>().CharacterName ?? ctx.Event.User.CharacterName;
-		ctx.Reply($"<color=white>{name}</color> 的無敵模式與所有增益效果已移除");
+		ctx.Reply($"God mode and boosts removed from <color=white>{name}</color>");
 	}
 
 	static Dictionary<string, Vector3> positionBeforeSpectate = [];
@@ -72,14 +72,14 @@ internal class GodCommands
 			}
 			positionBeforeSpectate.Remove(name.ToString());
 			Buffs.RemoveBuff(charEntity, Prefabs.Admin_Observe_Invisible_Buff);
-			ctx.Reply($"<color=white>{name}</color> 已移除 <color=yellow>觀戰模式</color>");
+			ctx.Reply($"<color=yellow>Spectate</color> removed from <color=white>{name}</color>");
 		}
 		else
 		{
 
 			Buffs.AddBuff(userEntity, charEntity, Prefabs.Admin_Observe_Invisible_Buff, -1);
 			positionBeforeSpectate.Add(name.ToString(), charEntity.Read<Translation>().Value);
-			ctx.Reply($"<color=white>{name}</color> 已加入 <color=yellow>觀戰模式</color>");
+			ctx.Reply($"<color=yellow>Spectate</color> added to <color=white>{name}</color>");
 		}
 	}
 
@@ -150,7 +150,7 @@ internal class GodCommands
 			}
 			else
 			{
-				ctx.Reply($"<color=white>{name}</color> 未獲得任何增益效果");
+				ctx.Reply($"<color=white>{name}</color> is not boosted");
 			}
 		}
 
@@ -162,7 +162,7 @@ internal class GodCommands
 
 			Core.BoostedPlayerService.SetAttackSpeedMultiplier(charEntity, speed);
 			Core.BoostedPlayerService.UpdateBoostedPlayer(charEntity);
-			ctx.Reply($"已將 <color=white>{name}</color> 的攻擊速度加成設為 {speed}");
+			ctx.Reply($"Attack speed boost on <color=white>{name}</color> set to {speed}");
 		}
 
 		[Command("removeattackspeed", "ras", adminOnly: true)]
@@ -173,11 +173,11 @@ internal class GodCommands
 
 			if(!Core.BoostedPlayerService.RemoveAttackSpeedMultiplier(charEntity))
 			{
-				ctx.Reply($"<color=white>{name}</color> 未獲得攻擊速度加成");
+				ctx.Reply($"<color=white>{name}</color> does not have attack speed boost");
 				return;
 			}
 			Core.BoostedPlayerService.UpdateBoostedPlayer(charEntity);
-			ctx.Reply($"已移除 <color=white>{name}</color> 的攻擊速度加成");
+			ctx.Reply($"Attack speed boost removed from <color=white>{name}</color>");
 		}
 
 		[Command("damage", "d", adminOnly: true)]
@@ -188,7 +188,7 @@ internal class GodCommands
 
 			Core.BoostedPlayerService.SetDamageBoost(charEntity, damage);
 			Core.BoostedPlayerService.UpdateBoostedPlayer(charEntity);
-			ctx.Reply($"已將 <color=white>{name}</color> 的傷害加成設為 {damage}");
+			ctx.Reply($"Damage boost on <color=white>{name}</color> set to {damage}");
 		}
 
 		[Command("removedamage", "rd", adminOnly: true)]
@@ -199,11 +199,11 @@ internal class GodCommands
 
 			if (!Core.BoostedPlayerService.RemoveDamageBoost(charEntity))
 			{
-				ctx.Reply($"<color=white>{name}</color> 未獲得傷害加成");
+				ctx.Reply($"<color=white>{name}</color> does not have damage boost");
 				return;
 			}
 			Core.BoostedPlayerService.UpdateBoostedPlayer(charEntity);
-			ctx.Reply($"已移除 <color=white>{name}</color> 的傷害加成");
+			ctx.Reply($"Damage boost removed from <color=white>{name}</color>");
 		}
 
 		[Command("health", "h", adminOnly: true)]
@@ -214,7 +214,7 @@ internal class GodCommands
 
 			Core.BoostedPlayerService.SetHealthBoost(charEntity, health);
 			Core.BoostedPlayerService.UpdateBoostedPlayer(charEntity);
-			ctx.Reply($"<color=white>{name}</color> 的生命加成設為 {health}");
+			ctx.Reply($"Health boost on <color=white>{name}</color> set to {health}");
 		}
 
 		[Command("removehealth", "rh", adminOnly: true)]
@@ -225,11 +225,11 @@ internal class GodCommands
 
 			if (!Core.BoostedPlayerService.RemoveHealthBoost(charEntity))
 			{
-				ctx.Reply($"<color=white>{name}</color> 未獲得生命加成");
+				ctx.Reply($"<color=white>{name}</color> does not have health boost");
 				return;
 			}
 			Core.BoostedPlayerService.UpdateBoostedPlayer(charEntity);
-			ctx.Reply($"<color=white>{name}</color> 的生命加成已移除");
+			ctx.Reply($"Health boost removed from <color=white>{name}</color>");
 		}
 
 		[Command("speed", "s", adminOnly: true)]
@@ -240,7 +240,7 @@ internal class GodCommands
 
 			Core.BoostedPlayerService.SetSpeedBoost(charEntity, speed);
 			Core.BoostedPlayerService.UpdateBoostedPlayer(charEntity);
-			ctx.Reply($"已設定 <color=white>{name}</color> 的移動速度為 {speed}");
+			ctx.Reply($"Speed on <color=white>{name}</color> set to {speed}");
 		}
 
 		[Command("removespeed", "rs", adminOnly: true)]
@@ -251,11 +251,11 @@ internal class GodCommands
 
 			if (!Core.BoostedPlayerService.RemoveSpeedBoost(charEntity))
 			{
-				ctx.Reply($"<color=white>{name}</color> 未獲得移動速度加成");
+				ctx.Reply($"<color=white>{name}</color> does not have speed boost");
 				return;
 			}
 			Core.BoostedPlayerService.UpdateBoostedPlayer(charEntity);
-			ctx.Reply($"已移除 <color=white>{name}</color> 的移動速度加成");
+			ctx.Reply($"Speed boost removed from <color=white>{name}</color>");
 		}
 
 		[Command("yield", "y", adminOnly: true)]
@@ -266,7 +266,7 @@ internal class GodCommands
 
 			Core.BoostedPlayerService.SetYieldMultiplier(charEntity, yield);
 			Core.BoostedPlayerService.UpdateBoostedPlayer(charEntity);
-			ctx.Reply($"<color=white>{name}</color> 的資源產量加成設為 {yield}");
+			ctx.Reply($"Yield on <color=white>{name}</color> set to {yield}");
 		}
 
 		[Command("removeyield", "ry", adminOnly: true)]
@@ -277,11 +277,11 @@ internal class GodCommands
 
 			if (!Core.BoostedPlayerService.RemoveYieldMultiplier(charEntity))
 			{
-				ctx.Reply($"<color=white>{name}</color> 未獲得資源產量加成");
+				ctx.Reply($"<color=white>{name}</color> does not have yield boost");
 				return;
 			}
 			Core.BoostedPlayerService.UpdateBoostedPlayer(charEntity);
-			ctx.Reply($"已移除 <color=white>{name}</color> 的資源產量加成");
+			ctx.Reply($"Yield boost removed from <color=white>{name}</color>");
 		}
 
 		[Command("batvision", "bv", adminOnly: true)]
@@ -291,11 +291,11 @@ internal class GodCommands
 			var charEntity = player?.Value.CharEntity ?? ctx.Event.SenderCharacterEntity;
 			if (Core.BoostedPlayerService.ToggleBatVision(charEntity))
 			{
-				ctx.Reply($"<color=white>{name}</color> 獲得了蝙蝠視覺");
+				ctx.Reply($"Bat vision added to <color=white>{name}</color>");
 			}
 			else
 			{
-				ctx.Reply($"<color=white>{name}</color> 失去了蝙蝠視覺");
+				ctx.Reply($"Bat vision removed from <color=white>{name}</color>");
 			}
 			Core.BoostedPlayerService.UpdateBoostedPlayer(charEntity);
 		}
@@ -308,11 +308,11 @@ internal class GodCommands
 
 			if(Core.BoostedPlayerService.ToggleFlying(charEntity))
 			{
-				ctx.Reply($"<color=white>{name}</color> 獲得飛行能力");
+				ctx.Reply($"Flying added to <color=white>{name}</color>");
 			}
 			else
 			{
-				ctx.Reply($"<color=white>{name}</color> 的飛行能力已移除");
+				ctx.Reply($"Flying removed from <color=white>{name}</color>");
 			}
 
 			Core.BoostedPlayerService.UpdateBoostedPlayer(charEntity);
@@ -326,11 +326,11 @@ internal class GodCommands
 
 			if (Core.BoostedPlayerService.ToggleNoAggro(charEntity))
 			{
-				ctx.Reply($"<color=white>{name}</color> 沒有新增仇恨");
+				ctx.Reply($"No aggro added to <color=white>{name}</color>");
 			}
 			else
 			{
-				ctx.Reply($"<color=white>{name}</color> 沒有移除仇恨");
+				ctx.Reply($"No aggro removed from <color=white>{name}</color>");
 			}
 			Core.BoostedPlayerService.UpdateBoostedPlayer(charEntity);
 		}
@@ -343,11 +343,11 @@ internal class GodCommands
 
 			if (Core.BoostedPlayerService.ToggleNoBlooddrain(charEntity))
 			{
-				ctx.Reply($"<color=white>{name}</color> 未獲得吸血效果");
+				ctx.Reply($"No blooddrain added to <color=white>{name}</color>");
 			}
 			else
 			{
-				ctx.Reply($"<color=white>{name}</color> 未移除吸血效果");
+				ctx.Reply($"No blooddrain removed from <color=white>{name}</color>");
 			}
 			Core.BoostedPlayerService.UpdateBoostedPlayer(charEntity);
 		}
@@ -360,11 +360,11 @@ internal class GodCommands
 
 			if (Core.BoostedPlayerService.ToggleNoCooldown(charEntity))
 			{
-				ctx.Reply($"<color=white>{name}</color> 未新增冷卻時間");
+				ctx.Reply($"No cooldown added to <color=white>{name}</color>");
 			}
 			else
 			{
-				ctx.Reply($"<color=white>{name}</color> 未移除冷卻時間");
+				ctx.Reply($"No cooldown removed from <color=white>{name}</color>");
 			}
 			Core.BoostedPlayerService.UpdateBoostedPlayer(charEntity);
 		}
@@ -377,11 +377,11 @@ internal class GodCommands
 
 			if (Core.BoostedPlayerService.ToggleNoDurability(charEntity))
 			{
-				ctx.Reply($"<color=white>{name}</color> 未新增耐久耗損");
+				ctx.Reply($"No durability loss added to <color=white>{name}</color>");
 			}
 			else
 			{
-				ctx.Reply($"<color=white>{name}</color> 未移除耐久耗損");
+				ctx.Reply($"No durability loss removed from <color=white>{name}</color>");
 			}
 			Core.BoostedPlayerService.UpdateBoostedPlayer(charEntity);
 		}
@@ -394,11 +394,11 @@ internal class GodCommands
 
 			if(Core.BoostedPlayerService.TogglePlayerImmaterial(charEntity))
 			{
-				ctx.Reply($"<color=white>{name}</color> 獲得靈體狀態");
+				ctx.Reply($"Immaterial added to <color=white>{name}</color>");
 			}
 			else
 			{
-				ctx.Reply($"<color=white>{name}</color> 的靈體狀態已移除");
+				ctx.Reply($"Immaterial removed from <color=white>{name}</color>");
 			}
 			Core.BoostedPlayerService.UpdateBoostedPlayer(charEntity);
 		}
@@ -411,11 +411,11 @@ internal class GodCommands
 
 			if (Core.BoostedPlayerService.TogglePlayerInvincible(charEntity))
 			{
-				ctx.Reply($"<color=white>{name}</color> 獲得無敵狀態");
+				ctx.Reply($"Invincibility added to <color=white>{name}</color>");
 			}
 			else
 			{
-				ctx.Reply($"<color=white>{name}</color> 的無敵狀態已移除");
+				ctx.Reply($"Invincibility removed from <color=white>{name}</color>");
 			}
 			Core.BoostedPlayerService.UpdateBoostedPlayer(charEntity);
 		}
@@ -428,11 +428,11 @@ internal class GodCommands
 
 			if (Core.BoostedPlayerService.TogglePlayerShrouded(charEntity))
 			{
-				ctx.Reply($"<color=white>{name}</color> 進入隱蔽狀態");
+				ctx.Reply($"Shrouded added to <color=white>{name}</color>");
 			}
 			else
 			{
-				ctx.Reply($"<color=white>{name}</color> 退出隱蔽狀態");
+				ctx.Reply($"Shrouded removed from <color=white>{name}</color>");
 			}
 			Core.BoostedPlayerService.UpdateBoostedPlayer(charEntity);
 		}
@@ -444,16 +444,16 @@ internal class GodCommands
 			var charEntity = player?.Value.CharEntity ?? ctx.Event.SenderCharacterEntity;
 			if (Core.BoostedPlayerService.ToggleSunInvulnerable(charEntity))
 			{
-				ctx.Reply($"<color=white>{name}</color> 獲得太陽免疫");
+				ctx.Reply($"Sun invulnerability added to <color=white>{name}</color>");
 			}
 			else if (Core.BoostedPlayerService.IsPlayerInvincible(charEntity))
 			{
-				ctx.Reply($"<color=white>{name}</color> 的太陽免疫已移除，但仍因無敵效果保有該能力");
+				ctx.Reply($"Sun invulnerability removed from <color=white>{name}</color> but they are still receiving it from invincibility");
 				return;
 			}
 			else
 			{
-				ctx.Reply($"<color=white>{name}</color> 失去太陽免疫");
+				ctx.Reply($"Sun invulnerability removed from <color=white>{name}</color>");
 			}
 			Core.BoostedPlayerService.UpdateBoostedPlayer(charEntity);
 		}
@@ -464,7 +464,7 @@ internal class GodCommands
 			var boostedPlayers = Core.BoostedPlayerService.GetBoostedPlayers();
 			if (boostedPlayers == null)
 			{
-				ctx.Reply("目前無任何玩家處於增益狀態");
+				ctx.Reply("No players are currently boosted");
 				return;
 			}
 

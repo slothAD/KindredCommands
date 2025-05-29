@@ -38,16 +38,16 @@ internal class StaffCommands
 		}
 		if (builder.Length == 0)
 		{
-			ctx.Reply("目前沒有任何工作人員在線上。");
+			ctx.Reply("There are no staff members online.");
 			return;
 		}
-		ctx.Reply($"線上工作人員：{builder}");
+		ctx.Reply($"Online Staff: {builder}");
 	}
 	[Command("reloadstaff", description: "Reloads the staff config.", adminOnly: true)]
 	public static void ReloadStaff(ChatCommandContext ctx)
 	{
 		Database.InitConfig();
-		ctx.Reply("工作人員設定已重新載入！");
+		ctx.Reply("Staff config reloaded!");
 	}
 
 	[Command("setstaff", description: "Sets someones staff rank.", adminOnly: true)]
@@ -57,7 +57,7 @@ internal class StaffCommands
 		var rankname = "[" + rank + "]";
 
 		Database.SetStaff(userEntity, rankname);
-		ctx.Reply("已設置工作人員！");
+		ctx.Reply("Staff member set!");
 	}
 
 	[Command("removestaff", description: "Removes someones staff rank.", adminOnly: true)]
@@ -66,9 +66,9 @@ internal class StaffCommands
 		var userEntity = player.Value.UserEntity;
 
 		if (Database.RemoveStaff(userEntity))
-			ctx.Reply("已移除該工作人員！");
+			ctx.Reply("Staff member removed!");
 		else
-			ctx.Reply("找不到該工作人員！");
+			ctx.Reply("Staff member not found!");
 	}
 
 	public static AdminAuthSystem adminAuthSystem = Core.Server.GetExistingSystemManaged<AdminAuthSystem>();
@@ -77,7 +77,7 @@ internal class StaffCommands
 	{
 		adminAuthSystem._LocalAdminList.Save();
 		adminAuthSystem._LocalAdminList.Refresh();
-		ctx.Reply("管理員清單已重新載入！");
+		ctx.Reply("Admin list reloaded!");
 	}
 
 	[Command("toggleadmin", description: "Adds/Removes a player to the admin list, authing and deauthing.", adminOnly: true)]
@@ -89,7 +89,7 @@ internal class StaffCommands
 
 		if (adminAuthSystem._LocalAdminList.Contains(platformId))
 		{
-			ctx.Reply($"已撤銷 {player.Value.CharacterName} 的管理員權限");
+			ctx.Reply($"Admin deauthed for {player.Value.CharacterName}");
 			adminAuthSystem._LocalAdminList.Remove(platformId);
 
 			if (userEntity.Has<AdminUser>())
@@ -119,7 +119,7 @@ internal class StaffCommands
 		}
 		else
 		{
-			ctx.Reply($"已授權管理員權限給 {player.Value.CharacterName}");
+			ctx.Reply($"Admin authed for {player.Value.CharacterName}");
 			adminAuthSystem._LocalAdminList.Add(platformId);
 
 			AdminService.AdminUser(userEntity);
@@ -137,13 +137,13 @@ internal class StaffCommands
 		if (Database.GetAutoAdmin().Contains(ctx.Event.SenderUserEntity.Read<User>().PlatformId.ToString()))
 		{
 			Database.RemoveAutoAdmin(ctx.Event.SenderUserEntity);
-			ctx.Reply("你登入後將不再自動獲得管理員授權。");
+			ctx.Reply("You will no longer be automatically AdminAuth'd on login.");
 			return;
 		}
 		else
 		{
 			Database.SetAutoAdmin(ctx.Event.SenderUserEntity);
-			ctx.Reply("你登入後將自動獲得管理員授權。");
+			ctx.Reply("You will be automatically AdminAuth'd on login.");
 		}
 	}
 }
